@@ -3,18 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 5000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@mantine/core": "^6.0.10",
+    "@mantine/notifications": "^6.0.10",
+    "@remix-project/remix-solidity": "^0.5.12",
     "@types/node": "20.1.4",
     "@types/react": "18.2.6",
     "@types/react-dom": "18.2.4",
     "autoprefixer": "10.4.14",
     "eslint": "^7.32.0",
     "eslint-config-next": "^13.4.1",
+    "module": "^1.2.5",
     "next": "13.4.2",
     "postcss": "8.4.23",
     "react": "18.2.0",
