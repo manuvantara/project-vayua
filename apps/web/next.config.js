@@ -4,12 +4,16 @@ module.exports = {
   async rewrites() {
     return [
       {
+        source: '/:path*',
+        destination: `/:path*`,
+      },
+      {
         source: "/docs",
-        destination: "http://localhost:4000/docs"
+        destination: `${process.env.DOCS_URL}/docs`
       },
       {
         source: "/docs/:path*",
-        destination: "http://localhost:4000/docs/:path*"
+        destination: `${process.env.DOCS_URL}/docs/:path*`
       },
     ]
   }
