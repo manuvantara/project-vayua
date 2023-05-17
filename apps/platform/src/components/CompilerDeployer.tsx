@@ -12,6 +12,8 @@ import { ContractFactory } from "ethers";
 import { TransactionReceipt } from "viem";
 import { useWalletClient } from "wagmi";
 import { getSigner, getProvider } from "@/config/ethers-connect";
+import { handleNpmImport } from "@/utils/import-handler";
+
 const CONTRACT_NAME_REGEX = /contract\s(\S+)\s/;
 (function initSupportedSolcVersion() {
   (pathToURL as any)["soljson-v0.8.11+commit.d7f03943.js"] = baseURLBin;
@@ -23,7 +25,7 @@ interface CompilerDeployerProps {
 
 function CompilerDeployer({ walletConnected }: CompilerDeployerProps) {
   // Compiler
-  const [source, setSource] = useState(TEST_CONTRACTS[0].content);
+  const [source, setSource] = useState(TEST_CONTRACTS[1].content);
   const [compiling, setCompiling] = useState(false);
   const [contractName, setContractName] = useState("");
   const [compileResult, setCompileResult] = useState<CompilerAbstract>();
@@ -48,7 +50,7 @@ function CompilerDeployer({ walletConnected }: CompilerDeployerProps) {
         {
           version: SOLIDITY_COMPILER_VERSION,
         },
-        {}
+        handleNpmImport
       )) as CompilerAbstract;
 
       if (response.data.errors) {
