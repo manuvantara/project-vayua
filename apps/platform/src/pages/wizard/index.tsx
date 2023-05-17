@@ -1,10 +1,4 @@
-import dynamic from "next/dynamic";
-const WagmiWalletConnect = dynamic(
-  () => import("@/components/WagmiWalletConnect"),
-  {
-    ssr: false,
-  }
-);
+import CompilerDeployer from "@/components/CompilerDeployer";
 
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
@@ -13,6 +7,13 @@ import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { thetaTestnet, thetaMainnet } from "@/config/theta-chains";
 import { publicProvider } from "wagmi/providers/public";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
+import dynamic from "next/dynamic";
+const WagmiWalletConnect = dynamic(
+  () => import("@/components/WagmiWalletConnect"),
+  {
+    ssr: false,
+  }
+);
 
 import EthersConnect from "@/components/EthersWalletConnect";
 import { useState } from "react";
@@ -38,6 +39,7 @@ const Wizard = () => {
         <WagmiConfig config={config}>
           <MantineProvider withGlobalStyles withNormalizeCSS>
             <Notifications />
+            <CompilerDeployer walletConnected={walletConnected} />
             <EthersConnect
               walletConnected={walletConnected}
               setWalletConnected={setWalletConnected}
