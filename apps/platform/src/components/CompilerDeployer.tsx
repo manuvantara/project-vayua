@@ -25,7 +25,7 @@ interface CompilerDeployerProps {
 
 function CompilerDeployer({ walletConnected }: CompilerDeployerProps) {
   // Compiler
-  const [source, setSource] = useState(TEST_CONTRACTS[1].content);
+  const [source, setSource] = useState(TEST_CONTRACTS[0].content);
   const [compiling, setCompiling] = useState(false);
   const [contractName, setContractName] = useState("");
   const [compileResult, setCompileResult] = useState<CompilerAbstract>();
@@ -115,17 +115,18 @@ function CompilerDeployer({ walletConnected }: CompilerDeployerProps) {
           deployedContract = await contractFactory.deploy();
         }
 
-        // if (deployedContract) {
-        //   //const txReceipt = await deployedContract.deployTransaction.wait(1);
-        //   //const txReceipt = await deployedContract.deploymentTransaction;
-        //   showNotification({
-        //     color: "teal",
-        //     title: "Contract deployed successfully",
-        //     message: "Check console.log for transaction receipt",
-        //     autoClose: 5000,
-        //   });
-        //   console.log("transactionReceipt: ", txReceipt);
-        // }
+        await deployedContract.waitForDeployment();
+
+        const deployedContractAddress = await deployedContract.getAddress();
+        const tx = await deployedContract.deploymentTransaction()?.hash;
+
+        showNotification({
+          color: "teal",
+          title: "Contract deployed successfully",
+          message: `Transaction: ${tx} \n Contract address: ${deployedContractAddress}`,
+          autoClose: 5000,
+        });
+        //await handlePublishing(txReceipt, compileResult);
       } catch (error: any) {
         showNotification({
           title: "Error",
