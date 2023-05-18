@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { FiCopy } from "react-icons/fi";
 import { showNotification } from "@mantine/notifications";
 import {
   Button,
@@ -9,6 +9,7 @@ import {
   Box,
   Overlay,
   Loader,
+  CopyButton,
 } from "@mantine/core";
 
 import {
@@ -33,6 +34,7 @@ const DEPLOYMENT_STAGES = [
   "Deploying token contract",
   "Compiling governance contract",
   "Deploying governance contract",
+  "Deployment finished",
 ];
 const CONTRACT_NAME_REGEX = /contract\s(\S+)\s/;
 const NOTIFICATIONS = {
@@ -100,10 +102,10 @@ function CompilerDeployer() {
   );
   const [tokenContractAddress, setTokenContractAddress] = useState<
     `0x${string}` | null | undefined
-  >("0x00");
+  >(null);
   const [governanceContractAddress, setGovernanceContractAddress] = useState<
     `0x${string}` | null | undefined
-  >("0x00");
+  >(null);
   const [tokenContractName, setTokenContractName] = useState("Dopomoha");
   const [governanceContractName, setGovernanceContractName] =
     useState("DopomohaGovernor");
@@ -122,24 +124,6 @@ function CompilerDeployer() {
       contractName: governanceContractName,
     },
   };
-
-  useEffect(() => {
-    if (tokenContractSource) {
-      const matches = CONTRACT_NAME_REGEX.exec(tokenContractSource);
-      if (matches && matches[1]) {
-        setTokenContractName(matches[1]);
-      }
-    }
-  }, [tokenContractSource]);
-
-  useEffect(() => {
-    if (governanceContractSource) {
-      const matches = CONTRACT_NAME_REGEX.exec(governanceContractSource);
-      if (matches && matches[1]) {
-        setGovernanceContractName(matches[1]);
-      }
-    }
-  }, [governanceContractSource]);
 
   const processNextStage = () => {
     if (deploymentQueue.length > 0) {
@@ -174,10 +158,9 @@ function CompilerDeployer() {
       showNotification(NOTIFICATIONS.ERROR_UNEXPECTED);
       return;
     } finally {
-      setDeployment(false);
-
       setDeploymentQueue([...DEPLOYMENT_STAGES]);
       setCurrentStage(DEPLOYMENT_STAGES[0]);
+      setDeployment(false);
     }
   };
 
@@ -281,43 +264,107 @@ function CompilerDeployer() {
           </Overlay>
         )}
         <div className="bg-gray-100 py-20 px-8">
-          <div className="grid justify-center justify-items-center">
-            <Title order={2} size="h3" className="mb-2">
-              Now it is high time to deploy constructed contracts
-            </Title>
-            <Text
-              size="md"
-              component="p"
-              className="text-gray-500 max-w-2xl "
-              ta="center"
-            >
-              Let's begin by compiling the token contract. Once that is done, we
-              can proceed to deploy the compiled token contract. Following that,
-              we'll compile the governance contract. Finally, we'll deploy the
-              compiled governance contract.
-            </Text>
-            <div className="flex gap-5 mt-7 items-center">
-              <Alert
-                title="Check!"
-                color="orange"
-                className="justify-self-start	"
-              >
-                <p>Make sure you are singed in!</p> You will be asked to confirm
-                2 transactions.<p></p>
-              </Alert>
-              <Button
-                className=""
-                color="grape"
-                onClick={handleDeployment}
-                disabled={!isConnected}
-              >
-                Deploy contracts
-              </Button>
-              {tokenContractAddress}
-              <br />
-              {governanceContractAddress}
+          {tokenContractAddress && governanceContractAddress ? (
+            <div className="flex flex-col items-center	">
+              <div className="max-w-lg">
+                <Title order={2} size="h3" className="mb-2" ta="center">
+                  Congratulations! <br /> Your contracts have been deployed.
+                </Title>
+                <div className="mt-7 bg-white shadow-sm shadow-gray-300 overflow-hidden sm:rounded-lg p-4 sm:p-6 md:p-8">
+                  <Title order={2} size="h4" className="mb-2">
+                    Token contract
+                  </Title>
+                  <div className="flex items-center gap-3">
+                    <Text
+                      size="md"
+                      component="p"
+                      className="text-gray-500 whitespace-nowrap truncate"
+                    >
+                      {tokenContractAddress} Lorem ipsum dolor sit, amet
+                      consectetur adipisicing elit. Quia ullam veniam atque
+                      magnam error esse assumenda fugiat cumque nulla unde
+                      laborum voluptate ea, reiciendis modi quos, earum quaerat
+                      eos veritatis! Modi sed exercitationem quo sit odit, illo
+                      ex ratione. Tempora temporibus mollitia suscipit facere
+                      culpa. Explicabo cumque consectetur repellendus sed.
+                    </Text>
+                    <CopyButton value={tokenContractAddress}>
+                      {({ copied, copy }) => (
+                        <Button
+                          compact
+                          color={copied ? "teal" : "blue"}
+                          onClick={copy}
+                        >
+                          <FiCopy />
+                        </Button>
+                      )}
+                    </CopyButton>
+                  </div>
+                </div>
+                <div className="mt-3 bg-white shadow-sm shadow-gray-300 overflow-hidden sm:rounded-lg p-4 sm:p-6 md:p-8">
+                  <Title order={2} size="h4" className="mb-2">
+                    Governance contract
+                  </Title>
+                  <div className="flex items-center gap-3">
+                    <Text
+                      size="md"
+                      component="p"
+                      className="text-gray-500 whitespace-nowrap truncate"
+                    >
+                      {governanceContractAddress}123
+                    </Text>
+                    <CopyButton value={governanceContractAddress}>
+                      {({ copied, copy }) => (
+                        <Button
+                          compact
+                          color={copied ? "teal" : "blue"}
+                          onClick={copy}
+                        >
+                          <FiCopy />
+                        </Button>
+                      )}
+                    </CopyButton>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <Title order={2} size="h3" className="mb-2">
+                Now it is high time to deploy constructed contracts
+              </Title>
+              <Text
+                size="md"
+                component="p"
+                className="text-gray-500 max-w-2xl "
+                ta="center"
+              >
+                Let's begin by compiling the token contract. Once that is done,
+                we can proceed to deploy the compiled token contract. Following
+                that, we'll compile the governance contract. Finally, we'll
+                deploy the compiled governance contract.
+              </Text>
+
+              <div className="flex gap-5 mt-3 items-center">
+                <Button
+                  className=""
+                  color="grape"
+                  onClick={handleDeployment}
+                  disabled={!isConnected}
+                >
+                  Deploy contracts
+                </Button>
+                <Alert
+                  title="Check!"
+                  color="orange"
+                  className="justify-self-start	mt-3"
+                >
+                  <p>Make sure you are singed in!</p>
+                  <p>You will be asked to confirm 2 transactions.</p>
+                </Alert>
+              </div>
+            </div>
+          )}
         </div>
       </Box>
     </>
