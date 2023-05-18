@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import { MantineProvider, type MantineThemeOverride } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { Inter } from "next/font/google";
+import { Provider as JProvider } from "jotai";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -44,7 +45,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
       <Notifications />
       <main className={inter.variable}>
-        <Component {...pageProps} />
+        <JProvider>
+          <Component {...pageProps} />
+        </JProvider>
       </main>
     </MantineProvider>
   );

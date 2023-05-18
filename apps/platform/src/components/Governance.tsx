@@ -1,42 +1,95 @@
-import { useForm } from "@mantine/form";
-import { useState } from "react";
-import { TEST_CONTRACT_1 } from "@/config/compiler";
-import { NumberInput, Text } from "@mantine/core";
+import { hasLength, isInRange, matches, useForm } from "@mantine/form";
+import { useEffect, useState } from "react";
+import { Accordion, NumberInput, Text, TextInput } from "@mantine/core";
+import { governor, OptionsError } from "@openzeppelin/wizard";
+import { Prism } from "@mantine/prism";
+import { useAtomValue } from "jotai";
+import { tokenTypeAtom } from "@/atoms";
+
+const voteRegex = /^d+ (block|second|minute|hour|day|week|month|year)$/;
 
 export default function Governance() {
+  const [governanceContractSource, setGovernanceContractSource] = useState("");
+  const tokenContractType = useAtomValue(tokenTypeAtom);
   const governanceContractForm = useForm({
+    validateInputOnChange: true,
     initialValues: {
-      votingDelay: 0,
-      votingPeriod: 0,
-      proposalThreshold: 0,
+      name: "My Governor",
+      votingDelay: "",
+      votingPeriod: "",
+      proposalThreshold: "0",
       quorum: 0,
+    },
+    validate: {
+      name: hasLength({ min: 1 }, "Name is required"),
+      votingDelay: matches(voteRegex, "Invalid delay"),
+      votingPeriod: matches(voteRegex, "Invalid period"),
+      proposalThreshold: (value) =>
+        Number(value) > 0 ? "Invalid threshold" : null,
+      quorum: isInRange(
+        { min: 0, max: 100 },
+        "Quorum must be between 0 and 100"
+      ),
     },
   });
 
-  const [governanceContractSource, setGovernanceContractSource] =
-    useState(TEST_CONTRACT_1);
+  useEffect(() => {
+    const { name, proposalThreshold, quorum, votingDelay, votingPeriod } =
+      governanceContractForm.values;
+
+    try {
+      setGovernanceContractSource(
+        governor.print({
+          name,
+          delay: votingDelay, // e.g. "1 block"
+          period: votingPeriod, // e.g. "1 week"
+          proposalThreshold: proposalThreshold,
+          quorumMode: "percent",
+          quorumPercent: quorum,
+          votes: `${tokenContractType}votes`, // e.g. "erc20votes"
+        })
+      );
+    } catch (e: unknown) {
+      if (e instanceof OptionsError) {
+        console.log(e.messages);
+      }
+      // console.log(governanceContractForm.errors);
+    }
+  }, [governanceContractForm, tokenContractType]);
 
   return (
     <div className="grid grid-cols-6 gap-6 max-w-2xl">
-      <div className="col-span-4">
+      <div className="col-span-full">
+        <label
+          htmlFor="gov-name"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Name
+        </label>
+        <div className="mt-2">
+          <TextInput
+            id="gov-name"
+            placeholder="Governance name"
+            {...governanceContractForm.getInputProps("name")}
+          />
+        </div>
+      </div>
+      <div className="col-span-full">
         <label
           htmlFor="voting-delay"
           className="block text-sm font-medium text-gray-700"
         >
-          Voting delay (needs review)
+          Voting delay
         </label>
         <div className="mt-2">
-          <NumberInput
+          <TextInput
             id="voting-delay"
-            placeholder="Voting delay"
-            defaultValue={0}
-            min={0}
+            placeholder="1 block"
             {...governanceContractForm.getInputProps("votingDelay")}
           />
         </div>
         <Text size="xs" className="text-gray-500">
-          The number of blocks to wait before a vote can be executed. (needs
-          review)
+          Delay since proposal is created until voting starts.
         </Text>
       </div>
       <div className="col-span-full">
@@ -44,19 +97,17 @@ export default function Governance() {
           htmlFor="voting-period"
           className="block text-sm font-medium text-gray-700"
         >
-          Voting period (needs review)
+          Voting period
         </label>
         <div className="mt-2">
-          <NumberInput
+          <TextInput
             id="voting-period"
-            placeholder="Voting period"
-            defaultValue={0}
-            min={0}
+            placeholder="1 week"
             {...governanceContractForm.getInputProps("votingPeriod")}
           />
         </div>
         <Text size="xs" className="text-gray-500">
-          The number of blocks that a vote will be open for. (needs review)
+          Length of period during which people can cast their vote.
         </Text>
       </div>
       <div className="col-span-full">
@@ -64,27 +115,25 @@ export default function Governance() {
           htmlFor="proposal-threshold"
           className="block text-sm font-medium text-gray-700"
         >
-          Proposal threshold (needs review)
+          Proposal threshold
         </label>
         <div className="mt-2">
-          <NumberInput
+          <TextInput
             id="proposal-threshold"
             placeholder="Proposal threshold"
-            defaultValue={0}
-            min={0}
             {...governanceContractForm.getInputProps("proposalThreshold")}
           />
         </div>
         <Text size="xs" className="text-gray-500">
-          The minimum number of tokens required to create a proposal.
+          Minimum number of votes an account must have to create a proposal.
         </Text>
       </div>
-      <div className="col-span-4">
+      <div className="col-span-full">
         <label
           htmlFor="quorum"
           className="block text-sm font-medium text-gray-700"
         >
-          Quorum (needs review)
+          Quorum
         </label>
         <div className="mt-2">
           <NumberInput
@@ -92,15 +141,24 @@ export default function Governance() {
             placeholder="Quorum"
             defaultValue={0}
             min={0}
-            formatter={(value) => `${value}%`}
+            // formatter={(value) => `${value}%`}
             step={1}
             {...governanceContractForm.getInputProps("quorum")}
           />
         </div>
         <Text size="xs" className="text-gray-500">
-          Quorum is the minimum votes needed for a proposal to pass, expressed
-          as a percentage of total voting power. (needs review)
+          Quorum required for a proposal to pass.
         </Text>
+      </div>
+      <div className="col-span-full">
+        <Accordion variant="contained">
+          <Accordion.Item value="code">
+            <Accordion.Control>Show contract code</Accordion.Control>
+            <Accordion.Panel>
+              <Prism language="jsx">{governanceContractSource}</Prism>
+            </Accordion.Panel>
+          </Accordion.Item>
+        </Accordion>
       </div>
     </div>
   );
