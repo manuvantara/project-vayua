@@ -1,34 +1,44 @@
-import { hasLength, isInRange, matches, useForm } from "@mantine/form";
-import { useEffect, useState } from "react";
+import { isInRange, isNotEmpty, matches, useForm } from "@mantine/form";
+import { useEffect } from "react";
 import { Accordion, NumberInput, Text, TextInput } from "@mantine/core";
 import { governor, OptionsError } from "@openzeppelin/wizard";
 import { Prism } from "@mantine/prism";
-import { useAtomValue } from "jotai";
-import { tokenTypeAtom } from "@/atoms";
-
-const voteRegex = /^d+ (block|second|minute|hour|day|week|month|year)$/;
+import { useAtom, useAtomValue } from "jotai";
+import { governanceContractAtom, tokenTypeAtom } from "@/atoms";
+import { GovernanceFormValues } from "@/types/forms";
+import { VOTE_REGEX } from "@/utils/constants";
 
 export default function Governance() {
-  const [governanceContractSource, setGovernanceContractSource] = useState("");
+  const [governanceContract, setGovernanceContract] = useAtom(
+    governanceContractAtom
+  );
   const tokenContractType = useAtomValue(tokenTypeAtom);
-  const governanceContractForm = useForm({
-    validateInputOnChange: true,
+  const governanceContractForm = useForm<GovernanceFormValues>({
+    validateInputOnBlur: true,
     initialValues: {
-      name: "My Governor",
-      votingDelay: "",
-      votingPeriod: "",
-      proposalThreshold: "0",
-      quorum: 0,
+      name: "MyGovernor",
+      votingDelay: "1 block",
+      votingPeriod: "1 week",
+      proposalThreshold: "",
+      quorum: 4,
     },
     validate: {
-      name: hasLength({ min: 1 }, "Name is required"),
-      votingDelay: matches(voteRegex, "Invalid delay"),
-      votingPeriod: matches(voteRegex, "Invalid period"),
+      name: isNotEmpty("Name is required"),
+      votingDelay: matches(
+        VOTE_REGEX,
+        "Unfortunately it's not a valid delay. Try something like 1 block or 1 week"
+      ),
+      votingPeriod: matches(
+        VOTE_REGEX,
+        "Unfortunately it's not a valid period. Try something like 1 day or 1 week"
+      ),
       proposalThreshold: (value) =>
-        Number(value) > 0 ? "Invalid threshold" : null,
+        Number(value) > 0
+          ? null
+          : "Doesn't look like a valid number, try any positive number",
       quorum: isInRange(
         { min: 0, max: 100 },
-        "Quorum must be between 0 and 100"
+        "Please enter a number between 0 and 100"
       ),
     },
   });
@@ -38,8 +48,9 @@ export default function Governance() {
       governanceContractForm.values;
 
     try {
-      setGovernanceContractSource(
-        governor.print({
+      setGovernanceContract({
+        name,
+        source: governor.print({
           name,
           delay: votingDelay, // e.g. "1 block"
           period: votingPeriod, // e.g. "1 week"
@@ -47,15 +58,15 @@ export default function Governance() {
           quorumMode: "percent",
           quorumPercent: quorum,
           votes: `${tokenContractType}votes`, // e.g. "erc20votes"
-        })
-      );
+        }),
+      });
     } catch (e: unknown) {
       if (e instanceof OptionsError) {
-        console.log(e.messages);
+        // do something with e.messages if needed
+        // console.log((e.messages as OptionsErrorMessages));
       }
-      // console.log(governanceContractForm.errors);
     }
-  }, [governanceContractForm, tokenContractType]);
+  }, [governanceContractForm, setGovernanceContract, tokenContractType]);
 
   return (
     <div className="grid grid-cols-6 gap-6 max-w-2xl">
@@ -88,7 +99,7 @@ export default function Governance() {
             {...governanceContractForm.getInputProps("votingDelay")}
           />
         </div>
-        <Text size="xs" className="text-gray-500">
+        <Text size="xs" className="text-gray-500 mt-1.5">
           Delay since proposal is created until voting starts.
         </Text>
       </div>
@@ -106,7 +117,7 @@ export default function Governance() {
             {...governanceContractForm.getInputProps("votingPeriod")}
           />
         </div>
-        <Text size="xs" className="text-gray-500">
+        <Text size="xs" className="text-gray-500 mt-1.5">
           Length of period during which people can cast their vote.
         </Text>
       </div>
@@ -124,7 +135,7 @@ export default function Governance() {
             {...governanceContractForm.getInputProps("proposalThreshold")}
           />
         </div>
-        <Text size="xs" className="text-gray-500">
+        <Text size="xs" className="text-gray-500 mt-1.5">
           Minimum number of votes an account must have to create a proposal.
         </Text>
       </div>
@@ -146,7 +157,7 @@ export default function Governance() {
             {...governanceContractForm.getInputProps("quorum")}
           />
         </div>
-        <Text size="xs" className="text-gray-500">
+        <Text size="xs" className="text-gray-500 mt-1.5">
           Quorum required for a proposal to pass.
         </Text>
       </div>
@@ -155,7 +166,7 @@ export default function Governance() {
           <Accordion.Item value="code">
             <Accordion.Control>Show contract code</Accordion.Control>
             <Accordion.Panel>
-              <Prism language="jsx">{governanceContractSource}</Prism>
+              <Prism language="jsx">{governanceContract.source}</Prism>
             </Accordion.Panel>
           </Accordion.Item>
         </Accordion>

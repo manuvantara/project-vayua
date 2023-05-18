@@ -34,7 +34,7 @@ const Wizard = () => {
       <div className="gap-4 px-20 py-5">
         <WagmiConfig config={config}>
           <WagmiWalletConnect />
-          <Stepper></Stepper>
+          <Stepper />
         </WagmiConfig>
       </div>
     </>

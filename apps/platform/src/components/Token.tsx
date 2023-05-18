@@ -1,5 +1,5 @@
 import { useForm } from "@mantine/form";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Accordion,
   NumberInput,
@@ -9,33 +9,23 @@ import {
 } from "@mantine/core";
 import { Prism } from "@mantine/prism";
 import { erc20, erc721 } from "@openzeppelin/wizard";
-import { useSetAtom } from "jotai";
-import { tokenTypeAtom } from "@/atoms";
-
-type FormValues = {
-  tokenType: "erc20" | "erc721";
-  tokenName: string;
-  tokenSymbol: string;
-  // Only for ERC721
-  baseURI: string;
-  mintNewTokens: boolean;
-  premintAmount: string;
-};
+import { useAtom, useSetAtom } from "jotai";
+import { tokenContractAtom, tokenTypeAtom } from "@/atoms";
+import { TokenFormValues } from "@/types/forms";
 
 export default function Token() {
+  const [tokenContract, setTokenContract] = useAtom(tokenContractAtom);
   const setTokenType = useSetAtom(tokenTypeAtom);
-  const tokenContractForm = useForm<FormValues>({
+  const tokenContractForm = useForm<TokenFormValues>({
     initialValues: {
       tokenType: "erc20",
-      tokenName: "WAGMI",
+      tokenName: "MyToken",
       baseURI: "",
-      tokenSymbol: "WAGMI",
-      mintNewTokens: true,
-      premintAmount: "1000000",
+      tokenSymbol: "MTK",
+      mintNewTokens: false,
+      premintAmount: "",
     },
   });
-
-  const [tokenContractSource, setTokenContractSource] = useState("");
 
   useEffect(() => {
     let contract = "";
@@ -59,8 +49,11 @@ export default function Token() {
       });
     }
 
-    setTokenContractSource(contract);
-  }, [tokenContractForm.values]);
+    setTokenContract({
+      name: tokenContractForm.values.tokenName,
+      source: contract,
+    });
+  }, [setTokenContract, tokenContractForm.values]);
 
   // Can't use select on change handler because it's being used by form hook
   useEffect(() => {
@@ -105,7 +98,7 @@ export default function Token() {
         <div className="mt-2">
           <TextInput
             id="token-name"
-            placeholder="Vayua"
+            placeholder="Vayua Metaverse Token"
             {...tokenContractForm.getInputProps("tokenName")}
           />
         </div>
@@ -136,8 +129,7 @@ export default function Token() {
           <div className="mt-2">
             <NumberInput
               id="amount-of-tokens-to-mint"
-              placeholder="Amount of tokens to mint"
-              defaultValue={1000000}
+              placeholder="0"
               min={0}
               {...tokenContractForm.getInputProps("mintAmount")}
             />
@@ -181,7 +173,7 @@ export default function Token() {
           <Accordion.Item value="code">
             <Accordion.Control>Show contract code</Accordion.Control>
             <Accordion.Panel>
-              <Prism language="jsx">{tokenContractSource}</Prism>
+              <Prism language="jsx">{tokenContract.source}</Prism>
             </Accordion.Panel>
           </Accordion.Item>
         </Accordion>
