@@ -57,6 +57,7 @@ export default function Governance() {
           proposalThreshold: proposalThreshold,
           quorumMode: "percent",
           quorumPercent: quorum,
+          timelock: false,
           votes: `${tokenContractType}votes`, // e.g. "erc20votes"
         }),
       });
