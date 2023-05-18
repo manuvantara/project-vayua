@@ -1,30 +1,106 @@
 export const TEST_CONTRACT_1 = `
-// SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.4.16 <0.9.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
 
-contract MyContract {
-    uint storedData;
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
-    function set(uint x) public {
-        storedData = x;
+contract Dopomoha is ERC20, ERC20Permit, ERC20Votes {
+    constructor() ERC20("Dopomoha", "DPMH") ERC20Permit("Dopomoha") {
+        _mint(msg.sender, 10 ** 24);
     }
 
-    function get() public view returns (uint) {
-        return storedData;
+    // The functions below are overrides required by Solidity.
+
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override(ERC20, ERC20Votes) {
+        super._afterTokenTransfer(from, to, amount);
+    }
+
+    function _mint(
+        address to,
+        uint256 amount
+    ) internal override(ERC20, ERC20Votes) {
+        super._mint(to, amount);
+    }
+
+    function _burn(
+        address account,
+        uint256 amount
+    ) internal override(ERC20, ERC20Votes) {
+        super._burn(account, amount);
     }
 }
 `;
 
 export const TEST_CONTRACT_ARGS = `
-// contracts/GLDToken.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/governance/Governor.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 
-contract GLDToken is ERC20 {
-    constructor(uint256 initialSupply) ERC20("Gold", "GLD") {
-        _mint(msg.sender, initialSupply);
+contract DopomohaGovernor is
+    Governor,
+    GovernorSettings,
+    GovernorCountingSimple,
+    GovernorVotes,
+    GovernorVotesQuorumFraction
+{
+    constructor(
+        IVotes _token
+    )
+        Governor("DopomohaGovernor")
+        GovernorSettings(7100, 50000, 10000)
+        GovernorVotes(_token)
+        GovernorVotesQuorumFraction(5)
+    {}
+
+    // The following functions are overrides required by Solidity.
+
+    function votingDelay()
+        public
+        view
+        override(IGovernor, GovernorSettings)
+        returns (uint256)
+    {
+        return super.votingDelay();
+    }
+
+    function votingPeriod()
+        public
+        view
+        override(IGovernor, GovernorSettings)
+        returns (uint256)
+    {
+        return super.votingPeriod();
+    }
+
+    function quorum(
+        uint256 blockNumber
+    )
+        public
+        view
+        override(IGovernor, GovernorVotesQuorumFraction)
+        returns (uint256)
+    {
+        return super.quorum(blockNumber);
+    }
+
+    function proposalThreshold()
+        public
+        view
+        override(Governor, GovernorSettings)
+        returns (uint256)
+    {
+        return super.proposalThreshold();
     }
 }
 `;

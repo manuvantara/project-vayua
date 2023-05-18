@@ -1,49 +1,198 @@
+import { useEffect, useState } from "react";
+
+import { showNotification } from "@mantine/notifications";
+import {
+  Button,
+  Title,
+  Text,
+  Alert,
+  Box,
+  Overlay,
+  Loader,
+} from "@mantine/core";
+
 import {
   baseURLBin,
   compile,
   CompilerAbstract,
   pathToURL,
 } from "@remix-project/remix-solidity";
-import { useEffect, useState } from "react";
 import { SOLIDITY_COMPILER_VERSION, TEST_CONTRACTS } from "@/config/compiler";
-import { showNotification } from "@mantine/notifications";
-import { Button, Title, Text } from "@mantine/core";
-import { ContractFactory } from "ethers";
-import { TransactionReceipt } from "viem";
-import { useWalletClient } from "wagmi";
-import { getSigner, getProvider } from "@/config/ethers-connect";
 import { handleNpmImport } from "@/utils/import-handler";
 
-const CONTRACT_NAME_REGEX = /contract\s(\S+)\s/;
+import { getAccount, getWalletClient, waitForTransaction } from "@wagmi/core";
+import { useAccount } from "wagmi";
+import { thetaTestnet } from "@/config/theta-chains";
+
 (function initSupportedSolcVersion() {
   (pathToURL as any)["soljson-v0.8.11+commit.d7f03943.js"] = baseURLBin;
 })();
 
-interface CompilerDeployerProps {
-  walletConnected: boolean;
-}
+const DEPLOYMENT_STAGES = [
+  "Compiling token contract",
+  "Deploying token contract",
+  "Compiling governance contract",
+  "Deploying governance contract",
+];
+const CONTRACT_NAME_REGEX = /contract\s(\S+)\s/;
+const NOTIFICATIONS = {
+  ERROR_UNEXPECTED: {
+    title: "Error",
+    color: "red",
+    message: "Unexpected error",
+    autoClose: 5000,
+  },
+  SUCCESS_DEPLOYMENT: {
+    title: "Deployment successful",
+    color: "teal",
+    message: "",
+    autoClose: 5000,
+  },
+  SUCCESS_COMPILATION: {
+    color: "teal",
+    title: "Compiled successfully",
+    message: "",
+    autoClose: 5000,
+  },
+  ERROR_COMPILATION: {
+    title: "Error",
+    color: "red",
+    message: "Error while compiling",
+    autoClose: 5000,
+  },
+  ERROR_DEPLOYMENT: {
+    title: "Error",
+    color: "red",
+    message: "Error while deploying",
+    autoClose: 5000,
+  },
+  ERROR_CONTRACT: {
+    title: "Error",
+    color: "red",
+    message: "Invalid contract type, name or source",
+    autoClose: 5000,
+  },
+  ERROR_TRANSACTION: {
+    title: "Error",
+    color: "red",
+    message: "Transaction failed",
+    autoClose: 5000,
+  },
+};
 
-function CompilerDeployer({ walletConnected }: CompilerDeployerProps) {
-  // Compiler
-  const [source, setSource] = useState(TEST_CONTRACTS[0].content);
-  const [compiling, setCompiling] = useState(false);
-  const [contractName, setContractName] = useState("");
-  const [compileResult, setCompileResult] = useState<CompilerAbstract>();
+(function initSupportedSolcVersion() {
+  (pathToURL as any)["soljson-v0.8.11+commit.d7f03943.js"] = baseURLBin;
+})();
+
+function CompilerDeployer() {
+  const [currentStage, setCurrentStage] = useState(DEPLOYMENT_STAGES[0]);
+  const [deploymentQueue, setDeploymentQueue] = useState<string[]>([
+    ...DEPLOYMENT_STAGES,
+  ]);
+  const [deployment, setDeployment] = useState(false);
+
+  const { isConnected } = useAccount();
+  const [tokenContractSource, setTokenContractSource] = useState(
+    TEST_CONTRACTS[0].content
+  );
+  const [governanceContractSource, setGovernanceContractSource] = useState(
+    TEST_CONTRACTS[1].content
+  );
+  const [tokenContractAddress, setTokenContractAddress] = useState<
+    `0x${string}` | null | undefined
+  >("0x00");
+  const [governanceContractAddress, setGovernanceContractAddress] = useState<
+    `0x${string}` | null | undefined
+  >("0x00");
+  const [tokenContractName, setTokenContractName] = useState("Dopomoha");
+  const [governanceContractName, setGovernanceContractName] =
+    useState("DopomohaGovernor");
+  const contractMap: {
+    [key: string]: {
+      source: string;
+      contractName: string;
+    };
+  } = {
+    tokenContract: {
+      source: tokenContractSource,
+      contractName: tokenContractName,
+    },
+    governanceContract: {
+      source: governanceContractSource,
+      contractName: governanceContractName,
+    },
+  };
+
   useEffect(() => {
-    if (source) {
-      const matches = CONTRACT_NAME_REGEX.exec(source);
+    if (tokenContractSource) {
+      const matches = CONTRACT_NAME_REGEX.exec(tokenContractSource);
       if (matches && matches[1]) {
-        setContractName(matches[1]);
+        setTokenContractName(matches[1]);
       }
     }
-  }, [source]);
+  }, [tokenContractSource]);
 
-  const handleCompile = async () => {
-    setCompiling(true);
+  useEffect(() => {
+    if (governanceContractSource) {
+      const matches = CONTRACT_NAME_REGEX.exec(governanceContractSource);
+      if (matches && matches[1]) {
+        setGovernanceContractName(matches[1]);
+      }
+    }
+  }, [governanceContractSource]);
+
+  const processNextStage = () => {
+    if (deploymentQueue.length > 0) {
+      const nextStage = deploymentQueue.shift();
+      setCurrentStage(nextStage!); // fix !
+    }
+  };
+
+  const handleDeployment = async () => {
+    setDeployment(true);
+    processNextStage();
+    try {
+      const tokenCompileResponse = await handleCompile("tokenContract");
+      const tokenContractAddress = tokenCompileResponse
+        ? await handleDeploy("tokenContract", tokenCompileResponse, "")
+        : null;
+      setTokenContractAddress(tokenContractAddress);
+      if (tokenContractAddress) {
+        const governanceCompileResponse = await handleCompile(
+          "governanceContract"
+        );
+        const governanceContractAddress = governanceCompileResponse
+          ? await handleDeploy(
+              "governanceContract",
+              governanceCompileResponse,
+              tokenContractAddress
+            )
+          : null;
+        setGovernanceContractAddress(governanceContractAddress);
+      }
+    } catch (error) {
+      showNotification(NOTIFICATIONS.ERROR_UNEXPECTED);
+      return;
+    } finally {
+      setDeployment(false);
+
+      setDeploymentQueue([...DEPLOYMENT_STAGES]);
+      setCurrentStage(DEPLOYMENT_STAGES[0]);
+    }
+  };
+
+  const handleCompile = async (contractType: string) => {
+    const { source, contractName } = contractMap[contractType] || {};
+
+    if (!source || !contractName) {
+      showNotification(NOTIFICATIONS.ERROR_CONTRACT);
+      return;
+    }
+
     try {
       const response = (await compile(
         {
-          [contractName + ".sol"]: {
+          [`${contractName}.sol`]: {
             content: source,
           },
         },
@@ -54,105 +203,123 @@ function CompilerDeployer({ walletConnected }: CompilerDeployerProps) {
       )) as CompilerAbstract;
 
       if (response.data.errors) {
-        showNotification({
-          title: "Error",
-          color: "red",
-          message: response.data.errors[0].formattedMessage,
-          autoClose: 5000,
-        });
+        showNotification(NOTIFICATIONS.ERROR_COMPILATION);
         return;
       }
-      showNotification({
-        color: "teal",
-        title: "Complied successfully",
-        message: "Check console.log for compilation result",
-        autoClose: 5000,
-      });
-      console.log("All contract compileResult: ", response);
-      setCompileResult(response);
+
+      showNotification(NOTIFICATIONS.SUCCESS_COMPILATION);
+      return response;
+    } catch (error) {
+      showNotification(NOTIFICATIONS.ERROR_COMPILATION);
+      return;
     } finally {
-      setCompiling(false);
+      processNextStage();
     }
   };
 
-  // Deployer
-  const [withArgs, setWithArgs] = useState(false);
-  const [deploying, setDeploying] = useState(false);
-  const testConstructorArguments = [
-    "TORO DEP TRAI NHAT LANG",
-    "TORO",
-    "0.05",
-    10000,
-    1,
-    "ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/hidden.json",
-  ];
+  const handleDeploy = async (
+    contractType: string,
+    response: CompilerAbstract,
+    tokenContractAddress: string
+  ) => {
+    const { contractName } = contractMap[contractType] || {};
+    const contractArgs =
+      contractType === "governanceContract" ? [tokenContractAddress] : [];
 
-  const handleDeploy = async () => {
-    setDeploying(true);
+    if (!contractName) {
+      showNotification(NOTIFICATIONS.ERROR_CONTRACT);
+      return;
+    }
+
     try {
-      const compiledContract =
-        compileResult && compileResult.getContract(contractName);
-      const contractBinary =
-        "0x" +
-        (compiledContract && compiledContract.object.evm.bytecode.object);
-      const contractABI = compiledContract && compiledContract.object.abi;
-      const signer = getSigner();
+      const compiledContract = response && response.getContract(contractName);
+      const contractBinary: `0x${string}` = `0x${compiledContract?.object.evm.bytecode.object}`;
+      const contractABI = compiledContract?.object.abi;
 
-      const contractFactory = new ContractFactory(
-        contractABI,
-        contractBinary,
-        signer
-      );
+      const walletClient = await getWalletClient({
+        chainId: thetaTestnet.id,
+      });
+      const account = getAccount();
 
-      let deployedContract;
-
-      try {
-        if (withArgs) {
-          deployedContract = await contractFactory.deploy(
-            ...testConstructorArguments
-          );
-        } else {
-          deployedContract = await contractFactory.deploy();
+      let tx;
+      if (walletClient) {
+        try {
+          tx = await walletClient.deployContract({
+            abi: contractABI,
+            account: account.address,
+            args: contractArgs,
+            bytecode: contractBinary,
+          });
+        } catch (error: any) {
+          showNotification(NOTIFICATIONS.ERROR_TRANSACTION);
+          return;
         }
-
-        await deployedContract.waitForDeployment();
-
-        const deployedContractAddress = await deployedContract.getAddress();
-        const tx = await deployedContract.deploymentTransaction()?.hash;
-
-        showNotification({
-          color: "teal",
-          title: "Contract deployed successfully",
-          message: `Transaction: ${tx} \n Contract address: ${deployedContractAddress}`,
-          autoClose: 5000,
-        });
-        //await handlePublishing(txReceipt, compileResult);
-      } catch (error: any) {
-        showNotification({
-          title: "Error",
-          color: "red",
-          message: error.message,
-          autoClose: 5000,
-        });
       }
+      if (tx) {
+        const data = await waitForTransaction({ hash: tx });
+        return data.contractAddress;
+      }
+    } catch (error) {
+      showNotification(NOTIFICATIONS.ERROR_DEPLOYMENT);
+      return;
     } finally {
-      setDeploying(false);
+      processNextStage();
     }
   };
 
   return (
     <>
-      <Button onClick={handleCompile} disabled={!source} loading={compiling}>
-        Compile contract
-      </Button>
-      <Button
-        color="grape"
-        onClick={handleDeploy}
-        disabled={compiling || !compileResult || !walletConnected}
-        //loading={deploying}
-      >
-        Deploy
-      </Button>
+      <Box pos="relative">
+        {deployment && (
+          <Overlay blur={15} center opacity={0.4}>
+            <div className="flex gap-5 items-end	">
+              <Loader />
+              <Title order={2} size="h4" className="mb-2" color="white">
+                {currentStage}
+              </Title>
+            </div>
+          </Overlay>
+        )}
+        <div className="bg-gray-100 py-20 px-8">
+          <div className="grid justify-center justify-items-center">
+            <Title order={2} size="h3" className="mb-2">
+              Now it is high time to deploy constructed contracts
+            </Title>
+            <Text
+              size="md"
+              component="p"
+              className="text-gray-500 max-w-2xl "
+              ta="center"
+            >
+              Let's begin by compiling the token contract. Once that is done, we
+              can proceed to deploy the compiled token contract. Following that,
+              we'll compile the governance contract. Finally, we'll deploy the
+              compiled governance contract.
+            </Text>
+            <div className="flex gap-5 mt-7 items-center">
+              <Alert
+                title="Check!"
+                color="orange"
+                className="justify-self-start	"
+              >
+                <p>Make sure you are singed in!</p> You will be asked to confirm
+                2 transactions.<p></p>
+              </Alert>
+              <Button
+                className=""
+                color="grape"
+                onClick={handleDeployment}
+                disabled={!isConnected}
+              >
+                Deploy contracts
+              </Button>
+              {tokenContractAddress}
+              <br />
+              {governanceContractAddress}
+            </div>
+          </div>
+        </div>
+      </Box>
     </>
   );
 }
