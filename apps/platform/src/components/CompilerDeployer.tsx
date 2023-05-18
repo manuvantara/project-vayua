@@ -26,6 +26,7 @@ import { waitForTransaction } from "@wagmi/core";
 import { useAccount, useWalletClient } from "wagmi";
 import { thetaTestnet } from "@/config/theta-chains";
 import { useAtomValue } from "jotai";
+import { shortenAddress } from "@/utils/shorten-address";
 
 (function initSupportedSolcVersion() {
   (pathToURL as any)["soljson-v0.8.11+commit.d7f03943.js"] = baseURLBin;
@@ -283,7 +284,7 @@ function CompilerDeployer() {
                       component="p"
                       className="text-gray-500 whitespace-nowrap truncate"
                     >
-                      {tokenContractAddress}
+                      {shortenAddress(tokenContractAddress)}
                     </Text>
                     <CopyButton value={tokenContractAddress}>
                       {({ copied, copy }) => (
@@ -308,7 +309,7 @@ function CompilerDeployer() {
                       component="p"
                       className="text-gray-500 whitespace-nowrap truncate"
                     >
-                      {governanceContractAddress}
+                      {shortenAddress(governanceContractAddress)}
                     </Text>
                     <CopyButton value={governanceContractAddress}>
                       {({ copied, copy }) => (
