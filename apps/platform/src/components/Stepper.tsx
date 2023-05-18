@@ -1,6 +1,7 @@
 import { Button, Group, Stepper as MStepper } from "@mantine/core";
 import { useState } from "react";
 import Configurator from "@/components/Constructor";
+import CompilerDeployer from "@/components/CompilerDeployer";
 
 export default function Stepper() {
   const [active, setActive] = useState(1);
@@ -18,8 +19,11 @@ export default function Stepper() {
         <MStepper.Step label="Second step" description="Configure contract">
           <Configurator />
         </MStepper.Step>
-        <MStepper.Step label="Final step" description="Get full access">
-          Step 3 content: Get full access
+        <MStepper.Step
+          label="Final step"
+          description="Compile and deploy contracts"
+        >
+          <CompilerDeployer />
         </MStepper.Step>
         <MStepper.Completed>
           Completed, click back button to get to previous step

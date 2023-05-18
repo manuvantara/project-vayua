@@ -1,8 +1,3 @@
-import CompilerDeployer from "@/components/CompilerDeployer";
-
-import { MantineProvider } from "@mantine/core";
-import { Notifications } from "@mantine/notifications";
-
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { thetaTestnet, thetaMainnet } from "@/config/theta-chains";
 import { publicProvider } from "wagmi/providers/public";
@@ -15,9 +10,10 @@ const WagmiWalletConnect = dynamic(
   }
 );
 
-import EthersConnect from "@/components/EthersWalletConnect";
-import { useState } from "react";
-import { getProvider } from "@/config/ethers-connect";
+// import EthersConnect from "@/components/EthersWalletConnect";
+// import { useState } from "react";
+// import { getProvider } from "@/config/ethers-connect";
+import Stepper from "@/components/Stepper";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [thetaTestnet, thetaMainnet],
@@ -32,20 +28,13 @@ const config = createConfig({
 });
 
 const Wizard = () => {
-  const [walletConnected, setWalletConnected] = useState(getProvider() != null);
+  // const [walletConnected, setWalletConnected] = useState(getProvider() != null);
   return (
     <>
-      <div className="flex gap-4 p-20">
+      <div className="gap-4 p-20">
         <WagmiConfig config={config}>
-          <MantineProvider withGlobalStyles withNormalizeCSS>
-            <Notifications />
-            <CompilerDeployer walletConnected={walletConnected} />
-            <EthersConnect
-              walletConnected={walletConnected}
-              setWalletConnected={setWalletConnected}
-            />
-            <WagmiWalletConnect />
-          </MantineProvider>
+          <WagmiWalletConnect />
+          <Stepper></Stepper>
         </WagmiConfig>
       </div>
     </>
