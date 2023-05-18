@@ -31,7 +31,7 @@ const Wizard = () => {
   // const [walletConnected, setWalletConnected] = useState(getProvider() != null);
   return (
     <>
-      <div className="gap-4 p-20">
+      <div className="gap-4 px-20 py-5">
         <WagmiConfig config={config}>
           <WagmiWalletConnect />
           <Stepper></Stepper>

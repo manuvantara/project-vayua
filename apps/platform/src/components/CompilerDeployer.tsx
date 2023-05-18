@@ -22,7 +22,7 @@ import { SOLIDITY_COMPILER_VERSION, TEST_CONTRACTS } from "@/config/compiler";
 import { handleNpmImport } from "@/utils/import-handler";
 
 import { getAccount, getWalletClient, waitForTransaction } from "@wagmi/core";
-import { useAccount } from "wagmi";
+import { useAccount, useWalletClient } from "wagmi";
 import { thetaTestnet } from "@/config/theta-chains";
 
 (function initSupportedSolcVersion() {
@@ -45,7 +45,7 @@ const NOTIFICATIONS = {
     autoClose: 5000,
   },
   SUCCESS_DEPLOYMENT: {
-    title: "Deployment successful",
+    title: "Deployed successfully",
     color: "teal",
     message: "",
     autoClose: 5000,
@@ -87,7 +87,9 @@ const NOTIFICATIONS = {
 })();
 
 function CompilerDeployer() {
-  const [currentStage, setCurrentStage] = useState(DEPLOYMENT_STAGES[0]);
+  const [currentStage, setCurrentStage] = useState<string>(
+    DEPLOYMENT_STAGES[0]
+  );
   const [deploymentQueue, setDeploymentQueue] = useState<string[]>([
     ...DEPLOYMENT_STAGES,
   ]);
@@ -109,6 +111,11 @@ function CompilerDeployer() {
   const [tokenContractName, setTokenContractName] = useState("Dopomoha");
   const [governanceContractName, setGovernanceContractName] =
     useState("DopomohaGovernor");
+
+  const { data: walletClient } = useWalletClient({
+    chainId: thetaTestnet.id,
+  });
+  const account = useAccount();
   const contractMap: {
     [key: string]: {
       source: string;
@@ -128,7 +135,9 @@ function CompilerDeployer() {
   const processNextStage = () => {
     if (deploymentQueue.length > 0) {
       const nextStage = deploymentQueue.shift();
-      setCurrentStage(nextStage!); // fix !
+      if (nextStage) {
+        setCurrentStage(nextStage);
+      }
     }
   };
 
@@ -191,12 +200,11 @@ function CompilerDeployer() {
       }
 
       showNotification(NOTIFICATIONS.SUCCESS_COMPILATION);
+      processNextStage();
       return response;
     } catch (error) {
       showNotification(NOTIFICATIONS.ERROR_COMPILATION);
       return;
-    } finally {
-      processNextStage();
     }
   };
 
@@ -219,11 +227,6 @@ function CompilerDeployer() {
       const contractBinary: `0x${string}` = `0x${compiledContract?.object.evm.bytecode.object}`;
       const contractABI = compiledContract?.object.abi;
 
-      const walletClient = await getWalletClient({
-        chainId: thetaTestnet.id,
-      });
-      const account = getAccount();
-
       let tx;
       if (walletClient) {
         try {
@@ -240,13 +243,14 @@ function CompilerDeployer() {
       }
       if (tx) {
         const data = await waitForTransaction({ hash: tx });
+        showNotification(NOTIFICATIONS.SUCCESS_DEPLOYMENT);
+        processNextStage();
         return data.contractAddress;
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error.message);
       showNotification(NOTIFICATIONS.ERROR_DEPLOYMENT);
       return;
-    } finally {
-      processNextStage();
     }
   };
 
