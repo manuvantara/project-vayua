@@ -19,11 +19,13 @@ import {
   pathToURL,
 } from "@remix-project/remix-solidity";
 import { SOLIDITY_COMPILER_VERSION, TEST_CONTRACTS } from "@/config/compiler";
+import { tokenContractAtom, governanceContractAtom } from "@/atoms";
 import { handleNpmImport } from "@/utils/import-handler";
 
 import { waitForTransaction } from "@wagmi/core";
 import { useAccount, useWalletClient } from "wagmi";
 import { thetaTestnet } from "@/config/theta-chains";
+import { useAtomValue } from "jotai";
 
 (function initSupportedSolcVersion() {
   (pathToURL as any)["soljson-v0.8.11+commit.d7f03943.js"] = baseURLBin;
@@ -95,21 +97,16 @@ function CompilerDeployer() {
   const [deployment, setDeployment] = useState(false);
 
   const { isConnected } = useAccount();
-  const [tokenContractSource, setTokenContractSource] = useState(
-    TEST_CONTRACTS[0].content
-  );
-  const [governanceContractSource, setGovernanceContractSource] = useState(
-    TEST_CONTRACTS[1].content
-  );
+
   const [tokenContractAddress, setTokenContractAddress] = useState<
     `0x${string}` | null | undefined
   >(null);
   const [governanceContractAddress, setGovernanceContractAddress] = useState<
     `0x${string}` | null | undefined
   >(null);
-  const [tokenContractName, setTokenContractName] = useState("Dopomoha");
-  const [governanceContractName, setGovernanceContractName] =
-    useState("DopomohaGovernor");
+
+  const tokenContract = useAtomValue(tokenContractAtom);
+  const governanceContract = useAtomValue(governanceContractAtom);
 
   const { data: walletClient } = useWalletClient({
     chainId: thetaTestnet.id,
@@ -122,12 +119,12 @@ function CompilerDeployer() {
     };
   } = {
     tokenContract: {
-      source: tokenContractSource,
-      contractName: tokenContractName,
+      source: tokenContract.source,
+      contractName: tokenContract.name,
     },
     governanceContract: {
-      source: governanceContractSource,
-      contractName: governanceContractName,
+      source: governanceContract.source,
+      contractName: governanceContract.name,
     },
   };
 
@@ -189,12 +186,14 @@ function CompilerDeployer() {
         },
         {
           version: SOLIDITY_COMPILER_VERSION,
+          optimize: true,
         },
         handleNpmImport
       )) as CompilerAbstract;
 
       if (response.data.errors) {
         showNotification(NOTIFICATIONS.ERROR_COMPILATION);
+        console.log(response.data.errors[0].formattedMessage);
         return;
       }
 
@@ -237,6 +236,7 @@ function CompilerDeployer() {
           });
         } catch (error: any) {
           showNotification(NOTIFICATIONS.ERROR_TRANSACTION);
+          console.log(error.message);
           return;
         }
       }
@@ -283,13 +283,7 @@ function CompilerDeployer() {
                       component="p"
                       className="text-gray-500 whitespace-nowrap truncate"
                     >
-                      {tokenContractAddress} Lorem ipsum dolor sit, amet
-                      consectetur adipisicing elit. Quia ullam veniam atque
-                      magnam error esse assumenda fugiat cumque nulla unde
-                      laborum voluptate ea, reiciendis modi quos, earum quaerat
-                      eos veritatis! Modi sed exercitationem quo sit odit, illo
-                      ex ratione. Tempora temporibus mollitia suscipit facere
-                      culpa. Explicabo cumque consectetur repellendus sed.
+                      {tokenContractAddress}
                     </Text>
                     <CopyButton value={tokenContractAddress}>
                       {({ copied, copy }) => (
@@ -314,7 +308,7 @@ function CompilerDeployer() {
                       component="p"
                       className="text-gray-500 whitespace-nowrap truncate"
                     >
-                      {governanceContractAddress}123
+                      {governanceContractAddress}
                     </Text>
                     <CopyButton value={governanceContractAddress}>
                       {({ copied, copy }) => (
