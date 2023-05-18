@@ -279,13 +279,6 @@ function CompilerDeployer() {
                     Token contract
                   </Title>
                   <div className="flex items-center gap-3">
-                    <Text
-                      size="md"
-                      component="p"
-                      className="text-gray-500 whitespace-nowrap truncate"
-                    >
-                      {shortenAddress(tokenContractAddress)}
-                    </Text>
                     <CopyButton value={tokenContractAddress}>
                       {({ copied, copy }) => (
                         <Button
@@ -297,6 +290,13 @@ function CompilerDeployer() {
                         </Button>
                       )}
                     </CopyButton>
+                    <Text
+                      size="md"
+                      component="p"
+                      className="text-gray-500 whitespace-nowrap truncate"
+                    >
+                      {shortenAddress(tokenContractAddress)}
+                    </Text>
                   </div>
                 </div>
                 <div className="mt-3 bg-white shadow-sm shadow-gray-300 overflow-hidden sm:rounded-lg p-4 sm:p-6 md:p-8">
@@ -304,13 +304,6 @@ function CompilerDeployer() {
                     Governance contract
                   </Title>
                   <div className="flex items-center gap-3">
-                    <Text
-                      size="md"
-                      component="p"
-                      className="text-gray-500 whitespace-nowrap truncate"
-                    >
-                      {shortenAddress(governanceContractAddress)}
-                    </Text>
                     <CopyButton value={governanceContractAddress}>
                       {({ copied, copy }) => (
                         <Button
@@ -322,6 +315,13 @@ function CompilerDeployer() {
                         </Button>
                       )}
                     </CopyButton>
+                    <Text
+                      size="md"
+                      component="p"
+                      className="text-gray-500 whitespace-nowrap truncate"
+                    >
+                      {shortenAddress(governanceContractAddress)}
+                    </Text>
                   </div>
                 </div>
               </div>
