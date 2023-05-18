@@ -21,7 +21,7 @@ import {
 import { SOLIDITY_COMPILER_VERSION, TEST_CONTRACTS } from "@/config/compiler";
 import { handleNpmImport } from "@/utils/import-handler";
 
-import { getAccount, getWalletClient, waitForTransaction } from "@wagmi/core";
+import { waitForTransaction } from "@wagmi/core";
 import { useAccount, useWalletClient } from "wagmi";
 import { thetaTestnet } from "@/config/theta-chains";
 
@@ -34,7 +34,6 @@ const DEPLOYMENT_STAGES = [
   "Deploying token contract",
   "Compiling governance contract",
   "Deploying governance contract",
-  "Deployment finished",
 ];
 const CONTRACT_NAME_REGEX = /contract\s(\S+)\s/;
 const NOTIFICATIONS = {
@@ -133,17 +132,17 @@ function CompilerDeployer() {
   };
 
   const processNextStage = () => {
-    if (deploymentQueue.length > 0) {
-      const nextStage = deploymentQueue.shift();
-      if (nextStage) {
-        setCurrentStage(nextStage);
-      }
-    }
+    setDeploymentQueue((prevQueue) => prevQueue.slice(1, prevQueue.length));
   };
+
+  useEffect(() => {
+    if (deploymentQueue.length > 0) {
+      setCurrentStage(deploymentQueue[0]);
+    }
+  }, [deploymentQueue]);
 
   const handleDeployment = async () => {
     setDeployment(true);
-    processNextStage();
     try {
       const tokenCompileResponse = await handleCompile("tokenContract");
       const tokenContractAddress = tokenCompileResponse
