@@ -17,7 +17,7 @@ export default function SuccessfullyDeployed() {
   }
 
   return (
-    <div className="flex flex-col items-center	">
+    <div className="flex flex-col items-center mt-7 md:py-14 lg:py-20">
       <div className="max-w-lg">
         <Title order={3} size="h4" className="mb-2" ta="center">
           Congratulations! <br /> Your contracts have been deployed.

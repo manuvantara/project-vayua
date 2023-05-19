@@ -20,7 +20,8 @@ import { SOLIDITY_COMPILER_VERSION } from "@/config/compiler";
 import {
   deployedGovernorAddressAtom,
   deployedTokenAddressAtom,
-  governanceContractAtom, stepsAtom,
+  governanceContractAtom,
+  stepsAtom,
   tokenContractAtom,
 } from "@/atoms";
 import { handleNpmImport } from "@/utils/import-handler";
@@ -253,7 +254,7 @@ function CompilerDeployer() {
             </div>
           </Overlay>
         )}
-        <div className="bg-gray-100 py-20 px-8">
+        <div className="py-8 md:py-14 md:px-8 md:bg-gray-100 lg:py-20">
           <div className="flex flex-col items-center">
             <Title order={2} size="h4" className="mb-2">
               Now it is high time to deploy constructed contracts
@@ -261,8 +262,7 @@ function CompilerDeployer() {
             <Text
               size="md"
               component="p"
-              className="text-gray-500 max-w-2xl "
-              ta="center"
+              className="text-gray-500 max-w-2xl sm:text-center"
             >
               Let's begin by compiling the token contract. Once that is done, we
               can proceed to deploy the compiled token contract. Following that,
@@ -270,7 +270,7 @@ function CompilerDeployer() {
               compiled governance contract.
             </Text>
 
-            <div className="flex gap-5 mt-3 items-center">
+            <div className="flex flex-col items-center gap-7 mt-7 md:flex-row">
               <Button
                 className=""
                 color="grape"
@@ -282,9 +282,9 @@ function CompilerDeployer() {
               <Alert
                 title="Check!"
                 color="orange"
-                className="justify-self-start	mt-3"
+                className="justify-self-start"
               >
-                <p>Make sure you are singed in!</p>
+                <p>Make sure you are singed in.</p>
                 <p>You will be asked to confirm 2 transactions.</p>
               </Alert>
             </div>
