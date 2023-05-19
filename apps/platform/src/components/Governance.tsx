@@ -7,6 +7,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { governanceContractAtom, tokenTypeAtom } from "@/atoms";
 import { GovernanceFormValues } from "@/types/forms";
 import { VOTE_REGEX } from "@/utils/constants";
+import {removeWhitespaces} from "@/utils/remove-whitespaces";
 
 export default function Governance() {
   const [governanceContract, setGovernanceContract] = useAtom(
@@ -49,7 +50,7 @@ export default function Governance() {
 
     try {
       setGovernanceContract({
-        name,
+        name: removeWhitespaces(name),
         source: governor.print({
           name,
           delay: votingDelay, // e.g. "1 block"
