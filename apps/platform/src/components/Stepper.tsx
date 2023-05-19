@@ -7,9 +7,12 @@ import CreateDAO from "@/components/CreateDAO";
 export default function Stepper() {
   const [active, setActive] = useState(1);
   const nextStep = () =>
-    setActive((current) => (current < 3 ? current + 1 : current));
+    setActive((current) => (current < 2 ? current + 1 : current));
   const prevStep = () =>
     setActive((current) => (current > 0 ? current - 1 : current));
+
+  const isLastStep = active === 2;
+  const isFirstStep = active === 0;
 
   return (
     <div className="py-12">
@@ -26,16 +29,19 @@ export default function Stepper() {
         >
           <CompilerDeployer />
         </MStepper.Step>
-        <MStepper.Completed>
+        {/* <MStepper.Completed>
           Completed, click back button to get to previous step
-        </MStepper.Completed>
+        </MStepper.Completed> */}
       </MStepper>
-
       <Group position="apart" mt="xl" className="max-w-3xl mx-auto w-full">
-        <Button variant="default" onClick={prevStep}>
-          Back
-        </Button>
-        <Button onClick={nextStep}>Next step</Button>
+        {!isFirstStep ? (
+          <Button variant="default" onClick={prevStep}>
+            Back
+          </Button>
+        ) : (
+          <div></div>
+        )}
+        {!isLastStep && <Button onClick={nextStep}>Next step</Button>}
       </Group>
     </div>
   );
