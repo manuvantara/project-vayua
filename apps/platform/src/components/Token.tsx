@@ -1,4 +1,4 @@
-import { useForm } from "@mantine/form";
+import { useForm, isInRange, isNotEmpty, matches } from "@mantine/form";
 import { useEffect } from "react";
 import {
   Accordion,
@@ -12,11 +12,13 @@ import { erc20, erc721 } from "@openzeppelin/wizard";
 import { useAtom, useSetAtom } from "jotai";
 import { tokenContractAtom, tokenTypeAtom } from "@/atoms";
 import { TokenFormValues } from "@/types/forms";
+import { URI_REGEX } from "@/utils/constants";
 
 export default function Token() {
   const [tokenContract, setTokenContract] = useAtom(tokenContractAtom);
   const setTokenType = useSetAtom(tokenTypeAtom);
   const tokenContractForm = useForm<TokenFormValues>({
+    validateInputOnBlur: true,
     initialValues: {
       tokenType: "erc20",
       tokenName: "MyToken",
@@ -24,6 +26,15 @@ export default function Token() {
       tokenSymbol: "MTK",
       mintNewTokens: false,
       premintAmount: "",
+    },
+    validate: {
+      tokenName: isNotEmpty("Name is required"),
+      tokenSymbol: isNotEmpty("Symbol is required"),
+      baseURI: matches(URI_REGEX, "Unfortunately it's not a valid base URI"),
+      premintAmount: (value) =>
+        Number(value) > 0
+          ? null
+          : "Doesn't look like a valid number, try any positive number",
     },
   });
 
