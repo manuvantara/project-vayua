@@ -42,7 +42,41 @@ importers:
         specifier: ^4.9.3
         version: 4.9.3
 
-  apps/platform:
+  apps/web:
+    dependencies:
+      next:
+        specifier: ^13.4.1
+        version: 13.4.2(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      ui:
+        specifier: workspace:*
+        version: link:../../packages/ui
+    devDependencies:
+      '@types/node':
+        specifier: ^17.0.12
+        version: 17.0.12
+      '@types/react':
+        specifier: ^18.0.22
+        version: 18.2.6
+      '@types/react-dom':
+        specifier: ^18.0.7
+        version: 18.2.4
+      eslint-config-custom:
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-custom
+      tsconfig:
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      typescript:
+        specifier: ^4.5.3
+        version: 4.9.3
+
+  apps/wizard:
     dependencies:
       '@emotion/react':
         specifier: ^11.11.0
@@ -126,40 +160,6 @@ importers:
       '@swc-jotai/react-refresh':
         specifier: ^0.0.8
         version: 0.0.8
-
-  apps/web:
-    dependencies:
-      next:
-        specifier: ^13.4.1
-        version: 13.4.2(react-dom@18.2.0)(react@18.2.0)
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
-      ui:
-        specifier: workspace:*
-        version: link:../../packages/ui
-    devDependencies:
-      '@types/node':
-        specifier: ^17.0.12
-        version: 17.0.12
-      '@types/react':
-        specifier: ^18.0.22
-        version: 18.2.6
-      '@types/react-dom':
-        specifier: ^18.0.7
-        version: 18.2.4
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../../packages/eslint-config-custom
-      tsconfig:
-        specifier: workspace:*
-        version: link:../../packages/tsconfig
-      typescript:
-        specifier: ^4.5.3
-        version: 4.9.3
 
   packages/eslint-config-custom:
     dependencies:
