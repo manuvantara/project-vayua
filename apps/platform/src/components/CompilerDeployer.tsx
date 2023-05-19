@@ -18,7 +18,7 @@ import {
   CompilerAbstract,
   pathToURL,
 } from "@remix-project/remix-solidity";
-import { SOLIDITY_COMPILER_VERSION, TEST_CONTRACTS } from "@/config/compiler";
+import { SOLIDITY_COMPILER_VERSION } from "@/config/compiler";
 import { tokenContractAtom, governanceContractAtom } from "@/atoms";
 import { handleNpmImport } from "@/utils/import-handler";
 
@@ -38,48 +38,27 @@ const DEPLOYMENT_STAGES = [
   "Compiling governance contract",
   "Deploying governance contract",
 ];
-const CONTRACT_NAME_REGEX = /contract\s(\S+)\s/;
-const NOTIFICATIONS = {
-  ERROR_UNEXPECTED: {
-    title: "Error",
+
+function showErrorNotification(error: any, title: string) {
+  showNotification({
+    title: title || "Error",
     color: "red",
-    message: "Unexpected error",
+    message: error,
     autoClose: 5000,
-  },
+  });
+}
+
+const NOTIFICATIONS = {
   SUCCESS_DEPLOYMENT: {
-    title: "Deployed successfully",
+    title: "Contract Deployed",
     color: "teal",
-    message: "",
+    message: "Your contract has been deployed successfully!",
     autoClose: 5000,
   },
   SUCCESS_COMPILATION: {
     color: "teal",
-    title: "Compiled successfully",
-    message: "",
-    autoClose: 5000,
-  },
-  ERROR_COMPILATION: {
-    title: "Error",
-    color: "red",
-    message: "Error while compiling",
-    autoClose: 5000,
-  },
-  ERROR_DEPLOYMENT: {
-    title: "Error",
-    color: "red",
-    message: "Error while deploying",
-    autoClose: 5000,
-  },
-  ERROR_CONTRACT: {
-    title: "Error",
-    color: "red",
-    message: "Invalid contract type, name or source",
-    autoClose: 5000,
-  },
-  ERROR_TRANSACTION: {
-    title: "Error",
-    color: "red",
-    message: "Transaction failed",
+    title: "Contract Compiled",
+    message: "Your contract has been compiled successfully!",
     autoClose: 5000,
   },
 };
@@ -160,8 +139,8 @@ function CompilerDeployer() {
           : null;
         setGovernanceContractAddress(governanceContractAddress);
       }
-    } catch (error) {
-      showNotification(NOTIFICATIONS.ERROR_UNEXPECTED);
+    } catch (error: any) {
+      showErrorNotification(error.message, "Unexpected error");
       return;
     } finally {
       setDeploymentQueue([...DEPLOYMENT_STAGES]);
@@ -174,7 +153,10 @@ function CompilerDeployer() {
     const { source, contractName } = contractMap[contractType] || {};
 
     if (!source || !contractName) {
-      showNotification(NOTIFICATIONS.ERROR_CONTRACT);
+      showErrorNotification(
+        "Contract error",
+        "Invalid contract type, name or source"
+      );
       return;
     }
 
@@ -193,16 +175,18 @@ function CompilerDeployer() {
       )) as CompilerAbstract;
 
       if (response.data.errors) {
-        showNotification(NOTIFICATIONS.ERROR_COMPILATION);
-        console.log(response.data.errors[0].formattedMessage);
+        showErrorNotification(
+          response.data.errors[0].formattedMessage,
+          "Compilation error"
+        );
         return;
       }
 
       showNotification(NOTIFICATIONS.SUCCESS_COMPILATION);
       processNextStage();
       return response;
-    } catch (error) {
-      showNotification(NOTIFICATIONS.ERROR_COMPILATION);
+    } catch (error: any) {
+      showErrorNotification(error.message, "Compilation error");
       return;
     }
   };
@@ -217,7 +201,10 @@ function CompilerDeployer() {
       contractType === "governanceContract" ? [tokenContractAddress] : [];
 
     if (!contractName) {
-      showNotification(NOTIFICATIONS.ERROR_CONTRACT);
+      showErrorNotification(
+        "Contract error",
+        "Invalid contract type, name or source"
+      );
       return;
     }
 
@@ -236,8 +223,7 @@ function CompilerDeployer() {
             bytecode: contractBinary,
           });
         } catch (error: any) {
-          showNotification(NOTIFICATIONS.ERROR_TRANSACTION);
-          console.log(error.message);
+          showErrorNotification(error.message, "Transaction failed");
           return;
         }
       }
@@ -248,8 +234,7 @@ function CompilerDeployer() {
         return data.contractAddress;
       }
     } catch (error: any) {
-      console.log(error.message);
-      showNotification(NOTIFICATIONS.ERROR_DEPLOYMENT);
+      showErrorNotification(error.message, "Deployment error");
       return;
     }
   };

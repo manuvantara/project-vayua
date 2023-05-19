@@ -20,7 +20,7 @@ function CreateDAO() {
       <div className="grid grid-cols-6">
         <div className="col-span-2 col-start-2 col-end-6 bg-white shadow-sm shadow-gray-300 overflow-hidden sm:rounded-lg">
           <div className="p-4 sm:p-6 md:p-8">
-            <div className="mb-7">
+            <div className="mb-5">
               <Title order={2} size="h4" className="mb-2">
                 Create your DAO
               </Title>
@@ -33,7 +33,7 @@ function CreateDAO() {
               </Text>
             </div>
             <Divider my="sm" />
-            <div className="mt-7">
+            <div className="mt-5">
               <Title order={3} size="h5" className="mb-2">
                 Basic details
               </Title>
