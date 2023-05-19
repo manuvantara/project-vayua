@@ -27,7 +27,7 @@ const config = createConfig({
 const Wizard = () => {
   return (
     <>
-      <div className="gap-4 px-20 py-5">
+      <div className="gap-4 p-5">
         <WagmiConfig config={config}>
           <div className="max-w-screen-xl m-auto">
             <WagmiWalletConnect />

@@ -4,7 +4,7 @@ import Governance from "@/components/Governance";
 
 export default function Configurator() {
   return (
-    <div className="bg-gray-100 py-20 px-8">
+    <div className="py-8 md:bg-gray-100 md:py-14 md:px-8 lg:py-20">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
           <Title order={2} size="h5" className="mb-2">
