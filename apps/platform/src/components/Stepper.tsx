@@ -2,6 +2,7 @@ import { Button, Group, Stepper as MStepper } from "@mantine/core";
 import { useState } from "react";
 import Configurator from "@/components/Constructor";
 import CompilerDeployer from "@/components/CompilerDeployer";
+import CreateDAO from "@/components/CreateDAO";
 
 export default function Stepper() {
   const [active, setActive] = useState(1);
@@ -13,8 +14,8 @@ export default function Stepper() {
   return (
     <div className="py-12">
       <MStepper active={active} onStepClick={setActive} breakpoint="sm">
-        <MStepper.Step label="First step" description="Create an account">
-          Step 1 content: Create an account
+        <MStepper.Step label="First step" description="Create you DAO">
+          <CreateDAO />
         </MStepper.Step>
         <MStepper.Step label="Second step" description="Configure contract">
           <Configurator />

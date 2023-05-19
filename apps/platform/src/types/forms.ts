@@ -15,3 +15,8 @@ export type GovernanceFormValues = {
   proposalThreshold: string;
   quorum: number;
 };
+
+export type CreateDAOFormValues = {
+  name: string;
+  desc: string;
+};
