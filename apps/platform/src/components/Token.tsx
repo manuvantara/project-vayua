@@ -1,4 +1,4 @@
-import { useForm, isInRange, isNotEmpty, matches } from "@mantine/form";
+import { isNotEmpty, matches, useForm } from "@mantine/form";
 import { useEffect } from "react";
 import {
   Accordion,
@@ -13,6 +13,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { tokenContractAtom, tokenTypeAtom } from "@/atoms";
 import { TokenFormValues } from "@/types/forms";
 import { URI_REGEX } from "@/utils/constants";
+import { removeWhitespaces } from "@/utils/remove-whitespaces";
 
 export default function Token() {
   const [tokenContract, setTokenContract] = useAtom(tokenContractAtom);
@@ -28,40 +29,44 @@ export default function Token() {
       premintAmount: "",
     },
     validate: {
-      tokenName: isNotEmpty("Name is required"),
-      tokenSymbol: isNotEmpty("Symbol is required"),
+      tokenName: isNotEmpty("Please provide a lovely name for your token"),
+      tokenSymbol: isNotEmpty("Your token needs a charming symbol"),
       baseURI: matches(URI_REGEX, "Unfortunately it's not a valid base URI"),
-      premintAmount: (value) =>
-        Number(value) > 0
-          ? null
-          : "Doesn't look like a valid number, try any positive number",
     },
   });
 
   useEffect(() => {
-    let contract = "";
+    const {
+      tokenType,
+      tokenSymbol,
+      tokenName,
+      mintNewTokens,
+      premintAmount,
+      baseURI,
+    } = tokenContractForm.values;
+    let contract: string;
 
-    if (tokenContractForm.values.tokenType === "erc20") {
+    if (tokenType === "erc20") {
       contract = erc20.print({
-        name: tokenContractForm.values.tokenName,
-        symbol: tokenContractForm.values.tokenSymbol,
-        premint: tokenContractForm.values.premintAmount,
-        mintable: tokenContractForm.values.mintNewTokens,
+        name: tokenName,
+        symbol: tokenSymbol,
+        premint: premintAmount,
+        mintable: mintNewTokens,
         votes: true,
       });
     } else {
       contract = erc721.print({
-        name: tokenContractForm.values.tokenName,
-        symbol: tokenContractForm.values.tokenSymbol,
-        baseUri: tokenContractForm.values.baseURI,
-        mintable: tokenContractForm.values.mintNewTokens,
+        name: tokenName,
+        symbol: tokenSymbol,
+        baseUri: baseURI,
+        mintable: mintNewTokens,
         incremental: true,
         votes: true,
       });
     }
 
     setTokenContract({
-      name: tokenContractForm.values.tokenName,
+      name: removeWhitespaces(tokenName),
       source: contract,
     });
   }, [setTokenContract, tokenContractForm.values]);
