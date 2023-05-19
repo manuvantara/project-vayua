@@ -27,7 +27,7 @@ export default function Stepper() {
         breakpoint="sm"
         allowNextStepsSelect={false}
       >
-        <MStepper.Step label="First step" description="Create you DAO">
+        <MStepper.Step label="First step" description="Create your DAO">
           <CreateDAO />
         </MStepper.Step>
         <MStepper.Step label="Second step" description="Configure contract">
