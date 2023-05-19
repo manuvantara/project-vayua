@@ -10,8 +10,14 @@ export type TokenFormValues = {
 
 export type GovernanceFormValues = {
   name: string;
-  votingDelay: string;
-  votingPeriod: string;
+  votingDelay: {
+    number: number;
+    timeInterval: string;
+  };
+  votingPeriod: {
+    number: number;
+    timeInterval: string;
+  };
   proposalThreshold: string;
   quorum: number;
 };

@@ -1,13 +1,13 @@
 import { isInRange, isNotEmpty, matches, useForm } from "@mantine/form";
 import { useEffect } from "react";
-import { Accordion, NumberInput, Text, TextInput } from "@mantine/core";
+import { Accordion, NumberInput, Text, TextInput, Select } from "@mantine/core";
 import { governor, OptionsError } from "@openzeppelin/wizard";
 import { Prism } from "@mantine/prism";
 import { useAtom, useAtomValue } from "jotai";
 import { governanceContractAtom, tokenTypeAtom } from "@/atoms";
 import { GovernanceFormValues } from "@/types/forms";
 import { VOTE_REGEX } from "@/utils/constants";
-import {removeWhitespaces} from "@/utils/remove-whitespaces";
+import { removeWhitespaces } from "@/utils/remove-whitespaces";
 
 export default function Governance() {
   const [governanceContract, setGovernanceContract] = useAtom(
@@ -18,21 +18,25 @@ export default function Governance() {
     validateInputOnBlur: true,
     initialValues: {
       name: "MyGovernor",
-      votingDelay: "1 block",
-      votingPeriod: "1 week",
+      votingDelay: {
+        number: 2,
+        timeInterval: "block",
+      },
+      votingPeriod: {
+        number: 2,
+        timeInterval: "week",
+      },
       proposalThreshold: "",
       quorum: 4,
     },
     validate: {
       name: isNotEmpty("Name is required"),
-      votingDelay: matches(
-        VOTE_REGEX,
-        "Unfortunately it's not a valid delay. Try something like 1 block or 1 week"
-      ),
-      votingPeriod: matches(
-        VOTE_REGEX,
-        "Unfortunately it's not a valid period. Try something like 1 day or 1 week"
-      ),
+      votingDelay: {
+        number: isNotEmpty("Voting delay number is required"),
+      },
+      votingPeriod: {
+        number: isNotEmpty("Voting period number is required"),
+      },
       proposalThreshold: (value) =>
         Number(value) > 0
           ? null
@@ -53,8 +57,8 @@ export default function Governance() {
         name: removeWhitespaces(name),
         source: governor.print({
           name,
-          delay: votingDelay, // e.g. "1 block"
-          period: votingPeriod, // e.g. "1 week"
+          delay: `${votingDelay.number} ${votingDelay.timeInterval}`, // e.g. "1 block"
+          period: `${votingPeriod.number} ${votingPeriod.timeInterval}`, // e.g. "1 week"
           proposalThreshold: proposalThreshold,
           quorumMode: "percent",
           quorumPercent: quorum,
@@ -87,7 +91,7 @@ export default function Governance() {
           />
         </div>
       </div>
-      <div className="col-span-full">
+      <div className="col-span-full sm:col-span-3">
         <label
           htmlFor="voting-delay"
           className="block text-sm font-medium text-gray-700"
@@ -95,17 +99,50 @@ export default function Governance() {
           Voting delay
         </label>
         <div className="mt-2">
-          <TextInput
+          <NumberInput
             id="voting-delay"
-            placeholder="1 block"
-            {...governanceContractForm.getInputProps("votingDelay")}
+            placeholder="Voting delay number"
+            defaultValue={0}
+            min={0}
+            // formatter={(value) => `${value}%`}
+            step={1}
+            rightSectionWidth="50%"
+            rightSection={
+              <Select
+                radius={0}
+                aria-label="Voting delay time interval"
+                id="votingDelayTimeInterval"
+                // className="w-fit"
+                data={[
+                  { value: "block", label: "Blocks" },
+                  { value: "second", label: "Seconds" },
+                  { value: "minute", label: "Minutes" },
+                  { value: "hour", label: "Hours" },
+                  { value: "day", label: "Days" },
+                  { value: "week", label: "Weeks" },
+                  { value: "month", label: "Months" },
+                  { value: "year", label: "Years" },
+                ]}
+                placeholder="Voting delay time interval"
+                transitionProps={{
+                  transition: "pop-top-left",
+                  duration: 200,
+                  timingFunction: "ease",
+                }}
+                withinPortal
+                {...governanceContractForm.getInputProps(
+                  "votingDelay.timeInterval"
+                )}
+              />
+            }
+            {...governanceContractForm.getInputProps("votingDelay.number")}
           />
         </div>
         <Text size="xs" className="text-gray-500 mt-1.5">
           Delay since proposal is created until voting starts.
         </Text>
       </div>
-      <div className="col-span-full">
+      <div className="col-span-full sm:col-span-3">
         <label
           htmlFor="voting-period"
           className="block text-sm font-medium text-gray-700"
@@ -113,10 +150,43 @@ export default function Governance() {
           Voting period
         </label>
         <div className="mt-2">
-          <TextInput
+          <NumberInput
             id="voting-period"
-            placeholder="1 week"
-            {...governanceContractForm.getInputProps("votingPeriod")}
+            placeholder="Voting period number"
+            defaultValue={0}
+            min={0}
+            // formatter={(value) => `${value}%`}
+            step={1}
+            rightSectionWidth="50%"
+            rightSection={
+              <Select
+                radius={0}
+                aria-label="Voting period time interval"
+                id="votingPeriodTimeInterval"
+                // className="w-fit"
+                data={[
+                  { value: "block", label: "Blocks" },
+                  { value: "second", label: "Seconds" },
+                  { value: "minute", label: "Minutes" },
+                  { value: "hour", label: "Hours" },
+                  { value: "day", label: "Days" },
+                  { value: "week", label: "Weeks" },
+                  { value: "month", label: "Months" },
+                  { value: "year", label: "Years" },
+                ]}
+                placeholder="Voting period time interval"
+                transitionProps={{
+                  transition: "pop-top-left",
+                  duration: 200,
+                  timingFunction: "ease",
+                }}
+                withinPortal
+                {...governanceContractForm.getInputProps(
+                  "votingPeriod.timeInterval"
+                )}
+              />
+            }
+            {...governanceContractForm.getInputProps("votingPeriod.number")}
           />
         </div>
         <Text size="xs" className="text-gray-500 mt-1.5">
