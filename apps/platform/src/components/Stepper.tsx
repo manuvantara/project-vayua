@@ -16,7 +16,7 @@ export default function Stepper() {
 
   return (
     <div className="py-12">
-      <MStepper active={active} onStepClick={setActive} breakpoint="sm">
+      <MStepper active={active} onStepClick={setActive} breakpoint="sm" allowNextStepsSelect={false}>
         <MStepper.Step label="First step" description="Create you DAO">
           <CreateDAO />
         </MStepper.Step>
