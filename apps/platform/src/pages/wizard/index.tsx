@@ -10,9 +10,6 @@ const WagmiWalletConnect = dynamic(
   }
 );
 
-// import EthersConnect from "@/components/EthersWalletConnect";
-// import { useState } from "react";
-// import { getProvider } from "@/config/ethers-connect";
 import Stepper from "@/components/Stepper";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
@@ -28,7 +25,6 @@ const config = createConfig({
 });
 
 const Wizard = () => {
-  // const [walletConnected, setWalletConnected] = useState(getProvider() != null);
   return (
     <>
       <div className="gap-4 px-20 py-5">
