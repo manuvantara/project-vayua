@@ -261,7 +261,7 @@ function CompilerDeployer() {
           <Overlay blur={15} center opacity={0.4}>
             <div className="flex gap-5 items-end	">
               <Loader />
-              <Title order={2} size="h4" className="mb-2" color="white">
+              <Title order={3} size="h4" className="mb-2" color="white">
                 {currentStage}
               </Title>
             </div>
@@ -271,11 +271,11 @@ function CompilerDeployer() {
           {tokenContractAddress && governanceContractAddress ? (
             <div className="flex flex-col items-center	">
               <div className="max-w-lg">
-                <Title order={2} size="h3" className="mb-2" ta="center">
+                <Title order={3} size="h4" className="mb-2" ta="center">
                   Congratulations! <br /> Your contracts have been deployed.
                 </Title>
                 <div className="mt-7 bg-white shadow-sm shadow-gray-300 overflow-hidden sm:rounded-lg p-4 sm:p-6 md:p-8">
-                  <Title order={2} size="h4" className="mb-2">
+                  <Title order={4} size="h4" className="mb-2">
                     Token contract
                   </Title>
                   <div className="flex items-center gap-3">
@@ -300,7 +300,7 @@ function CompilerDeployer() {
                   </div>
                 </div>
                 <div className="mt-3 bg-white shadow-sm shadow-gray-300 overflow-hidden sm:rounded-lg p-4 sm:p-6 md:p-8">
-                  <Title order={2} size="h4" className="mb-2">
+                  <Title order={4} size="h4" className="mb-2">
                     Governance contract
                   </Title>
                   <div className="flex items-center gap-3">
@@ -328,7 +328,7 @@ function CompilerDeployer() {
             </div>
           ) : (
             <div className="flex flex-col items-center">
-              <Title order={2} size="h3" className="mb-2">
+              <Title order={2} size="h4" className="mb-2">
                 Now it is high time to deploy constructed contracts
               </Title>
               <Text
