@@ -15,6 +15,10 @@ export default function Stepper() {
   const prevStep = () =>
     setActive((current) => (current > 0 ? current - 1 : current));
 
+  const isFirstStep = active === 0;
+  const isLastStep = active === NUMBER_OF_STEPS - 1;
+  const isCompleteStep = active === NUMBER_OF_STEPS;
+
   return (
     <div className="py-12">
       <MStepper
@@ -40,10 +44,16 @@ export default function Stepper() {
         </MStepper.Completed>
       </MStepper>
       <Group position="apart" mt="xl" className="max-w-3xl mx-auto w-full">
-        <Button variant="default" onClick={prevStep}>
-          Back
-        </Button>
-        <Button onClick={nextStep}>Next step</Button>
+        {!isFirstStep && !isCompleteStep ? (
+          <Button variant="default" onClick={prevStep}>
+            Back
+          </Button>
+        ) : (
+          <div></div>
+        )}
+        {!isLastStep && !isCompleteStep && (
+          <Button onClick={nextStep}>Next step</Button>
+        )}
       </Group>
     </div>
   );
