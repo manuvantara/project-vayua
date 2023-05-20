@@ -47,20 +47,33 @@ function showErrorNotification(error: any, title: string) {
   });
 }
 
-const NOTIFICATIONS = {
-  SUCCESS_DEPLOYMENT: {
-    title: "Contract Deployed",
+function showSuccessNotification(tokenType: string, phase: string) {
+  let contractTypeMessage = "";
+  if (tokenType === "governanceContract") {
+    contractTypeMessage = "governance";
+  } else if (tokenType === "tokenContract") {
+    contractTypeMessage = "token";
+  }
+
+  let successMessage = "";
+  switch (phase) {
+    case "compilation":
+      successMessage = `Your ${contractTypeMessage} contract has been compiled successfully!`;
+      break;
+    case "deployment":
+      successMessage = `Your ${contractTypeMessage} contract has been deployed successfully!`;
+      break;
+    default:
+      successMessage = "The action was successful!";
+  }
+
+  showNotification({
+    title: "Success",
     color: "teal",
-    message: "Your contract has been deployed successfully!",
+    message: successMessage,
     autoClose: 5000,
-  },
-  SUCCESS_COMPILATION: {
-    color: "teal",
-    title: "Contract Compiled",
-    message: "Your contract has been compiled successfully!",
-    autoClose: 5000,
-  },
-};
+  });
+}
 
 (function initSupportedSolcVersion() {
   (pathToURL as any)["soljson-v0.8.11+commit.d7f03943.js"] = baseURLBin;
@@ -183,8 +196,7 @@ function CompilerDeployer() {
         );
         return null;
       }
-
-      showNotification(NOTIFICATIONS.SUCCESS_COMPILATION);
+      showSuccessNotification(contractType, "compilation");
       processNextStage();
       return response;
     } catch (error: any) {
@@ -243,7 +255,7 @@ function CompilerDeployer() {
       }
       if (tx) {
         const data = await waitForTransaction({ hash: tx });
-        showNotification(NOTIFICATIONS.SUCCESS_DEPLOYMENT);
+        showSuccessNotification(contractType, "deployment");
         processNextStage();
         return data.contractAddress;
       }
