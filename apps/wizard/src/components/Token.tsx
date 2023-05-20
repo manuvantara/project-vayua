@@ -13,7 +13,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { tokenContractAtom, tokenTypeAtom } from "@/atoms";
 import { TokenFormValues } from "@/types/forms";
 import { URI_REGEX } from "@/utils/constants";
-import { removeWhitespaces } from "@/utils/remove-whitespaces";
+import { processContractName } from "@/utils/process-contract-name";
 
 export default function Token() {
   const [tokenContract, setTokenContract] = useAtom(tokenContractAtom);
@@ -66,7 +66,7 @@ export default function Token() {
     }
 
     setTokenContract({
-      name: removeWhitespaces(tokenName),
+      name: processContractName(tokenName),
       source: contract,
     });
   }, [setTokenContract, tokenContractForm.values]);

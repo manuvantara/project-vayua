@@ -6,8 +6,7 @@ import { Prism } from "@mantine/prism";
 import { useAtom, useAtomValue } from "jotai";
 import { governanceContractAtom, tokenTypeAtom } from "@/atoms";
 import { GovernanceFormValues } from "@/types/forms";
-import { VOTE_REGEX } from "@/utils/constants";
-import { removeWhitespaces } from "@/utils/remove-whitespaces";
+import { processContractName } from "@/utils/process-contract-name";
 
 export default function Governance() {
   const [governanceContract, setGovernanceContract] = useAtom(
@@ -54,7 +53,7 @@ export default function Governance() {
 
     try {
       setGovernanceContract({
-        name: removeWhitespaces(name),
+        name: processContractName(name),
         source: governor.print({
           name,
           delay: `${votingDelay.number} ${votingDelay.timeInterval}`, // e.g. "1 block"
