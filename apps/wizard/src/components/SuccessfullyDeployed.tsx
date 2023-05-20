@@ -10,9 +10,13 @@ export default function SuccessfullyDeployed() {
 
   if (!tokenContractAddress || !governanceContractAddress) {
     return (
-      <Title order={3} size="h4" className="mb-2" ta="center">
-        You have not deployed contracts yet.
-      </Title>
+      <div className="flex flex-col items-center mt-7 md:py-14 lg:py-20">
+        <div className="max-w-lg">
+          <Title order={3} size="h4" className="mb-2" ta="center">
+            You have not deployed contracts yet.
+          </Title>
+        </div>
+      </div>
     );
   }
 
