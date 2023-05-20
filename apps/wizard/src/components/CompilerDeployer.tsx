@@ -215,6 +215,18 @@ function CompilerDeployer() {
       const contractBinary: `0x${string}` = `0x${compiledContract?.object.evm.bytecode.object}`;
       const contractABI = compiledContract?.object.abi;
 
+      if (
+        !contractABI ||
+        contractBinary == `0x${undefined}` ||
+        !compiledContract
+      ) {
+        showErrorNotification(
+          "Contract error",
+          "Could not find compiled contract"
+        );
+        return null;
+      }
+
       let tx;
       if (walletClient) {
         try {
