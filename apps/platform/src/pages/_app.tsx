@@ -11,9 +11,9 @@ const inter = Inter({
 });
 
 const { chains, provider, webSocketProvider } = configureChains(
-    [mainnet],
-    [publicProvider()],
-)
+  [mainnet],
+  [publicProvider()]
+);
 
 const client = createClient({
   // Causes hydration error, see https://github.com/wagmi-dev/wagmi/issues/542
@@ -26,10 +26,11 @@ export default function App({ Component, pageProps }: AppProps) {
   // This is the hack to prevent the hydration error
   useEffect(() => {
     client.autoConnect();
+    document.documentElement.classList.add(inter.variable);
   }, []);
 
   return (
-    <div className={`font-sans container ${inter.variable}`}>
+    <div className={`font-sans px-4 sm:container ${inter.variable}`}>
       <WagmiConfig client={client}>
         <Component {...pageProps} />
       </WagmiConfig>

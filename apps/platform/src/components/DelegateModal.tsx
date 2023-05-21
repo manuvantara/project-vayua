@@ -1,17 +1,17 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/ui/Dialog";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
 import React, { useState } from "react";
 
-function DelegateModal() {
+export default function DelegateModal() {
   const [showDelegate, setShowDelegate] = useState(true);
   const [showDelegateSomeone, setShowDelegateSomeone] = useState(false);
 
@@ -59,5 +59,3 @@ function DelegateModal() {
     </Dialog>
   );
 }
-
-export default DelegateModal;
