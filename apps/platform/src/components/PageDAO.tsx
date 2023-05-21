@@ -12,6 +12,8 @@ const daos = {
   logo: "https://www.tally.xyz/_next/image?url=https%3A%2F%2Fstatic.tally.xyz%2Fde0e6dc7-1c07-4ae4-9f42-e46367984fd2_original.png&w=384&q=75",
   description:
     "Aave DAO is a community-driven governance model that enables token holders to propose and vote on changes to the Aave protocol on Ethereum.",
+  passed: 12,
+  failed: 12,
 };
 
 function PageDAO() {
@@ -41,10 +43,10 @@ function PageDAO() {
           <h1 className="text-xl font-bold">Proposals</h1>
           <div className="flex flex-row gap-3">
             <div>
-              12 <text className="text-green-600">Passed</text>
+              {daos.passed} <text className="text-green-600">Passed</text>
             </div>
             <div>
-              12 <text className="text-red-600">Failed</text>
+              {daos.failed} <text className="text-red-600">Failed</text>
             </div>
           </div>
         </div>
