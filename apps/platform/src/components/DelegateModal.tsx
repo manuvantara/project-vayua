@@ -11,9 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React, { useState } from "react";
 
-export function DelegateModal() {
+function DelegateModal() {
   const [showDelegate, setShowDelegate] = useState(true);
   const [showDelegateSomeone, setShowDelegateSomeone] = useState(false);
+
+  const handleDelegateDialog = () => {
+    setShowDelegate(true);
+    setShowDelegateSomeone(false);
+  };
 
   const handleDelegateSomeoneButton = () => {
     setShowDelegate((showDelegate) => !showDelegate);
@@ -23,7 +28,9 @@ export function DelegateModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Delegate</Button>
+        <Button variant="outline" onClick={handleDelegateDialog}>
+          Delegate
+        </Button>
       </DialogTrigger>
       <DialogContent
         onCloseAutoFocus={handleDelegateSomeoneButton}
