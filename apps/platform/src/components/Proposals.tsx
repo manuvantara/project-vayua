@@ -8,12 +8,47 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
-import {
-  ParsedProposal,
-  ProposalState as ProposalStateEnum,
-} from "@/lib/useParseProposals";
+import { ethers } from "ethers";
 
-type ParsedProposalWithTitle = ParsedProposal & { title: string };
+export enum ProposalState {
+  Pending,
+  Active,
+  Canceled,
+  Defeated,
+  Succeeded,
+  Queued,
+  Expired,
+  Executed,
+}
+
+type Proposal = {
+  id: number;
+  proposer: string;
+  targets: string[];
+  values: ethers.BigNumber[];
+  signatures: string[];
+  calldatas: string[];
+  startBlock: ethers.BigNumber;
+  endBlock: ethers.BigNumber;
+  description: string;
+};
+
+export type ParsedProposal = {
+  id: number;
+  proposer: string;
+  targets: string[];
+  values: string[];
+  signatures: string[];
+  calldatas: string[];
+  startBlock: string;
+  endBlock: string;
+  description: string;
+  state: ProposalState | undefined;
+};
+
+export type ParsedProposalWithTitle = ParsedProposal & {
+  title: string;
+};
 
 const mockProposals: ParsedProposalWithTitle[] = [
   {
@@ -27,7 +62,7 @@ const mockProposals: ParsedProposalWithTitle[] = [
     startBlock: "1000",
     endBlock: "2000",
     description: "Proposal 1 description",
-    state: ProposalStateEnum.Pending,
+    state: ProposalState.Pending,
   },
   {
     id: 2,
@@ -40,7 +75,7 @@ const mockProposals: ParsedProposalWithTitle[] = [
     startBlock: "3000",
     endBlock: "4000",
     description: "Proposal 2 description",
-    state: ProposalStateEnum.Active,
+    state: ProposalState.Active,
   },
   {
     id: 3,
@@ -53,7 +88,7 @@ const mockProposals: ParsedProposalWithTitle[] = [
     startBlock: "5000",
     endBlock: "6000",
     description: "Proposal 3 description",
-    state: ProposalStateEnum.Canceled,
+    state: ProposalState.Canceled,
   },
   {
     id: 4,
@@ -66,7 +101,7 @@ const mockProposals: ParsedProposalWithTitle[] = [
     startBlock: "7000",
     endBlock: "8000",
     description: "Proposal 4 description",
-    state: ProposalStateEnum.Succeeded,
+    state: ProposalState.Succeeded,
   },
   {
     id: 5,
@@ -79,7 +114,7 @@ const mockProposals: ParsedProposalWithTitle[] = [
     startBlock: "9000",
     endBlock: "10000",
     description: "Proposal 5 description",
-    state: ProposalStateEnum.Expired,
+    state: ProposalState.Expired,
   },
 ];
 
@@ -104,7 +139,7 @@ export default function Proposals() {
               <TableCell className="font-medium">{proposal.title}</TableCell>
               <TableCell>
                 <Badge className="text-xs">
-                  {ProposalStateEnum[proposal.state as ProposalStateEnum]}
+                  {ProposalState[proposal.state as ProposalState]}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
