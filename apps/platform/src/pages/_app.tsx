@@ -1,9 +1,11 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
-import { configureChains, createClient, mainnet, WagmiConfig } from "wagmi";
+import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 import { useEffect } from "react";
+import Toaster from "@/components/ui/Toaster";
+import { thetaTestnet } from "@/utils/chains/theta-testnet";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,7 +13,7 @@ const inter = Inter({
 });
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [mainnet],
+  [thetaTestnet],
   [publicProvider()]
 );
 
@@ -33,6 +35,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <div className={`font-sans px-4 sm:container ${inter.variable}`}>
       <WagmiConfig client={client}>
         <Component {...pageProps} />
+        <Toaster />
       </WagmiConfig>
     </div>
   );
