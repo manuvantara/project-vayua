@@ -5,6 +5,9 @@ import Proposals from "../../components/Proposals";
 import Link from "next/link";
 import WagmiWalletConnect from "@/components/WagmiWalletConnect";
 import ClientOnly from "@/components/ClientOnly";
+import { useRouter } from "next/router";
+import { useContractRead } from "wagmi";
+import { governorABI } from "@/utils/abi/openzeppelin-contracts";
 
 const daos = {
   id: 1,
@@ -17,6 +20,16 @@ const daos = {
 };
 
 function PageDAO() {
+  // get the governance contract id from route
+  const router = useRouter();
+  const govAddress = router.query.id as `0x${string}`;
+  // read token address from governance
+  const read = useContractRead({
+    address: govAddress,
+    abi: governorABI,
+    functionName: "token",
+  });
+  const tokenAddress: `0x${string}` = read.data as `0x${string}`;
   return (
     <div className="flex flex-col gap-6">
       <ClientOnly>
@@ -33,7 +46,7 @@ function PageDAO() {
               <Link href="/">
                 <Button variant="outline">Create proposal</Button>
               </Link>
-              <DelegateModal tokenAddress="0x91331BD31a527D2b289D075A6Db53cd448B6613C" />
+              <DelegateModal tokenAddress={tokenAddress} />
             </div>
           </div>
           <div className="mt-4 text-center md:text-left">
