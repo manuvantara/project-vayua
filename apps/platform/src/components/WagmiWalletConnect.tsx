@@ -1,8 +1,8 @@
 import { useConnect } from "wagmi";
-import { Button } from "@mantine/core";
-import { showNotification } from "@mantine/notifications";
+import { Button } from "@/components/ui/Button";
 import { useEffect } from "react";
 import { thetaTestnet } from "@/utils/chains/theta-chains";
+import { useToast } from "@/components/ui/use-toast";
 
 function WagmiWalletConnect() {
   const { connect, connectors, error, isLoading, pendingConnector } =
@@ -10,13 +10,13 @@ function WagmiWalletConnect() {
       chainId: thetaTestnet.id,
     });
 
+  const { toast } = useToast();
+
   useEffect(() => {
     if (error) {
-      showNotification({
-        title: "Error",
-        color: "red",
-        message: error.message,
-        autoClose: 5000,
+      toast({
+        description: error.message,
+        variant: "destructive",
       });
     }
   }, [error]);
@@ -25,16 +25,13 @@ function WagmiWalletConnect() {
     <>
       {connectors.map((connector) => (
         <Button
-          color="green"
+          variant="default"
+          loading={isLoading && connector.id === pendingConnector?.id}
           disabled={!connector.ready}
           key={connector.id}
           onClick={() => connect({ connector })}
         >
           Connect
-          {!connector.ready && " (unsupported)"}
-          {isLoading &&
-            connector.id === pendingConnector?.id &&
-            " (connecting)"}
         </Button>
       ))}
     </>
