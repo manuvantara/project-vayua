@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { Button } from "@/components/ui/Button";
 import {
   Dialog,
@@ -7,19 +9,21 @@ import {
   DialogTrigger,
 } from "@/components/ui/Dialog";
 import { Label } from "@/components/ui/Label";
-import { DelegateVoteFormValues } from "@/types/forms";
-import { tokenABI } from "@/utils/abi/standard";
-import { TextInput } from "@mantine/core";
-import { isNotEmpty, useForm } from "@mantine/form";
-import React, { useState } from "react";
+import { Input } from "./ui/Input";
+
 import { useAccount, useContractWrite } from "wagmi";
+import { tokenABI } from "@/utils/abi/standard";
+
+import { isNotEmpty, useForm } from "@mantine/form";
+import { DelegateVoteFormValues } from "@/types/forms";
 
 interface DelegateModalProps {
   tokenAddress: `0x${string}`;
 }
 
 export default function DelegateModal({ tokenAddress }: DelegateModalProps) {
-  ////////////////////////////////////////////////////////////
+  const account = useAccount();
+
   const delegateVotesWrite = useContractWrite({
     address: tokenAddress,
     abi: tokenABI,
@@ -33,20 +37,14 @@ export default function DelegateModal({ tokenAddress }: DelegateModalProps) {
     },
   });
 
-  const account = useAccount();
-  ///////////////////////////////////////////////////////
-
-  const [showDelegate, setShowDelegate] = useState(true);
-  const [showDelegateSomeone, setShowDelegateSomeone] = useState(false);
+  const [showDelegateForm, setShowDelegateForm] = useState(true);
 
   const handleDelegateDialog = () => {
-    setShowDelegate(true);
-    setShowDelegateSomeone(false);
+    setShowDelegateForm(true);
   };
 
   const handleDelegate = () => {
-    setShowDelegate((showDelegate) => !showDelegate);
-    setShowDelegateSomeone((showDelegateSomeone) => !setShowDelegateSomeone);
+    setShowDelegateForm((prevValue) => !prevValue);
   };
 
   return (
@@ -64,7 +62,7 @@ export default function DelegateModal({ tokenAddress }: DelegateModalProps) {
           <DialogTitle>Delegate voting power</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          {showDelegate ? (
+          {showDelegateForm ? (
             <>
               <Button
                 disabled={!delegateVotesWrite.write}
@@ -83,8 +81,9 @@ export default function DelegateModal({ tokenAddress }: DelegateModalProps) {
           ) : (
             <>
               <Label htmlFor="delegatee">Delegatee address</Label>
-              <TextInput
+              <Input
                 id="delegatee"
+                type="text"
                 placeholder="0xC37713ef41Aff1A7ac1c3D02f6f0B3a57F8A3091"
                 {...delegateVotesForm.getInputProps("delegatee")}
               />
