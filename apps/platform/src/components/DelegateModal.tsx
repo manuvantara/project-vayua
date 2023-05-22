@@ -1,4 +1,3 @@
-"use client";
 import { Button } from "@/components/ui/Button";
 import {
   Dialog,
@@ -7,11 +6,36 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/Dialog";
-import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
+import { DelegateVoteFormValues } from "@/types/forms";
+import { tokenABI } from "@/utils/abi/standard";
+import { TextInput } from "@mantine/core";
+import { isNotEmpty, useForm } from "@mantine/form";
 import React, { useState } from "react";
+import { useAccount, useContractWrite } from "wagmi";
 
-export default function DelegateModal() {
+interface DelegateModalProps {
+  tokenAddress: `0x${string}`;
+}
+
+export default function DelegateModal({ tokenAddress }: DelegateModalProps) {
+  ////////////////////////////////////////////////////////////
+  const delegateVotesWrite = useContractWrite({
+    address: tokenAddress,
+    abi: tokenABI,
+    functionName: "delegate",
+  });
+
+  const delegateVotesForm = useForm<DelegateVoteFormValues>({
+    validateInputOnBlur: true,
+    validate: {
+      delegatee: isNotEmpty("Please provide a delegatee address"),
+    },
+  });
+
+  const account = useAccount();
+  ///////////////////////////////////////////////////////
+
   const [showDelegate, setShowDelegate] = useState(true);
   const [showDelegateSomeone, setShowDelegateSomeone] = useState(false);
 
@@ -20,7 +44,7 @@ export default function DelegateModal() {
     setShowDelegateSomeone(false);
   };
 
-  const handleDelegateSomeoneButton = () => {
+  const handleDelegate = () => {
     setShowDelegate((showDelegate) => !showDelegate);
     setShowDelegateSomeone((showDelegateSomeone) => !setShowDelegateSomeone);
   };
@@ -33,7 +57,7 @@ export default function DelegateModal() {
         </Button>
       </DialogTrigger>
       <DialogContent
-        onCloseAutoFocus={handleDelegateSomeoneButton}
+        onCloseAutoFocus={handleDelegate}
         className="sm:max-w-[425px]"
       >
         <DialogHeader>
@@ -42,16 +66,38 @@ export default function DelegateModal() {
         <div className="grid gap-4 py-4">
           {showDelegate ? (
             <>
-              <Button variant="outline">Myself</Button>
-              <Button variant="outline" onClick={handleDelegateSomeoneButton}>
+              <Button
+                disabled={!delegateVotesWrite.write}
+                onClick={() =>
+                  delegateVotesWrite.write({
+                    args: [account.address],
+                  })
+                }
+              >
+                Myself
+              </Button>
+              <Button variant="outline" onClick={handleDelegate}>
                 To someone
               </Button>
             </>
           ) : (
             <>
-              <Label htmlFor="address">Token address</Label>
-              <Input id="address" type="text" placeholder="Enter an ETH" />
-              <Button>Delegate votes</Button>
+              <Label htmlFor="delegatee">Delegatee address</Label>
+              <TextInput
+                id="delegatee"
+                placeholder="0xC37713ef41Aff1A7ac1c3D02f6f0B3a57F8A3091"
+                {...delegateVotesForm.getInputProps("delegatee")}
+              />
+              <Button
+                disabled={!delegateVotesWrite.write}
+                onClick={() =>
+                  delegateVotesWrite.write({
+                    args: [delegateVotesForm.values.delegatee],
+                  })
+                }
+              >
+                Delegate votes
+              </Button>
             </>
           )}
         </div>

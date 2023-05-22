@@ -1,10 +1,16 @@
-"use client";
 import { Button } from "@/components/ui/Button";
-import React, { useState } from "react";
-import Image from "next/image";
-import DelegateModal from "./DelegateModal";
-import Proposals from "./Proposals";
+import React from "react";
+import DelegateModal from "../../components/DelegateModal";
+import Proposals from "../../components/Proposals";
 import Link from "next/link";
+
+import dynamic from "next/dynamic";
+const WagmiWalletConnect = dynamic(
+  () => import("@/components/WagmiWalletConnect"),
+  {
+    ssr: false,
+  }
+);
 
 const daos = {
   id: 1,
@@ -19,6 +25,7 @@ const daos = {
 function PageDAO() {
   return (
     <div className="flex flex-col gap-6">
+      <WagmiWalletConnect />
       <div className="bg-white border border-black-500 rounded-lg p-5">
         <div>
           <div className="flex md:flex-row md:justify-between items-center flex-col justify-center">
@@ -30,7 +37,7 @@ function PageDAO() {
               <Link href="/">
                 <Button variant="outline">Create proposal</Button>
               </Link>
-              <DelegateModal />
+              <DelegateModal tokenAddress="0x91331BD31a527D2b289D075A6Db53cd448B6613C" />
             </div>
           </div>
           <div className="mt-4 text-center md:text-left">
