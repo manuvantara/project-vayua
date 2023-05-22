@@ -3,14 +3,8 @@ import React from "react";
 import DelegateModal from "../../components/DelegateModal";
 import Proposals from "../../components/Proposals";
 import Link from "next/link";
-
-import dynamic from "next/dynamic";
-const WagmiWalletConnect = dynamic(
-  () => import("@/components/WagmiWalletConnect"),
-  {
-    ssr: false,
-  }
-);
+import WagmiWalletConnect from "@/components/WagmiWalletConnect";
+import ClientOnly from "@/components/ClientOnly";
 
 const daos = {
   id: 1,
@@ -25,7 +19,9 @@ const daos = {
 function PageDAO() {
   return (
     <div className="flex flex-col gap-6">
-      <WagmiWalletConnect />
+      <ClientOnly>
+        <WagmiWalletConnect />
+      </ClientOnly>
       <div className="bg-white border border-black-500 rounded-lg p-5">
         <div>
           <div className="flex md:flex-row md:justify-between items-center flex-col justify-center">
@@ -50,10 +46,12 @@ function PageDAO() {
           <h1 className="text-xl font-bold">Proposals</h1>
           <div className="flex flex-row gap-3">
             <div>
-              {daos.passed} <text className="text-green-600">Passed</text>
+              {daos.passed}
+              <text className="text-green-600">Passed</text>
             </div>
             <div>
-              {daos.failed} <text className="text-red-600">Failed</text>
+              {daos.failed}
+              <text className="text-red-600">Failed</text>
             </div>
           </div>
         </div>
