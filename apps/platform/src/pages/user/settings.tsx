@@ -66,7 +66,14 @@ export default function UserSettings() {
   // });
 
   const handleSubmit = async (values: typeof form.values) => {
-    if (!writeAsync) return;
+    if (!writeAsync) {
+      toast({
+        title: "We couldn't save your profile.",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const txRes = await writeAsync();
     toast({
