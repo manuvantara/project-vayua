@@ -19,6 +19,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
 );
 
 const config = createConfig({
+  // May cause hydration error, see https://github.com/wagmi-dev/wagmi/issues/542
   autoConnect: true,
   connectors: [new MetaMaskConnector({ chains })],
   publicClient,
@@ -26,12 +27,16 @@ const config = createConfig({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    document.documentElement.style.setProperty("--font-inter", inter.variable);
+  }, []);
+
   return (
     <div className={`font-sans px-4 sm:container ${inter.variable}`}>
       <WagmiConfig config={config}>
         <Component {...pageProps} />
-        <Toaster />
       </WagmiConfig>
+      <Toaster />
     </div>
   );
 }
