@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import React, { useState } from "react";
 import { Label } from "@/components/ui/Label";
-import { RichTextEditor, Link } from "@mantine/tiptap";
+import { Link, RichTextEditor } from "@mantine/tiptap";
 import { useEditor } from "@tiptap/react";
 import Highlight from "@tiptap/extension-highlight";
 import StarterKit from "@tiptap/starter-kit";
@@ -13,14 +13,14 @@ import Superscript from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
 import TurndownService from "turndown";
 
-function NewProposalForm() {
+const turndownService = new TurndownService();
+
+export default function NewProposal() {
   const content =
     "<h2>Your proposal's description</h2>It provides context and information about proposal's intent and purpose, which helps users understand what they are voting for or against";
 
   const [textInputValue, setTextInputValue] = useState("");
   const [richTextEditorValue, setRichTextEditorValue] = useState(content);
-
-  const turndownService = new TurndownService();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -119,5 +119,3 @@ function NewProposalForm() {
     </div>
   );
 }
-
-export default NewProposalForm;
