@@ -12,10 +12,23 @@ import TextAlign from "@tiptap/extension-text-align";
 import Superscript from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
 import TurndownService from "turndown";
+import { useRouter } from "next/router";
+import { useContractWrite } from "wagmi";
+import { governorABI } from "@/utils/abi/openzeppelin-contracts";
 
 const turndownService = new TurndownService();
 
 export default function NewProposal() {
+  // get the governance contract address
+  const router = useRouter();
+  const govAddress = router.query.gov as `0x${string}`;
+  // propose function
+  const proposeWrite = useContractWrite({
+    address: govAddress,
+    abi: governorABI,
+    functionName: "propose",
+  });
+  //
   const content =
     "<h2>Your proposal's description</h2>It provides context and information about proposal's intent and purpose, which helps users understand what they are voting for or against";
 
@@ -114,6 +127,21 @@ export default function NewProposal() {
         <div className="flex justify-between">
           <Button variant="outline">Return</Button>
           <Button type="submit">Create proposal</Button>
+          <Button
+            disabled={!proposeWrite.write}
+            onClick={() =>
+              proposeWrite.write({
+                args: [
+                  ["0x0000000000000000000000000000000000000000"],
+                  [0],
+                  ["0x00"],
+                  "Put your mark here along with the title",
+                ],
+              })
+            }
+          >
+            Propose
+          </Button>
         </div>
       </form>
     </div>
