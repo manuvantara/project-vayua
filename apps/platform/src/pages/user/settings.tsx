@@ -11,10 +11,16 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import Image from "next/image";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import {
+  useContractRead,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 import { Profile_ABI } from "@/utils/abi/Profile_ABI";
 import { isNotEmpty, useForm } from "@mantine/form";
 import { useToast } from "@/components/ui/use-toast";
+import { useEffect } from "react";
 
 type UserSettingsForm = {
   name: string;
@@ -43,6 +49,29 @@ export default function UserSettings() {
     },
   });
 
+  const { data: userProfileData, refetch } = useContractRead({
+    address: Profile_ABI.address,
+    abi: Profile_ABI.abi,
+    functionName: "profiles",
+    // TODO: here should be the address of the user
+    args: ["0xf17A8d2D5186EFc07165B67F77A8a519a21cdE69"],
+  });
+
+  useEffect(() => {
+    if (userProfileData) {
+      form.setValues({
+        // TODO: fix types
+        name: userProfileData[0],
+        bio: userProfileData[1],
+        avatar: userProfileData[2],
+        location: userProfileData[3],
+        website: userProfileData[4],
+        extra: userProfileData[5],
+      });
+      form.resetDirty();
+    }
+  }, [userProfileData]);
+
   const { config } = usePrepareContractWrite({
     address: Profile_ABI.address,
     abi: Profile_ABI.abi,
@@ -50,23 +79,23 @@ export default function UserSettings() {
     args: [form.values],
   });
 
-  const { isLoading, writeAsync } = useContractWrite(config);
+  const { data, write, isLoading: isWriteLoading } = useContractWrite(config);
 
-  // const read = useContractRead({
-  //   address: Profile_ABI.address,
-  //   abi: Profile_ABI.abi,
-  //   functionName: "profiles",
-  //   args: ["0xf17A8d2D5186EFc07165B67F77A8a519a21cdE69"],
-  // });
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  });
 
-  // console.table({
-  //   data,
-  //   isLoading,
-  //   isSuccess,
-  // });
+  useEffect(() => {
+    if (isSuccess) {
+      toast({
+        description: "Your profile has been successfully updated.",
+      });
+      refetch();
+    }
+  }, [isSuccess]);
 
   const handleSubmit = async (values: typeof form.values) => {
-    if (!writeAsync) {
+    if (!write) {
       toast({
         title: "We couldn't save your profile.",
         description: "Please try again.",
@@ -75,13 +104,7 @@ export default function UserSettings() {
       return;
     }
 
-    const txRes = await writeAsync();
-    toast({
-      description: "Your profile has been updated.",
-    });
-    // await txRes.wait();
-    // await read.refetch();
-    // console.log(read.data);
+    write();
   };
 
   const handleErrors = (errors: typeof form.errors) => {
@@ -289,7 +312,12 @@ export default function UserSettings() {
             </Card>
           </div>
           <div className="flex items-center justify-end">
-            <Button loading={isLoading} type="submit" className="h-full">
+            <Button
+              disabled={!write}
+              loading={isLoading || isWriteLoading}
+              type="submit"
+              className="h-full"
+            >
               Save
             </Button>
           </div>
