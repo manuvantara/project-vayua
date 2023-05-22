@@ -69,6 +69,9 @@ export default function UserSettings() {
     if (!writeAsync) return;
 
     const txRes = await writeAsync();
+    toast({
+      description: "Your profile has been updated.",
+    });
     // await txRes.wait();
     // await read.refetch();
     // console.log(read.data);
