@@ -1,8 +1,8 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import React, { useState } from "react";
-import { Label } from "./ui/label";
+import { Label } from "@/components/ui/Label";
 import { RichTextEditor, Link } from "@mantine/tiptap";
 import { useEditor } from "@tiptap/react";
 import Highlight from "@tiptap/extension-highlight";
@@ -22,7 +22,9 @@ function NewProposalForm() {
 
   const turndownService = new TurndownService();
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
     console.log("Text Input Value:", textInputValue);
     console.log("Rich Text Editor Value:", richTextEditorValue);
     const markdown = turndownService.turndown(richTextEditorValue);
