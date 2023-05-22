@@ -20,7 +20,7 @@ const daos = {
 };
 
 function PageDAO() {
-  // get the governance contract id from route
+  // get the governance contract address from route
   const router = useRouter();
   const govAddress = router.query.id as `0x${string}`;
   // read token address from governance
@@ -43,7 +43,12 @@ function PageDAO() {
               <h1 className="text-3xl font-bold">{daos.name}</h1>
             </div>
             <div className="flex flex-row gap-3">
-              <Link href="/">
+              <Link
+                href={{
+                  pathname: "/proposal/new",
+                  query: { gov: govAddress },
+                }}
+              >
                 <Button variant="outline">Create proposal</Button>
               </Link>
               <DelegateModal tokenAddress={tokenAddress} />
