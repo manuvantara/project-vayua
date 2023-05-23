@@ -308,7 +308,7 @@ function CompilerDeployer() {
                 color="orange"
                 className="justify-self-start"
               >
-                <p>Make sure you are singed in.</p>
+                <p>Make sure the wallet is connected.</p>
                 <p>You will be asked to confirm 2 transactions.</p>
               </Alert>
             </div>

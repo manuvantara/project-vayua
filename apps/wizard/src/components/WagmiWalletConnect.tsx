@@ -1,4 +1,4 @@
-import { useConnect } from "wagmi";
+import { useAccount, useConnect } from "wagmi";
 import { thetaTestnet, thetaMainnet } from "../config/theta-chains";
 import { Button } from "@mantine/core";
 import { showNotification } from "@mantine/notifications";
@@ -21,6 +21,8 @@ function WagmiWalletConnect() {
     }
   }, [error]);
 
+  const { isConnected } = useAccount();
+
   return (
     <>
       {connectors.map((connector) => (
@@ -30,7 +32,7 @@ function WagmiWalletConnect() {
           key={connector.id}
           onClick={() => connect({ connector })}
         >
-          Connect
+          {isConnected ? "Connected" : "Connect"}
           {!connector.ready && " (unsupported)"}
           {isLoading &&
             connector.id === pendingConnector?.id &&
