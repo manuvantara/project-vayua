@@ -147,7 +147,7 @@ export default function UserSettings() {
     <div>
       <div className="border-b flex items-stretch justify-start">
         <div className="flex items-center my-8">
-          <h1 className="text-4xl font-medium tracking-tight">
+          <h1 className="md:text-4xl text-3xl font-medium tracking-tight">
             Profile Settings
           </h1>
         </div>
@@ -156,7 +156,7 @@ export default function UserSettings() {
         className="max-w-5xl shadow-lg border mx-auto flex w-full rounded-md my-8"
         onSubmit={form.onSubmit((values) => handleSubmit(values), handleErrors)}
       >
-        <div className="flex items-stretch gap-6 justify-start w-full flex-col px-6">
+        <div className="flex items-stretch gap-6 justify-start w-full flex-col p-6">
           <div className="w-full">
             <Card>
               <CardHeader>
