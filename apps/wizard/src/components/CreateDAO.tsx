@@ -21,52 +21,26 @@ function CreateDAO() {
         <div className="p-4 sm:p-6 md:p-8">
           <div className="mb-5">
             <Title order={2} size="h4" className="mb-2">
-              Create your DAO
+              What is Vayua Wizard?
             </Title>
             <Text size="md" component="p" className="text-gray-500">
-              We support the OpenZeppelin Governor Standard for on-chain DAOs
+              Vayua Wizard is a powerful tool that allows you to effortlessly
+              set up a new Decentralized Autonomous Organization (DAO) in just a
+              few minutes. It is designed to be user-friendly and accessible,
+              even for individuals who are new to the world of web3 and
+              blockchain technology.
             </Text>
           </div>
           <Divider my="sm" />
           <div className="mt-5">
-            <Title order={3} size="h5" className="mb-2">
-              Basic details
+            <Title order={3} size="h4" className="mb-2">
+              Create your DAO
             </Title>
-            <div className="grid gap-6 max-w-2xl mt-5">
-              <div className="col-span-full">
-                <label
-                  htmlFor="dao-name"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Name
-                </label>
-                <div className="mt-2">
-                  <TextInput
-                    id="dao-name"
-                    placeholder="DAO name"
-                    {...daoForm.getInputProps("name")}
-                  />
-                </div>
-              </div>
-              <div className="col-span-full">
-                <label
-                  htmlFor="dao-desc"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Description
-                </label>
-                <div className="mt-2">
-                  <Textarea
-                    autosize
-                    minRows={4}
-                    maxRows={12}
-                    id="dao-desc"
-                    placeholder="DAO description"
-                    {...daoForm.getInputProps("desc")}
-                  />
-                </div>
-              </div>
-            </div>
+            <Text size="md" component="p" className="text-gray-500">
+              Follow these simple steps to create your own DAO! Begin the
+              process of constructing your smart contracts and empower your
+              community with decentralized decision-making and governance.
+            </Text>
           </div>
         </div>
       </div>
