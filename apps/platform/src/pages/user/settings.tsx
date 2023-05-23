@@ -23,6 +23,7 @@ import { isNotEmpty, useForm } from "@mantine/form";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect } from "react";
 import { getShortName } from "@/utils/shorten-name";
+import { ProfileSettingsFormValues } from "@/types/forms";
 
 // -------------
 // For the future
@@ -46,20 +47,11 @@ type SharedFormValues = {
 
 // -------------
 
-type UserSettingsFormValues = {
-  name: string;
-  bio: string;
-  avatar: string;
-  location: string;
-  website: string;
-  extra: string;
-};
-
-export default function UserSettings() {
+export default function ProfileSettings() {
   const { toast } = useToast();
   const { address } = useAccount();
 
-  const form = useForm<UserSettingsFormValues>({
+  const form = useForm<ProfileSettingsFormValues>({
     validateInputOnBlur: true,
     initialValues: {
       name: "",
