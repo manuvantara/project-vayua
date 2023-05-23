@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/Button";
 import React from "react";
-import DelegateModal from "../../components/DelegateModal";
-import Proposals from "../../components/Proposals";
+import DelegateModal from "@/components/DelegateModal";
+import Proposals from "@/components/Proposals";
 import Link from "next/link";
 import WagmiWalletConnect from "@/components/WagmiWalletConnect";
 import ClientOnly from "@/components/ClientOnly";
 import { useRouter } from "next/router";
 import { useContractRead } from "wagmi";
-import { governorABI } from "@/utils/abi/openzeppelin-contracts";
+import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 
 const daos = {
   id: 1,
@@ -26,10 +26,11 @@ function PageDAO() {
   // read token address from governance
   const read = useContractRead({
     address: govAddress,
-    abi: governorABI,
+    abi: governorAbi,
     functionName: "token",
   });
   const tokenAddress: `0x${string}` = read.data as `0x${string}`;
+
   return (
     <div className="flex flex-col gap-6">
       <ClientOnly>
@@ -74,7 +75,7 @@ function PageDAO() {
           </div>
         </div>
         <hr className="my-3"></hr>
-        <Proposals />
+        <Proposals govAddress={govAddress} />
       </div>
     </div>
   );

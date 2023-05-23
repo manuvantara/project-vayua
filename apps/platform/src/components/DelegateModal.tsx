@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/Label";
 import { Input } from "./ui/Input";
 
 import { useAccount, useContractWrite } from "wagmi";
-import { tokenABI } from "@/utils/abi/standard";
+import { tokenAbi } from "@/utils/abi/openzeppelin-contracts";
 
 import { isNotEmpty, useForm } from "@mantine/form";
 import { DelegateVoteFormValues } from "@/types/forms";
@@ -26,7 +26,7 @@ export default function DelegateModal({ tokenAddress }: DelegateModalProps) {
 
   const delegateVotesWrite = useContractWrite({
     address: tokenAddress,
-    abi: tokenABI,
+    abi: tokenAbi,
     functionName: "delegate",
   });
 
