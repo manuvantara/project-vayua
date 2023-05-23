@@ -3,8 +3,6 @@ import React from "react";
 import DelegateModal from "@/components/DelegateModal";
 import Proposals from "@/components/Proposals";
 import Link from "next/link";
-import WagmiWalletConnect from "@/components/WagmiWalletConnect";
-import ClientOnly from "@/components/ClientOnly";
 import { useRouter } from "next/router";
 import { useContractRead } from "wagmi";
 import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
@@ -33,9 +31,6 @@ function PageDAO() {
 
   return (
     <div className="flex flex-col gap-6">
-      <ClientOnly>
-        <WagmiWalletConnect />
-      </ClientOnly>
       <div className="bg-white border border-black-500 rounded-lg p-5">
         <div>
           <div className="flex md:flex-row md:justify-between items-center flex-col justify-center">
