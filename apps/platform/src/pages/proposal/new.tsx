@@ -14,7 +14,7 @@ import SubScript from "@tiptap/extension-subscript";
 import TurndownService from "turndown";
 import { useRouter } from "next/router";
 import { useContractWrite } from "wagmi";
-import { governorABI } from "@/utils/abi/openzeppelin-contracts";
+import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 
 const turndownService = new TurndownService();
 
@@ -25,7 +25,7 @@ export default function NewProposal() {
   // propose function
   const proposeWrite = useContractWrite({
     address: govAddress,
-    abi: governorABI,
+    abi: governorAbi,
     functionName: "propose",
   });
   //
