@@ -12,8 +12,21 @@ contract ProfileCollection {
     }
 
     mapping(address => Profile) public profiles;
+    mapping(address => bool) private hasProfile;
+
+    event ProfileChanged(address owner, Profile profile);
 
     function setProfile(Profile calldata _profile) external {
         profiles[msg.sender] = _profile;
+        emit ProfileChanged(msg.sender, _profile);
+    }
+
+    function setExtra(string calldata _extra) external {
+        require(
+            bytes(profiles[msg.sender].name).length != 0,
+            "Profile does not exist"
+        );
+        profiles[msg.sender].extra = _extra;
+        emit ProfileChanged(msg.sender, profiles[msg.sender]);
     }
 }
