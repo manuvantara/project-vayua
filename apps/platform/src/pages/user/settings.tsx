@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/Label";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
-import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import {
+  useAccount,
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
@@ -21,8 +22,31 @@ import { Profile_ABI } from "@/utils/abi/Profile_ABI";
 import { isNotEmpty, useForm } from "@mantine/form";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect } from "react";
+import { getShortName } from "@/utils/shorten-name";
 
-type UserSettingsForm = {
+// -------------
+// For the future
+// -------------
+/*type Props = {
+  type: "user" | "governance";
+};
+
+type SharedFormValues = {
+  name: string;
+  bio: string;
+  avatar: string;
+  location: string;
+  website: string;
+  extra: string;
+};*/
+
+// -------------
+
+// For demo profile use that address: 0xf17A8d2D5186EFc07165B67F77A8a519a21cdE69
+
+// -------------
+
+type UserSettingsFormValues = {
   name: string;
   bio: string;
   avatar: string;
@@ -33,8 +57,9 @@ type UserSettingsForm = {
 
 export default function UserSettings() {
   const { toast } = useToast();
+  const { address } = useAccount();
 
-  const form = useForm<UserSettingsForm>({
+  const form = useForm<UserSettingsFormValues>({
     validateInputOnBlur: true,
     initialValues: {
       name: "",
@@ -49,18 +74,17 @@ export default function UserSettings() {
     },
   });
 
-  const { data: userProfileData, refetch } = useContractRead({
+  const contractRead = useContractRead({
     address: Profile_ABI.address,
     abi: Profile_ABI.abi,
     functionName: "profiles",
-    // TODO: here should be the address of the user
-    args: ["0xf17A8d2D5186EFc07165B67F77A8a519a21cdE69"],
+    args: [address],
   });
 
   useEffect(() => {
+    const userProfileData: string[] = contractRead?.data as string[];
     if (userProfileData) {
       form.setValues({
-        // TODO: fix types
         name: userProfileData[0],
         bio: userProfileData[1],
         avatar: userProfileData[2],
@@ -70,7 +94,8 @@ export default function UserSettings() {
       });
       form.resetDirty();
     }
-  }, [userProfileData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contractRead?.data]);
 
   const { config } = usePrepareContractWrite({
     address: Profile_ABI.address,
@@ -90,8 +115,9 @@ export default function UserSettings() {
       toast({
         description: "Your profile has been successfully updated.",
       });
-      refetch();
+      contractRead.refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   const handleSubmit = async (values: typeof form.values) => {
@@ -130,11 +156,11 @@ export default function UserSettings() {
         className="max-w-5xl shadow-lg border mx-auto flex w-full rounded-md my-8"
         onSubmit={form.onSubmit((values) => handleSubmit(values), handleErrors)}
       >
-        <div className="flex items-stretch gap-6 justify-start w-full flex-col px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-stretch gap-6 justify-start w-full flex-col px-6">
           <div className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle>Your name</CardTitle>
+                <CardTitle className="text-lg md:text-xl">Your name</CardTitle>
                 <CardDescription>
                   Your name is how people will know you on the platform.
                 </CardDescription>
@@ -155,14 +181,14 @@ export default function UserSettings() {
                 </div>
               </CardContent>
               <CardFooter>
-                <p className="text-sm text-destructive">Name is required. </p>
+                <p className="text-sm text-destructive">Name is required.</p>
               </CardFooter>
             </Card>
           </div>
           <div className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle>Your Bio</CardTitle>
+                <CardTitle className="text-lg md:text-xl">Your Bio</CardTitle>
                 <CardDescription>
                   Help people discover your profile by sharing a short bio.
                 </CardDescription>
@@ -191,17 +217,24 @@ export default function UserSettings() {
             <Card>
               <CardHeader className="flex-row justify-between">
                 <div>
-                  <CardTitle>Your Avatar</CardTitle>
+                  <CardTitle className="text-lg md:text-xl">
+                    Your Avatar
+                  </CardTitle>
                   <CardDescription>This is your avatar.</CardDescription>
                 </div>
                 <div>
-                  <Image
-                    width={80}
-                    height={80}
-                    className="h-20 w-20 rounded-full object-cover border"
-                    src="https://images.unsplash.com/photo-1682687982029-edb9aecf5f89?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80"
-                    alt="User name"
-                  />
+                  <Avatar className="md:h-20 md:w-20 border">
+                    <AvatarImage
+                      className="object-top"
+                      decoding="async"
+                      loading="lazy"
+                      title={`Avatar for ${form.values.name}`}
+                      src={form.values.avatar || ""}
+                    />
+                    <AvatarFallback delayMs={300}>
+                      {getShortName(form.values.name)}
+                    </AvatarFallback>
+                  </Avatar>
                 </div>
               </CardHeader>
               <CardContent>
@@ -221,7 +254,8 @@ export default function UserSettings() {
               </CardContent>
               <CardFooter>
                 <p className="text-sm text-muted-foreground">
-                  Uploading avatar will help people see... you.{" "}
+                  For optimal results, we recommend using a square image that is
+                  at least 400px wide.
                 </p>
               </CardFooter>
             </Card>
@@ -229,7 +263,7 @@ export default function UserSettings() {
           <div className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle>Location</CardTitle>
+                <CardTitle className="text-lg md:text-xl">Location</CardTitle>
                 <CardDescription>Where in the world are you?</CardDescription>
               </CardHeader>
               <CardContent>
@@ -257,7 +291,7 @@ export default function UserSettings() {
           <div className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle>Website</CardTitle>
+                <CardTitle className="text-lg md:text-xl">Website</CardTitle>
                 <CardDescription>Your Website URL</CardDescription>
               </CardHeader>
               <CardContent>
@@ -282,42 +316,8 @@ export default function UserSettings() {
               </CardFooter>
             </Card>
           </div>
-          <div className="w-full">
-            <Card>
-              <CardHeader>
-                <CardTitle>Extra</CardTitle>
-                <CardDescription>
-                  Any Extra Information You Want To Share
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div>
-                  <Label htmlFor="extra" className="sr-only">
-                    Avatar
-                  </Label>
-                  <Textarea
-                    id="extra"
-                    name="extra"
-                    placeholder="Information goes here."
-                    {...form.getInputProps("extra")}
-                  />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <p className="text-sm text-muted-foreground">
-                  This is a great place to share your interests, hobbies, and
-                  passions.
-                </p>
-              </CardFooter>
-            </Card>
-          </div>
           <div className="flex items-center justify-end">
-            <Button
-              disabled={!write}
-              loading={isLoading || isWriteLoading}
-              type="submit"
-              className="h-full"
-            >
+            <Button loading={isLoading || isWriteLoading} type="submit">
               Save
             </Button>
           </div>
