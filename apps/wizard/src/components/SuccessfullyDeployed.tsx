@@ -1,4 +1,4 @@
-import { Button, CopyButton, Text, Title } from "@mantine/core";
+import { Alert, Button, CopyButton, Text, Title } from "@mantine/core";
 import { FiCopy } from "react-icons/fi";
 import { shortenAddress } from "@/utils/shorten-address";
 import { useAtomValue } from "jotai";
@@ -67,6 +67,13 @@ export default function SuccessfullyDeployed() {
               {shortenAddress(governanceContractAddress)}
             </Text>
           </div>
+          <Alert title="Wait!" color="orange" className="mt-4">
+            <p>Do not forget to copy your governance contract address.</p>
+            <p>
+              You may need to share it with your community or to find your
+              deployed DAO on the Vayua platform.
+            </p>
+          </Alert>
         </div>
       </div>
     </div>
