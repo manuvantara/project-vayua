@@ -48,10 +48,12 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <div className={`font-sans px-4 sm:container ${inter.variable}`}>
+    <div className={`font-sans ${inter.variable}`}>
       <WagmiConfig config={config}>
         <Header />
-        <Component {...pageProps} />
+        <div className="px-4 sm:container">
+          <Component {...pageProps} />
+        </div>
       </WagmiConfig>
       <Toaster />
     </div>

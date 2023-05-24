@@ -1,13 +1,23 @@
 import ClientOnly from "@/components/ClientOnly";
 import WalletConnect from "@/components/WalletConnect";
 import Link from "next/link";
+import useScroll from "@/utils/hooks/use-scroll";
+import { cn } from "@/utils/class-merge";
 
 export default function Header() {
-  // const
+  const scrolled = useScroll(0);
 
   return (
-    <div>
-      <header className="h-16">
+    <div
+      className={cn(
+        "sticky top-0 bg-white flex justify-center transition-all duration-300 w-full max-w-full z-50",
+        {
+          "sm:bg-white/80 shadow-[inset_0_-1px_0_rgba(0,0,0,0.1)] before:absolute before:w-full before:h-full before:backdrop-blur-sm  before:backdrop-saturate-150 before:-z-[1] before:transition-all before:duration-300 before:ease-in-out before:-top-[1px]":
+            scrolled,
+        }
+      )}
+    >
+      <header className="flex items-center justify-between container w-full py-4 min-h-16">
         <div className="flex items-center h-full justify-between">
           <Link href="/">
             <svg
@@ -70,11 +80,11 @@ export default function Header() {
               />
             </svg>
           </Link>
-          <div>
-            <ClientOnly>
-              <WalletConnect />
-            </ClientOnly>
-          </div>
+        </div>
+        <div>
+          <ClientOnly>
+            <WalletConnect />
+          </ClientOnly>
         </div>
       </header>
     </div>
