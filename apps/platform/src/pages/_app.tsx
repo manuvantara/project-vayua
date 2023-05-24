@@ -29,6 +29,7 @@ const config = createConfig({
     new CoinbaseWalletConnector({
       chains,
       options: {
+        chainId: thetaTestnet.id,
         appName: "Vayua",
       },
     }),

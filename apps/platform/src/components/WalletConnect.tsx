@@ -12,6 +12,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/Dialog";
 import { shortenAddress } from "@/utils/shorten-address";
+import Image from "next/image";
+
+const connectorsIcons: { [key: string]: any } = {
+  MetaMask: "/icons/metamask.svg",
+  "Coinbase Wallet": "/icons/coinbase.svg",
+  WalletConnect: "/icons/walletconnect.svg",
+};
 
 export default function WalletConnect() {
   const { toast } = useToast();
@@ -22,6 +29,9 @@ export default function WalletConnect() {
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect({
       chainId: thetaTestnet.id,
+      onSuccess: () => {
+        setOpen(false);
+      },
     });
   const { disconnect } = useDisconnect();
 
@@ -40,8 +50,15 @@ export default function WalletConnect() {
   };
 
   const handleConnect = (connector: Connector) => {
+    if (!connector.ready) {
+      toast({
+        description: "This connector is not ready yet.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     connect({ connector });
-    setOpen(false);
   };
 
   if (isConnected) {
@@ -77,17 +94,30 @@ export default function WalletConnect() {
             Please connect your wallet to continue using the app.
           </DialogDescription>
         </DialogHeader>
-        {connectors.map((connector) => (
-          <Button
-            variant="outline"
-            loading={isLoading && connector.id === pendingConnector?.id}
-            disabled={!connector.ready}
-            key={connector.id}
-            onClick={() => handleConnect(connector)}
-          >
-            {connector.name}
-          </Button>
-        ))}
+        <div className="flex flex-col space-y-2">
+          {connectors.map((connector) => {
+            const iconPath = connectorsIcons[connector.name];
+
+            return (
+              <Button
+                variant="outline"
+                loading={isLoading && connector.id === pendingConnector?.id}
+                key={connector.id}
+                onClick={() => handleConnect(connector)}
+              >
+                <span className="flex items-center space-x-2">
+                  <Image
+                    src={iconPath}
+                    width={24}
+                    height={24}
+                    alt={connector.name}
+                  />
+                  <span>{connector.name}</span>
+                </span>
+              </Button>
+            );
+          })}
+        </div>
       </DialogContent>
     </Dialog>
   );
