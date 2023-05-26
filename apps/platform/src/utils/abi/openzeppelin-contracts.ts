@@ -498,7 +498,7 @@ export const governorAbi = [
     type: "function",
   },
   { stateMutability: "payable", type: "receive" },
-];
+] as const;
 
 export const tokenAbi = [
   {
@@ -917,4 +917,4 @@ export const tokenAbi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-];
+] as const;
