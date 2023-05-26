@@ -9,6 +9,11 @@ import {
 } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { ethers } from "ethers";
+import { useEffect, useRef, useState } from "react";
+import { useBlockNumber, useContractRead, usePublicClient } from "wagmi";
+import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
+import { parseAbiItem } from "viem";
+import { shortenAddress, shortenString } from "@/utils/shorten-address";
 
 export enum ProposalState {
   Pending,
@@ -117,35 +122,113 @@ const mockProposals: ParsedProposalWithTitle[] = [
     state: ProposalState.Expired,
   },
 ];
+/////////////////////////////////////////////////
 
-export default function Proposals() {
+interface ProposalsProps {
+  govAddress: `0x${string}`;
+}
+
+export default function Proposals({ govAddress }: ProposalsProps) {
+  //
+  const [proposals, setProposals] = useState<any[]>([]);
+  const publicClient = usePublicClient();
+
+  //const { data: blockNumber, isError } = useBlockNumber();
+  const blockNumber = 21176027n;
+
+  const { data: votingPeriod } = useContractRead({
+    address: govAddress,
+    abi: governorAbi,
+    functionName: "votingPeriod",
+  });
+  const { data: votingDelay } = useContractRead({
+    address: govAddress,
+    abi: governorAbi,
+    functionName: "votingDelay",
+  });
+
+  const fetchLogsPerCycle = async (toBlock: bigint) => {
+    const fromBlock = toBlock - 4999n;
+    //console.log("Fetching logs from block", fromBlock, "to block", toBlock);
+    const logsPerCycle = await publicClient.getLogs({
+      address: govAddress,
+      event: parseAbiItem(
+        "event ProposalCreated(uint256, address, address[], uint256[], string[], bytes[], uint256, uint256, string)"
+      ),
+      fromBlock: fromBlock,
+      toBlock: toBlock,
+    });
+    const parsedLogs = parseLogs(logsPerCycle);
+    console.log(parsedLogs);
+    setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
+  };
+
+  const effectRef = useRef(false);
+  useEffect(() => {
+    if (!effectRef.current) {
+      const fetchLogs = async () => {
+        if (!blockNumber) {
+          return;
+        }
+        let toBlock = blockNumber;
+        while (true) {
+          await fetchLogsPerCycle(toBlock);
+          toBlock -= 5000n;
+        }
+      };
+
+      fetchLogs();
+      effectRef.current = true;
+    }
+  }, []);
+
+  const parseLogs = (logsPerCycle: any) => {
+    const parsedLogs = logsPerCycle.map((log: any) => {
+      const { args } = log;
+      // Transform args array into an object
+      const proposalObject = {
+        proposalId: args[0],
+        proposer: args[1],
+        targets: args[2],
+        values: args[3],
+        signatures: args[4],
+        calldatas: args[5],
+        voteStart: args[6],
+        voteEnd: args[7],
+        description: args[8],
+      };
+      return proposalObject;
+    });
+
+    return parsedLogs;
+  };
+
+  //////////////////////////////
   return (
     <div className="max-w-3xl mx-auto">
       <Table>
         <TableCaption>
-          Proposals for {`Governor name`} ({`Governor address`})
+          Proposals for {`Governor name`} ({govAddress})
         </TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="">Proposal</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Description</TableHead>
-            {/*<TableHead className="text-right">Amount</TableHead>*/}
+            <TableHead>Proposal Id</TableHead>
+            <TableHead>Proposed on</TableHead>
+            <TableHead>Proposer</TableHead>
+            <TableHead>Description</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mockProposals.map((proposal) => (
-            <TableRow key={proposal.id}>
-              <TableCell className="font-medium">{proposal.title}</TableCell>
+          {proposals.map((proposal) => (
+            <TableRow key={proposal.proposalId}>
               <TableCell>
-                <Badge className="text-xs">
-                  {ProposalState[proposal.state as ProposalState]}
-                </Badge>
+                {shortenString(proposal.proposalId.toString())}
               </TableCell>
-              <TableCell className="text-right">
-                {proposal.description.slice(0, 75)}
+              <TableCell>{proposal.voteStart.toString()}</TableCell>
+              <TableCell>
+                {shortenAddress(proposal.proposer.toString())}
               </TableCell>
-              {/*<TableCell className="text-right">$250.00</TableCell>*/}
+              <TableCell>{proposal.description.slice(0, 100)}</TableCell>
             </TableRow>
           ))}
         </TableBody>
