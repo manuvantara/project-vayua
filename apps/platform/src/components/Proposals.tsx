@@ -128,6 +128,8 @@ interface ProposalsProps {
   govAddress: `0x${string}`;
 }
 
+const MIN_BLOCK_NUMBER = 21041027n;
+
 export default function Proposals({ govAddress }: ProposalsProps) {
   //
   const [proposals, setProposals] = useState<any[]>([]);
@@ -163,6 +165,32 @@ export default function Proposals({ govAddress }: ProposalsProps) {
     setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
   };
 
+  const parseLogs = (logsPerCycle: any) => {
+    const parsedLogs = logsPerCycle.map((log: any) => {
+      const { args } = log;
+      // Transform args array into an object
+      const proposalObject = {
+        proposalId: args[0].toString(),
+        proposer: args[1].toString(),
+        targets: args[2],
+        values: args[3].map((value: ethers.BigNumber) => value.toString()),
+        signatures: args[4],
+        calldatas: args[5],
+        voteStart: args[6].toString(),
+        voteEnd: args[7].toString(),
+        description: args[8].toString(),
+      };
+      return proposalObject;
+    });
+
+    return parsedLogs;
+  };
+
+  // Save proposals to localStorage whenever it changes
+  useEffect(() => {
+    window.localStorage.setItem("proposals", JSON.stringify(proposals));
+  }, [proposals]);
+
   const effectRef = useRef(false);
   useEffect(() => {
     if (!effectRef.current) {
@@ -171,7 +199,7 @@ export default function Proposals({ govAddress }: ProposalsProps) {
           return;
         }
         let toBlock = blockNumber;
-        while (true) {
+        while (toBlock >= MIN_BLOCK_NUMBER) {
           await fetchLogsPerCycle(toBlock);
           toBlock -= 5000n;
         }
@@ -181,27 +209,6 @@ export default function Proposals({ govAddress }: ProposalsProps) {
       effectRef.current = true;
     }
   }, []);
-
-  const parseLogs = (logsPerCycle: any) => {
-    const parsedLogs = logsPerCycle.map((log: any) => {
-      const { args } = log;
-      // Transform args array into an object
-      const proposalObject = {
-        proposalId: args[0],
-        proposer: args[1],
-        targets: args[2],
-        values: args[3],
-        signatures: args[4],
-        calldatas: args[5],
-        voteStart: args[6],
-        voteEnd: args[7],
-        description: args[8],
-      };
-      return proposalObject;
-    });
-
-    return parsedLogs;
-  };
 
   //////////////////////////////
   return (
@@ -221,13 +228,9 @@ export default function Proposals({ govAddress }: ProposalsProps) {
         <TableBody>
           {proposals.map((proposal) => (
             <TableRow key={proposal.proposalId}>
-              <TableCell>
-                {shortenString(proposal.proposalId.toString())}
-              </TableCell>
-              <TableCell>{proposal.voteStart.toString()}</TableCell>
-              <TableCell>
-                {shortenAddress(proposal.proposer.toString())}
-              </TableCell>
+              <TableCell>{shortenString(proposal.proposalId)}</TableCell>
+              <TableCell>{proposal.voteStart}</TableCell>
+              <TableCell>{shortenAddress(proposal.proposer)}</TableCell>
               <TableCell>{proposal.description.slice(0, 100)}</TableCell>
             </TableRow>
           ))}
