@@ -6,6 +6,10 @@ import { getAddress } from "viem";
  * @private - for internal use only
  **/
 export function shortenString(str: string) {
+  // If anyone pass something else but with string type, we throw an error to prevent unexpected behavior
+  if (typeof str !== "string")
+    throw new Error("Invalid input, string required");
+
   return str.substring(0, 6) + "..." + str.substring(str.length - 4);
 }
 
