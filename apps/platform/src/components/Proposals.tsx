@@ -161,7 +161,7 @@ export default function Proposals({ govAddress }: ProposalsProps) {
       toBlock: toBlock,
     });
     const parsedLogs = parseLogs(logsPerCycle);
-    console.log(parsedLogs);
+    //console.log(parsedLogs);
     setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
   };
 
@@ -186,14 +186,16 @@ export default function Proposals({ govAddress }: ProposalsProps) {
     return parsedLogs;
   };
 
-  // Save proposals to localStorage whenever it changes
-  useEffect(() => {
-    window.localStorage.setItem("proposals", JSON.stringify(proposals));
-  }, [proposals]);
-
   const effectRef = useRef(false);
   useEffect(() => {
     if (!effectRef.current) {
+      // const storedProposals = window.localStorage.getItem("proposals");
+
+      // console.log("Stored proposals: ", storedProposals);
+      // if (storedProposals) {
+      //   setProposals(JSON.parse(storedProposals));
+      // }
+
       const fetchLogs = async () => {
         if (!blockNumber) {
           return;
@@ -208,7 +210,8 @@ export default function Proposals({ govAddress }: ProposalsProps) {
       fetchLogs();
       effectRef.current = true;
     }
-  }, []);
+    window.localStorage.setItem("proposals", JSON.stringify(proposals));
+  }, [proposals]);
 
   //////////////////////////////
   return (
