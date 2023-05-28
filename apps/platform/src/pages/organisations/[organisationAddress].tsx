@@ -69,7 +69,7 @@ export default function OrganisationPage() {
           </div>
         </div>
         <hr className="my-3"></hr>
-        <Proposals govAddress={govAddress} />
+        <Proposals />
       </div>
     </div>
   );

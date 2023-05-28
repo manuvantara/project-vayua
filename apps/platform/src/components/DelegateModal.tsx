@@ -50,12 +50,12 @@ export default function DelegateModal() {
 
   const openDelegateDialog = () => {
     setSwitchDelegateForm(true);
-    router.push(`/gov/${govAddress}/#delegation`);
+    router.push(`/organisations/${govAddress}/#delegation`);
   };
 
   const closeDelegateDialog = () => {
     setSwitchDelegateForm((prevValue) => !prevValue);
-    router.push(`/gov/${govAddress}`);
+    router.push(`/organisations/${govAddress}`);
   };
 
   const delegateToSomeone = () => {

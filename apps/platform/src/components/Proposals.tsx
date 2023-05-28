@@ -14,6 +14,9 @@ import { useBlockNumber, useContractRead, usePublicClient } from "wagmi";
 import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 import { parseAbiItem } from "viem";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
+import { useRouter } from "next/router";
+import { Button } from "./ui/Button";
+import Link from "next/link";
 
 export enum ProposalState {
   Pending,
@@ -124,13 +127,12 @@ const mockProposals: ParsedProposalWithTitle[] = [
 ];
 /////////////////////////////////////////////////
 
-interface ProposalsProps {
-  govAddress: `0x${string}`;
-}
-
 const MIN_BLOCK_NUMBER = 21041027n;
 
-export default function Proposals({ govAddress }: ProposalsProps) {
+export default function Proposals() {
+  // get the governance contract address from route
+  const router = useRouter();
+  const govAddress = router.query.organisationAddress as `0x${string}`;
   //
   const [proposals, setProposals] = useState<any[]>([]);
   const publicClient = usePublicClient();
@@ -152,17 +154,21 @@ export default function Proposals({ govAddress }: ProposalsProps) {
   const fetchLogsPerCycle = async (toBlock: bigint) => {
     const fromBlock = toBlock - 4999n;
     //console.log("Fetching logs from block", fromBlock, "to block", toBlock);
-    const logsPerCycle = await publicClient.getLogs({
-      address: govAddress,
-      event: parseAbiItem(
-        "event ProposalCreated(uint256, address, address[], uint256[], string[], bytes[], uint256, uint256, string)"
-      ),
-      fromBlock: fromBlock,
-      toBlock: toBlock,
-    });
-    const parsedLogs = parseLogs(logsPerCycle);
-    //console.log(parsedLogs);
-    setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
+    try {
+      const logsPerCycle = await publicClient.getLogs({
+        address: govAddress,
+        event: parseAbiItem(
+          "event ProposalCreated(uint256, address, address[], uint256[], string[], bytes[], uint256, uint256, string)"
+        ),
+        fromBlock: fromBlock,
+        toBlock: toBlock,
+      });
+      const parsedLogs = parseLogs(logsPerCycle);
+      //console.log(parsedLogs);
+      setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
+    } catch (error: any) {
+      console.error;
+    }
   };
 
   const parseLogs = (logsPerCycle: any) => {
@@ -235,6 +241,19 @@ export default function Proposals({ govAddress }: ProposalsProps) {
               <TableCell>{proposal.voteStart}</TableCell>
               <TableCell>{shortenAddress(proposal.proposer)}</TableCell>
               <TableCell>{proposal.description.slice(0, 100)}</TableCell>
+              <TableCell>
+                <Link
+                  href={{
+                    pathname: `${govAddress}/proposals/${proposal.proposalId}`,
+                    query: {
+                      description: proposal.description,
+                      proposer: proposal.proposer,
+                    },
+                  }}
+                >
+                  <Button>More</Button>
+                </Link>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -12,6 +12,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import ReactMarkdown from "react-markdown";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
+import { useRouter } from "next/router";
+import { useContractRead, useContractReads } from "wagmi";
+import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
+import { useEffect } from "react";
+import { shortenString } from "@/utils/shorten-address";
+import Link from "next/link";
+import CastVoteModal from "@/components/CastVoteModal";
 
 const PROPOSAL_ID = "4";
 
@@ -77,36 +84,93 @@ type MarkdownFrontmatter = {
 };
 
 export default function ProposalPage() {
-  // const { data, isError, isLoading } = useContractReads({
-  //     contracts: [
-  //         {
+  const router = useRouter();
 
+  // get the governance contract address from route
+  const govAddress = router.query.organisationAddress as `0x${string}`;
+
+  // get proposal id
+  const proposalId = router.query.proposalId as string;
+
+  // get description and title
+  const { description } = router.query;
   const { title, proposalDescription } =
-    parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(PROPOSAL_DESCRIPTION);
+    parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(
+      description ? (description as string) : ""
+    );
+
+  // get votes
+  const { data: votes } = useContractRead({
+    address: govAddress,
+    abi: governorAbi,
+    functionName: "proposalVotes",
+    args: [proposalId ? BigInt(proposalId) : 0n],
+  });
+
+  // get proposer
+  const proposer = router.query.proposer as `0x${string}`;
+
+  // get proposal state
+  const { data: state } = useContractRead({
+    address: govAddress,
+    abi: governorAbi,
+    functionName: "state",
+    args: [proposalId ? BigInt(proposalId) : 0n],
+  });
+
+  const proposalStateMap: ProposalState = {
+    0: "Pending",
+    1: "Active",
+    2: "Canceled",
+    3: "Defeated",
+    4: "Succeeded",
+    5: "Queued",
+    6: "Expired",
+    7: "Executed",
+  };
+
+  const proposalState = proposalStateMap[state ? state : -1] || "Unknown State";
 
   return (
     <div className="pt-20">
       <div className="flex flex-col p-6 shadow-lg rounded-md border border-border">
         <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
+          <h2 className="text-xl md:text-1xl font-semibold mt-1">
+            <Link
+              href={{
+                pathname: `/organisations/${govAddress}`,
+              }}
+            >
+              DAO {govAddress}
+            </Link>
+          </h2>
+        </div>
+      </div>
+      <div className="flex flex-col p-6 shadow-lg rounded-md border border-border">
+        <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
           <div>
             <div>
-              <Badge variant="warning">{MOCK_STATUS}</Badge>
+              <Badge variant="warning" className="text-black">
+                {proposalState}
+              </Badge>
               <h1 className="text-xl md:text-2xl font-semibold mt-1">
-                {title || `Proposal #${PROPOSAL_ID}`}
+                {title ||
+                  `Proposal #${shortenString(proposalId ? proposalId : "")}`}
               </h1>
             </div>
             <div className="text-sm mt-2">
-              by <span className="font-medium">0x1234...5678</span>
+              by <span className="font-medium">{proposer}</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            {MOCK_STATUS === "PENDING" ? (
+            {proposalState == "Active" ? (
               <div className="text-sm flex items-center font-medium text-muted-foreground">
-                <ClockIcon className="w-4 h-4 mr-2" />
-                Voting starts in 2 days
+                {/* <ClockIcon className="w-4 h-4 mr-2" />
+                Voting starts in 2 days */}
+                ...
               </div>
             ) : (
-              <Button>Vote</Button>
+              <CastVoteModal govAddress={govAddress} proposalId={proposalId} />
             )}
           </div>
         </div>
@@ -127,6 +191,7 @@ export default function ProposalPage() {
             <TabsContent value="code">Code goes here</TabsContent>
           </Tabs>
         </div>
+
         <div className="flex flex-col p-6 md:col-span-1 shadow-lg rounded-md border border-border">
           <h3 className="text-xl mb-2 font-semibold">Votes</h3>
           <Table>
@@ -141,12 +206,21 @@ export default function ProposalPage() {
                 <TableHead className="text-center">Abstain</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
-              <TableRow className="text-center">
-                <TableCell>100</TableCell>
-                <TableCell>40</TableCell>
-                <TableCell>10</TableCell>
-              </TableRow>
+              {votes ? (
+                <TableRow className="text-center">
+                  <TableCell>{votes[0].toString()}</TableCell>
+                  <TableCell>{votes[1].toString()}</TableCell>
+                  <TableCell>{votes[2].toString()}</TableCell>
+                </TableRow>
+              ) : (
+                <TableRow className="text-center">
+                  <TableCell>n/a</TableCell>
+                  <TableCell>n/a</TableCell>
+                  <TableCell>n/a</TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
