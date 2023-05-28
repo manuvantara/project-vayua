@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { Button } from "./ui/Button";
 import {
   Dialog,
@@ -7,6 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/Dialog";
+
 import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 import { useContractWrite } from "wagmi";
 
@@ -14,7 +14,6 @@ export default function CastVoteModal({
   govAddress,
   proposalId,
 }: CastVoteModalProps) {
-  //
   const castVoteWrite = useContractWrite({
     address: govAddress,
     abi: governorAbi,
