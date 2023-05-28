@@ -2,7 +2,7 @@ export type DelegateVoteFormValues = {
   delegatee: `0x${string}`;
 };
 
-export type ProfileSettingsFormValues = {
+export type SettingsFormValues = {
   name: string;
   bio: string;
   avatar: string;
