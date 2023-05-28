@@ -15,7 +15,7 @@ export default function Home() {
       <Link href={{ pathname: `/wizard` }}>
         <Button variant="outline">Wizard</Button>
       </Link>
-      <Link href={{ pathname: "#" }}>
+      <Link href={{ pathname: `/landing` }}>
         <Button variant="outline">Landing</Button>
       </Link>
     </main>

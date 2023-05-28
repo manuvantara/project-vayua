@@ -18,7 +18,7 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { Profile_ABI } from "@/utils/abi/Profile_ABI";
+import { Profile_ABI } from "@/utils/abi/profile-contract";
 import { isNotEmpty, useForm } from "@mantine/form";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect } from "react";
