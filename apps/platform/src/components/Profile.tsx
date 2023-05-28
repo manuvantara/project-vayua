@@ -1,10 +1,8 @@
-import ClientOnly from "@/components/ClientOnly";
-import WalletConnect from "@/components/WalletConnect";
 import Link from "next/link";
-import { cn } from "@/utils/class-merge";
-import { FiMapPin, FiLink } from "react-icons/fi";
-import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
-import Image from "next/image";
+// TODO: use Lucide icons
+import { FiLink, FiMapPin } from "react-icons/fi";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { getInitials } from "@/utils/shorten-name";
 
 const user = {
   name: `Emily Thompson`,
@@ -12,17 +10,6 @@ const user = {
   avatar: "",
   place: "Austin, Texas",
   url: "https://chat.openai.com/",
-};
-
-export const getInitials = (fullName: string) => {
-  const allNames = fullName.trim().split(" ");
-  const initials = allNames.reduce((acc, curr, index) => {
-    if (index === 0 || index === allNames.length - 1) {
-      acc = `${acc}${curr.charAt(0).toUpperCase()}`;
-    }
-    return acc;
-  }, "");
-  return initials;
 };
 
 export default function Profile() {
@@ -41,6 +28,7 @@ export default function Profile() {
                 src={user.avatar || ""}
               />
               <AvatarFallback delayMs={300}>
+                {/* TODO: Next.js Image component instead of regular img */}
                 <img
                   src={`https://avatar.vercel.sh/${
                     user.name || "no-name"
@@ -51,6 +39,7 @@ export default function Profile() {
               </AvatarFallback>
             </Avatar>
           </div>
+          {/* TODO: w-full and w-auto at the same time */}
           <div className="w-full flex flex-col gap-5 w-auto">
             <div className="flex flex-col gap-2">
               <div className="flex flex-row items-center gap-2 text-lg font-medium">
