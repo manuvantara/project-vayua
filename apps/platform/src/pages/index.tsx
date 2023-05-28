@@ -1,10 +1,8 @@
-import { Inter } from "next/font/google";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -12,11 +10,9 @@ import {
 } from "@/components/ui/Card";
 import Profile from "@/components/Profile";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export default function Home() {
   return (
-    <main className={` ${inter.className} flex flex-col gap-8`}>
+    <main className="flex flex-col gap-8">
       <div className="p-6 border rounded-lg text-card-foreground">
         <div className="lg:text-left text-center">
           <h1 className="text-4xl font-bold">Welcome to Vayua</h1>
@@ -51,7 +47,7 @@ export default function Home() {
             </CardHeader>
             <CardFooter className="rounded-b-lg">
               <Link href={{ pathname: `/settings` }}>
-                <Button className="">Edit my profile</Button>
+                <Button variant="outline">Edit my profile</Button>
               </Link>
             </CardFooter>
           </Card>
