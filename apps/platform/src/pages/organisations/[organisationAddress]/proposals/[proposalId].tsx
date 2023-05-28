@@ -104,7 +104,15 @@ export default function ProposalPage() {
   const proposalState = proposalStateMap[state ? state : -1] || "Unknown State";
 
   // get proposal vote start
-  const voteStart = router.query.voteStart as string;
+  const voteStart = router.query.voteStart
+    ? (router.query.voteStart as string)
+    : "";
+
+  // get targets and values
+  const targets = router.query.targets ? router.query.targets : [];
+  const values = router.query.values ? router.query.values : [];
+  const isTargetsString = typeof targets === "string";
+  const isValuesString = typeof values === "string";
 
   return (
     <div className="pt-20">
@@ -163,7 +171,45 @@ export default function ProposalPage() {
                 <ReactMarkdown>{proposalDescription}</ReactMarkdown>
               </article>
             </TabsContent>
-            <TabsContent value="code">Code goes here</TabsContent>
+            <TabsContent value="code">
+              {isTargetsString && isValuesString ? (
+                <div>
+                  <h3>Function 1:</h3>
+                  <p>
+                    Target:
+                    <br />
+                    {targets}
+                  </p>
+                  <p>
+                    Value:
+                    <br />
+                    {values}
+                  </p>
+                </div>
+              ) : (
+                Array.isArray(targets) &&
+                Array.isArray(values) &&
+                targets.length !== 0 && (
+                  <div>
+                    {targets.map((target, index) => (
+                      <div key={index}>
+                        <h3>Function {index + 1}:</h3>
+                        <p>
+                          Target:
+                          <br />
+                          {target}
+                        </p>
+                        <p>
+                          Value:
+                          <br />
+                          {values[index]}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )
+              )}
+            </TabsContent>
           </Tabs>
         </div>
 
