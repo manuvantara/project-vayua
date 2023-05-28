@@ -1,11 +1,8 @@
 {
   "index": "Introduction",
-  "another": "Another Page",
-  "advanced": "Advanced (A Folder)",
-  "about": {
-    "title": "About",
-    "type": "page"
-  },
+  "platform": "Vayua Platform",
+  "wizard": "Vayua Wizard",
+  "identity": "Vayua Identity",
   "contact": {
     "title": "Contact ↗",
     "type": "page",

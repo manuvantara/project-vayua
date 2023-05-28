@@ -2,9 +2,9 @@ import React from "react";
 import { DocsThemeConfig } from "nextra-theme-docs";
 
 const config: DocsThemeConfig = {
-  logo: <span>My Project</span>,
+  logo: <span>Vayua Metaverse</span>,
   project: {
-    link: "https://github.com/shuding/nextra-docs-template",
+    link: "https://github.com/manuvantara/project-vayua/tree/main",
   },
   chat: {
     link: "https://discord.com",
