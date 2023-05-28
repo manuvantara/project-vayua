@@ -116,7 +116,7 @@ export default function ProposalPage() {
 
   return (
     <div>
-      <div className="flex flex-col p-6 shadow-lg rounded-md border border-border">
+      <div className="flex flex-col p-6 bg-white rounded-md border border-border mt-5">
         <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
           <h2 className="text-xl md:text-2xl font-semibold mt-1">
             <Link
@@ -136,7 +136,7 @@ export default function ProposalPage() {
           </h2>
         </div>
       </div>
-      <div className="flex flex-col p-6 shadow-lg rounded-md border border-border mt-8 md:mt-10">
+      <div className="flex flex-col p-6 bg-white rounded-md border border-border mt-5">
         <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
           <div>
             <div>
@@ -162,8 +162,8 @@ export default function ProposalPage() {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 items-start gap-6 mt-8 md:gap-4 md:mt-10">
-        <div className="flex flex-col md:col-span-2 p-6 shadow-lg rounded-md border border-border">
+      <div className="grid grid-cols-1 items-start mt-5 md:gap-5 md:grid-cols-3">
+        <div className="flex flex-col p-6 bg-white rounded-md border border-border md:col-span-2">
           <h3 className="text-xl mb-2 font-semibold">Details</h3>
           <Tabs defaultValue="description" className="">
             <TabsList>
@@ -217,7 +217,7 @@ export default function ProposalPage() {
           </Tabs>
         </div>
 
-        <div className="flex flex-col p-6 md:col-span-1 shadow-lg rounded-md border border-border">
+        <div className="flex flex-col p-6 bg-white rounded-md border border-border md:col-span-1">
           <h3 className="text-xl mb-2 font-semibold">Votes</h3>
           <Table>
             <TableHeader>
