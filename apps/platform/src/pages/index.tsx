@@ -1,23 +1,82 @@
-import Image from "next/image";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   return (
-    <main className={` ${inter.className}`}>
-      Home page
-      <Link href={{ pathname: `/settings` }}>
-        <Button variant="outline">User settings</Button>
-      </Link>
-      <Link href={{ pathname: `/wizard` }}>
-        <Button variant="outline">Wizard</Button>
-      </Link>
-      <Link href={{ pathname: `/landing` }}>
-        <Button variant="outline">Landing</Button>
-      </Link>
+    <main className={` ${inter.className} flex flex-col gap-8`}>
+      <div className="p-6 border rounded-lg text-card-foreground">
+        <div className="lg:text-left text-center">
+          <h1 className="text-4xl font-bold">Welcome to Vayua</h1>
+          <p className="pt-1">Be open to new experiences</p>
+        </div>
+        <div className="mt-7 flex lg:flex-row gap-6 lg:items-stretch flex-col items-center">
+          <Card className="md:w-96 w-full flex flex-col justify-between">
+            <CardHeader className="rounded-t-lg h-full">
+              <CardTitle className="text-lg md:text-xl">Vayua Wizard</CardTitle>
+              <CardDescription className="font-light">
+                Vayua Wizard is a powerful tool that allows you to effortlessly
+                set up a new Decentralized Autonomous Organization (DAO) in just
+                a few minutes.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="rounded-b-lg">
+              <Link href={{ pathname: `/wizard` }}>
+                <Button>Deploy a DAO</Button>
+              </Link>
+            </CardFooter>
+          </Card>
+          <Card className="md:w-96 w-full flex flex-col justify-between">
+            <CardHeader className="rounded-t-lg h-full">
+              <CardTitle className="text-lg md:text-xl">
+                Vayua Identity
+              </CardTitle>
+              <CardDescription className="font-light">
+                Take control of your online persona by editing your profile,
+                adding new information, profile picture and expressing your
+                individuality through your personal details.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="rounded-b-lg">
+              <Link href={{ pathname: `/settings` }}>
+                <Button className="">Edit my profile</Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+      <div>
+        <Card className="w-full flex flex-col justify-between">
+          <CardHeader>
+            <CardTitle className="text-lg md:text-xl">Search DAO</CardTitle>
+          </CardHeader>
+          <CardFooter className="flex md:flex-row gap-4 justify-between flex-col">
+            <Input
+              className="bg-white"
+              type="search"
+              placeholder="Search DAO by address"
+            />
+            <Button className="md:w-auto w-full">Search</Button>
+          </CardFooter>
+        </Card>
+      </div>
+      <div className="border rounded-lg shadow-sm bg-card text-card-foreground divide-y flex flex-col">
+        <div className="text-xl font-semibold px-6 pt-6 pb-3">Saved DAOs</div>
+        <div className="px-6 pt-3 pb-6 font-light">
+          Create a new DAO or add existing one
+        </div>
+      </div>
     </main>
   );
 }

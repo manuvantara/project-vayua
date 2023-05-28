@@ -10,6 +10,7 @@ import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import Toaster from "@/components/ui/Toaster";
 import { thetaMainnet, thetaTestnet } from "@/utils/chains/theta-chains";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,6 +56,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <div className="px-4 sm:container">
           <Component {...pageProps} />
         </div>
+        <Footer />
       </WagmiConfig>
       <Toaster />
     </div>
