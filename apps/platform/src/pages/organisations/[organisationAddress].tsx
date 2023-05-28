@@ -6,6 +6,7 @@ import { Settings, Star } from "lucide-react";
 
 import DelegateModal from "@/components/DelegateModal";
 import Proposals from "@/components/Proposals";
+import { shortenAddress } from "@/utils/shorten-address";
 
 const daos = {
   id: 1,
@@ -23,18 +24,15 @@ export default function OrganisationPage() {
   const govAddress = router.query.organisationAddress as `0x${string}`;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="bg-white border border-black-500 rounded-lg p-5">
+    <div className="flex flex-col gap-5">
+      <div className="bg-white border border-black-500 rounded-lg p-5 mt-5">
         <div>
           <div className="flex md:flex-row md:justify-between items-center flex-col justify-center">
-            <div className="flex flex-row items-center gap-6 mb-3 md:mb-0">
+            <div className="flex flex-row items-center gap-5">
               <img src={daos.logo} width={40} height={40} alt="DAO image" />
               <h1 className="text-3xl font-bold">{daos.name}</h1>
-              <Button>
-                <Star className="w-4 h-4" />
-              </Button>
             </div>
-            <div className="flex flex-row gap-3">
+            <div className="flex flex-row gap-3 mt-5 md:mt-0 flex-wrap">
               <Link
                 href={{
                   pathname: `${govAddress}/proposals/new`,
@@ -52,10 +50,24 @@ export default function OrganisationPage() {
                   <Settings className="w-4 h-4" />
                 </Button>
               </Link>
+              <Button>
+                <Star className="w-4 h-4" />
+              </Button>
             </div>
           </div>
-          <div className="mt-4 text-center md:text-left">
-            {daos.description}
+          <div className="">
+            <div className="mt-6 max-w-3xl  text-center md:text-left">
+              {daos.description}
+            </div>
+            <div className="mt-5">
+              Governor
+              <Link
+                href={`https://explorer.thetatoken.org/account/${govAddress}`}
+                target="_blank"
+              >
+                <span className="font-semibold text-slate-500 ml-2">0x00</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
