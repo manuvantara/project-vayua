@@ -12,7 +12,6 @@ contract ProfileCollection {
     }
 
     mapping(address => Profile) public profiles;
-    mapping(address => bool) private hasProfile;
 
     event ProfileChanged(address owner, Profile profile);
 
