@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { ClockIcon } from "lucide-react";
+import { ClockIcon, ArrowUpLeft } from "lucide-react";
 
 import ReactMarkdown from "react-markdown";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
@@ -124,7 +124,11 @@ export default function ProposalPage() {
                 pathname: `/organisations/${govAddress}`,
               }}
             >
-              DAO
+              <div className="flex items-center">
+                <ArrowUpLeft className="w-10 h-10 mr-2" />
+                DAO
+              </div>
+
               <div className="text-sm mt-2">
                 <span className="font-medium">{govAddress}</span>
               </div>
