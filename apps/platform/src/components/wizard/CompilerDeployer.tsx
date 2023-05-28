@@ -1,14 +1,6 @@
 import { useEffect, useState } from "react";
 import { showNotification } from "@mantine/notifications";
-import {
-  Alert,
-  Box,
-  Button,
-  Loader,
-  Overlay,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Box, Loader, Overlay, Text, Title } from "@mantine/core";
 
 import {
   baseURLBin,
@@ -30,6 +22,7 @@ import { waitForTransaction } from "@wagmi/core";
 import { useAccount, useWalletClient } from "wagmi";
 import { thetaTestnet } from "@/utils/chains/theta-chains";
 import { useAtomValue, useSetAtom } from "jotai";
+import { Button } from "@/components/ui/Button";
 
 const DEPLOYMENT_STAGES = [
   "Compiling token contract",
@@ -269,8 +262,8 @@ function CompilerDeployer() {
     <>
       <Box pos="relative">
         {deployment && (
-          <Overlay blur={15} center opacity={0.4}>
-            <div className="flex gap-5 items-end	">
+          <Overlay blur={8} center opacity={0.4} fixed>
+            <div className="flex gap-5 items-end">
               <Loader />
               <Title order={3} size="h4" className="mb-2" color="white">
                 {currentStage}
@@ -278,9 +271,9 @@ function CompilerDeployer() {
             </div>
           </Overlay>
         )}
-        <div className="py-8 md:py-14 md:px-8 md:bg-gray-100 lg:py-20">
+        <div className="py-8 md:py-14 md:px-8 lg:py-20">
           <div className="flex flex-col items-center">
-            <Title order={2} size="h4" className="mb-2">
+            <Title order={2} size="h2" className="mb-2 tracking-tight">
               Now it is high time to deploy constructed contracts
             </Title>
             <Text
@@ -288,30 +281,20 @@ function CompilerDeployer() {
               component="p"
               className="text-gray-500 max-w-2xl sm:text-center"
             >
-              Let's begin by compiling the token contract. Once that is done, we
-              can proceed to deploy the compiled token contract. Following that,
-              we'll compile the governance contract. Finally, we'll deploy the
-              compiled governance contract.
+              Let&apos;s begin by compiling the token contract. Once that is
+              done, we can proceed to deploy the compiled token contract.
+              Following that, we&apos;ll compile the governance contract.
+              Finally, we&apos;ll deploy the compiled governance contract.
             </Text>
 
             <div className="flex flex-col items-center gap-7 mt-7 md:flex-row">
               <Button
-                className=""
-                variant="outline"
-                color="grape"
+                variant="default"
                 onClick={handleDeployment}
                 disabled={!isConnected}
               >
                 Deploy contracts
               </Button>
-              <Alert
-                title="Check!"
-                color="orange"
-                className="justify-self-start"
-              >
-                <p>Make sure the wallet is connected.</p>
-                <p>You will be asked to confirm 2 transactions.</p>
-              </Alert>
             </div>
           </div>
         </div>

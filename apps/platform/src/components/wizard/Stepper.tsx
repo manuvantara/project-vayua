@@ -1,10 +1,12 @@
-import { Button, Group, Stepper as MStepper } from "@mantine/core";
-import Configurator from "@/components/wizard/Constructor";
+import { Group, Stepper as MStepper, Text, Title } from "@mantine/core";
 import CompilerDeployer from "@/components/wizard/CompilerDeployer";
-import CreateDAO from "@/components/wizard/CreateDAO";
 import { useAtom } from "jotai";
 import { stepsAtom } from "@/atoms";
 import SuccessfullyDeployed from "@/components/wizard/SuccessfullyDeployed";
+import Governance from "@/components/wizard/Governance";
+import Token from "@/components/wizard/Token";
+import { Button } from "@/components/ui/Button";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 
 const NUMBER_OF_STEPS = 3;
 
@@ -20,40 +22,78 @@ export default function Stepper() {
   const isCompleteStep = active === NUMBER_OF_STEPS;
 
   return (
-    <div className="py-12">
-      <MStepper
-        active={active}
-        onStepClick={setActive}
-        breakpoint="sm"
-        allowNextStepsSelect={false}
-      >
-        <MStepper.Step label="First step" description="Create your DAO">
-          <CreateDAO />
-        </MStepper.Step>
-        <MStepper.Step label="Second step" description="Configure contract">
-          <Configurator />
-        </MStepper.Step>
-        <MStepper.Step
-          label="Final step"
-          description="Compile and deploy contracts"
+    <div className="pt-8">
+      {isCompleteStep ? (
+        <SuccessfullyDeployed />
+      ) : (
+        <MStepper
+          active={active}
+          onStepClick={setActive}
+          breakpoint="sm"
+          allowNextStepsSelect={false}
         >
-          <CompilerDeployer />
-        </MStepper.Step>
-        <MStepper.Completed>
-          <SuccessfullyDeployed />
-        </MStepper.Completed>
-      </MStepper>
-      <Group position="apart" mt="xl" className="max-w-3xl mx-auto w-full">
+          <MStepper.Step
+            label="Step 1"
+            description="Configure a governance token"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 mt-6 sm:pt-10 sm:mt-10">
+              <div>
+                <Title order={2} size="h5" className="mb-2">
+                  Token configuration
+                </Title>
+                <Text size="sm" component="p" className="text-gray-500">
+                  You will need to configure how your DAO will function. This
+                  includes the symbol and name of your token, the number of
+                  tokens to mint, and a few other things.
+                </Text>
+              </div>
+              <div className="col-span-2 bg-white shadow-sm border overflow-hidden rounded-lg">
+                <div className="p-4 sm:p-6 md:p-8">
+                  <Token />
+                </div>
+              </div>
+            </div>
+          </MStepper.Step>
+          <MStepper.Step label="Step 2" description="Configure a Governor DAO">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 mt-6 sm:pt-10 sm:mt-10">
+              <div>
+                <Title order={2} size="h5" className="mb-2">
+                  Governance configuration
+                </Title>
+                <Text size="sm" component="p" className="text-gray-500">
+                  You will need to configure how your DAO will function. This
+                  includes the symbol and name of your token, the number of
+                  tokens to mint, and a few other things.
+                </Text>
+              </div>
+              <div className="col-span-2 bg-white shadow-sm border overflow-hidden rounded-lg">
+                <div className="p-4 sm:p-6 md:p-8">
+                  <Governance />
+                </div>
+              </div>
+            </div>
+          </MStepper.Step>
+          <MStepper.Step
+            label="Step 3"
+            description=" Compile & deploy the smart contacts"
+          >
+            <CompilerDeployer />
+          </MStepper.Step>
+        </MStepper>
+      )}
+      <Group position="apart" mt="xl" className="w-full">
         {!isFirstStep && !isCompleteStep ? (
-          <Button variant="default" onClick={prevStep}>
+          <Button variant="outline" onClick={prevStep}>
+            <ArrowLeftIcon className="w-4 h-4 mr-2" />
             Back
           </Button>
         ) : (
           <div></div>
         )}
         {!isLastStep && !isCompleteStep && (
-          <Button variant="outline" onClick={nextStep}>
+          <Button variant="default" onClick={nextStep}>
             Next step
+            <ArrowRightIcon className="w-4 h-4 ml-2" />
           </Button>
         )}
       </Group>
