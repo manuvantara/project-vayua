@@ -65,7 +65,7 @@ export default function WalletConnect() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="default">{shortenAddress(address as string)}</Button>
+          <Button variant="outline">{shortenAddress(address as string)}</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -74,7 +74,7 @@ export default function WalletConnect() {
               Do you want to disconnect your wallet?
             </DialogDescription>
           </DialogHeader>
-          <Button variant="outline" onClick={handleDisconnect}>
+          <Button variant="default" onClick={handleDisconnect}>
             Disconnect
           </Button>
         </DialogContent>
