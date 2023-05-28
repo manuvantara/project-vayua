@@ -39,17 +39,17 @@ function ProposalStateInstructions({
         </>
       );
     case "Canceled":
-      return <>The proposal was canceled by proposer</>;
+      return <>Proposal canceled by proposer</>;
     case "Defeated":
-      return <>The proposal was defeated</>;
+      return <>Proposal defeated</>;
     case "Succeeded":
-      return <>The proposal succeeded</>;
+      return <>Proposal succeeded</>;
     case "Queued":
-      return <>The proposal is queued</>;
+      return <>Proposal queued</>;
     case "Expired":
-      return <>The proposal expired</>;
+      return <>Proposal expired</>;
     case "Executed":
-      return <>The proposal was executed</>;
+      return <>Proposal executed</>;
     default:
       return <>Unknown state instructions</>;
   }
@@ -119,20 +119,22 @@ export default function ProposalPage() {
       <div className="flex flex-col p-6 bg-white rounded-md border border-border mt-5">
         <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
           <h2 className="text-xl md:text-2xl font-semibold mt-1">
-            <Link
-              href={{
-                pathname: `/organisations/${govAddress}`,
-              }}
-            >
-              <div className="flex items-center">
-                <ArrowUpLeft className="w-10 h-10 mr-2" />
-                DAO
-              </div>
+            <div className="text-sm mt-2">
+              <Link href={`/organisations/${govAddress}`}>
+                <div className="flex items-center">
+                  <ArrowUpLeft className="w-10 h-10" />
+                  <h2 className="text-xl md:text-2xl font-semibold mt-1">
+                    DAO
+                  </h2>
+                </div>
 
-              <div className="text-sm mt-2">
-                <span className="font-medium">{govAddress}</span>
-              </div>
-            </Link>
+                <div className="text-sm mt-2">
+                  <span className="font-semibold text-slate-500">
+                    {govAddress}
+                  </span>
+                </div>
+              </Link>
+            </div>
           </h2>
         </div>
       </div>
@@ -149,10 +151,16 @@ export default function ProposalPage() {
               </h1>
             </div>
             <div className="text-sm mt-2">
-              by <span className="font-medium">{proposer}</span>
+              by
+              <Link
+                href={`https://explorer.thetatoken.org/account/${proposer}`}
+                target="_blank"
+              >
+                <span className="font-semibold text-slate-500">{proposer}</span>
+              </Link>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex gap-4 font-bold text-lg text-slate-500">
             <ProposalStateInstructions
               proposalState={proposalState}
               govAddress={govAddress}
@@ -171,24 +179,33 @@ export default function ProposalPage() {
               <TabsTrigger value="code">Executable code</TabsTrigger>
             </TabsList>
             <TabsContent value="description">
-              <article className="prose-sm sm:prose mt-4">
+              <article className="prose-sm sm:prose p-5">
                 <ReactMarkdown>{proposalDescription}</ReactMarkdown>
               </article>
             </TabsContent>
             <TabsContent value="code">
               {isTargetsString && isValuesString ? (
-                <div>
-                  <h3>Function 1:</h3>
-                  <p>
-                    Target:
-                    <br />
-                    {targets}
-                  </p>
-                  <p>
-                    Value:
-                    <br />
-                    {values}
-                  </p>
+                <div className="p-5">
+                  <h3 className="mb-2">Function 1:</h3>
+                  <div className="border border-border p-5">
+                    <div>
+                      Target: <br />
+                      <Link
+                        href={`https://explorer.thetatoken.org/account/${targets}`}
+                        target="_blank"
+                      >
+                        <span className="font-semibold text-slate-500">
+                          {targets}
+                        </span>
+                      </Link>
+                    </div>
+                    <div className="mt-2">
+                      Value: <br />
+                      <span className="font-semibold text-slate-500">
+                        {values}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 Array.isArray(targets) &&
@@ -196,18 +213,27 @@ export default function ProposalPage() {
                 targets.length !== 0 && (
                   <div>
                     {targets.map((target, index) => (
-                      <div key={index}>
-                        <h3>Function {index + 1}:</h3>
-                        <p>
-                          Target:
-                          <br />
-                          {target}
-                        </p>
-                        <p>
-                          Value:
-                          <br />
-                          {values[index]}
-                        </p>
+                      <div key={index} className="p-5">
+                        <h3 className="mb-2">Function {index + 1}:</h3>
+                        <div className="border border-border p-5">
+                          <div>
+                            Target: <br />
+                            <Link
+                              href={`https://explorer.thetatoken.org/account/${target}`}
+                              target="_blank"
+                            >
+                              <span className="font-semibold text-slate-500">
+                                {target}
+                              </span>
+                            </Link>
+                          </div>
+                          <div className="mt-2">
+                            Value: <br />
+                            <span className="font-semibold text-slate-500">
+                              {values[index]}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -216,7 +242,6 @@ export default function ProposalPage() {
             </TabsContent>
           </Tabs>
         </div>
-
         <div className="flex flex-col p-6 bg-white rounded-md border border-border md:col-span-1">
           <h3 className="text-xl mb-2 font-semibold">Votes</h3>
           <Table>
