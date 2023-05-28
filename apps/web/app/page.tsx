@@ -6,9 +6,7 @@ export default function Page() {
     <>
       <Header text="Web" />
       <Button />
-      <Link href='/docs'>
-        Go to docs
-      </Link>
+      <Link href="/docs">Go to docs</Link>
     </>
   );
 }
