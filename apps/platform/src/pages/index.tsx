@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import Profile from "@/components/Profile";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,8 +22,8 @@ export default function Home() {
           <h1 className="text-4xl font-bold">Welcome to Vayua</h1>
           <p className="pt-1">Be open to new experiences</p>
         </div>
-        <div className="mt-7 flex lg:flex-row gap-6 lg:items-stretch flex-col items-center">
-          <Card className="md:w-96 w-full flex flex-col justify-between">
+        <div className="mt-7 flex md:flex-row md:justify-between gap-6 md:items-stretch flex-col items-center">
+          <Card className="md:w-1/2 flex flex-col justify-between">
             <CardHeader className="rounded-t-lg h-full">
               <CardTitle className="text-lg md:text-xl">Vayua Wizard</CardTitle>
               <CardDescription className="font-light">
@@ -37,7 +38,7 @@ export default function Home() {
               </Link>
             </CardFooter>
           </Card>
-          <Card className="md:w-96 w-full flex flex-col justify-between">
+          <Card className="md:w-1/2 w-full flex flex-col justify-between">
             <CardHeader className="rounded-t-lg h-full">
               <CardTitle className="text-lg md:text-xl">
                 Vayua Identity
@@ -71,10 +72,13 @@ export default function Home() {
           </CardFooter>
         </Card>
       </div>
-      <div className="border rounded-lg shadow-sm bg-card text-card-foreground divide-y flex flex-col">
-        <div className="text-xl font-semibold px-6 pt-6 pb-3">Saved DAOs</div>
-        <div className="px-6 pt-3 pb-6 font-light">
-          Create a new DAO or add existing one
+      <div className="flex lg:flex-row flex-col justify-between w-full gap-6">
+        <Profile />
+        <div className="border rounded-lg shadow-sm bg-card text-card-foreground divide-y flex flex-col w-full">
+          <div className="text-xl font-semibold px-6 pt-6 pb-3">Saved DAOs</div>
+          <div className="px-6 pt-3 pb-6 font-light">
+            Create a new DAO or add existing one
+          </div>
         </div>
       </div>
     </main>
