@@ -65,9 +65,7 @@ export default function OrganisationPage() {
                 href={`https://explorer.thetatoken.org/account/${govAddress}`}
                 target="_blank"
               >
-                <span className="font-semibold text-slate-500 ml-2">
-                  {govAddress}
-                </span>
+                <span className="font-semibold text-slate-500 ml-2">0x00</span>
               </Link>
             </div>
           </div>

@@ -1,3 +1,7 @@
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+
 import {
   Table,
   TableBody,
@@ -7,16 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
-import { Badge } from "@/components/ui/Badge";
+import { Button } from "./ui/Button";
+
 import { ethers } from "ethers";
-import { useEffect, useRef, useState } from "react";
-import { useBlockNumber, useContractRead, usePublicClient } from "wagmi";
-import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
+import { useContractRead, usePublicClient } from "wagmi";
 import { parseAbiItem } from "viem";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
-import { useRouter } from "next/router";
-import { Button } from "./ui/Button";
-import Link from "next/link";
+import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 
 export enum ProposalState {
   Pending,
@@ -186,6 +187,7 @@ export default function Proposals() {
         voteEnd: args[7].toString(),
         description: args[8].toString(),
       };
+
       return proposalObject;
     });
 
@@ -221,27 +223,34 @@ export default function Proposals() {
 
   //////////////////////////////
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="">
       <Table>
         <TableCaption>
           Proposals for {`Governor name`} ({govAddress})
         </TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead>Proposal Id</TableHead>
-            <TableHead>Vote starts at</TableHead>
+            <TableHead>Proposal ID</TableHead>
+            <TableHead>Vote starts</TableHead>
             <TableHead>Proposer</TableHead>
             <TableHead>Description</TableHead>
+            <TableHead>Get more</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {proposals.map((proposal) => (
             <TableRow key={proposal.proposalId}>
-              <TableCell>{shortenString(proposal.proposalId)}</TableCell>
-              <TableCell>{proposal.voteStart}</TableCell>
-              <TableCell>{shortenAddress(proposal.proposer)}</TableCell>
-              <TableCell>{proposal.description.slice(0, 100)}</TableCell>
-              <TableCell>
+              <TableCell className="text-left">
+                {shortenString(proposal.proposalId)}
+              </TableCell>
+              <TableCell className="text-left">{proposal.voteStart}</TableCell>
+              <TableCell className="text-left">
+                {shortenAddress(proposal.proposer)}
+              </TableCell>
+              <TableCell className="text-left">
+                {proposal.description.slice(0, 100)}
+              </TableCell>
+              <TableCell className="text-left">
                 <Link
                   href={{
                     pathname: `${govAddress}/proposals/${proposal.proposalId}`,
@@ -249,6 +258,8 @@ export default function Proposals() {
                       description: proposal.description,
                       proposer: proposal.proposer,
                       voteStart: proposal.voteStart,
+                      targets: proposal.targets,
+                      values: proposal.values,
                     },
                   }}
                 >
