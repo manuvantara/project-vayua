@@ -50,7 +50,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <div className={`font-sans ${inter.variable}`}>
+    <div className={`font-sans ${inter.variable} bg-stone-50`}>
       <WagmiConfig config={config}>
         <Header />
         <div className="px-4 sm:container">
