@@ -1,5 +1,5 @@
 export type DelegateVoteFormValues = {
-  delegatee: string;
+  delegatee: `0x${string}`;
 };
 
 export type ProfileSettingsFormValues = {

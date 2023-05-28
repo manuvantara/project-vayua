@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/Button";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DelegateModal from "@/components/DelegateModal";
 import Proposals from "@/components/Proposals";
 import Link from "next/link";
@@ -17,17 +17,10 @@ const daos = {
   failed: 12,
 };
 
-function PageDAO() {
+export default function OrganisationPage() {
   // get the governance contract address from route
   const router = useRouter();
-  const govAddress = router.query.id as `0x${string}`;
-  // read token address from governance
-  const read = useContractRead({
-    address: govAddress,
-    abi: governorAbi,
-    functionName: "token",
-  });
-  const tokenAddress: `0x${string}` = read.data as `0x${string}`;
+  const govAddress = router.query.organisationAddress as `0x${string}`;
 
   return (
     <div className="flex flex-col gap-6">
@@ -41,13 +34,19 @@ function PageDAO() {
             <div className="flex flex-row gap-3">
               <Link
                 href={{
-                  pathname: "/proposal/new",
-                  query: { gov: govAddress },
+                  pathname: `${govAddress}/proposals/new`,
                 }}
               >
                 <Button variant="outline">Create proposal</Button>
               </Link>
-              <DelegateModal tokenAddress={tokenAddress} />
+              <Link
+                href={{
+                  pathname: `${govAddress}/settings`,
+                }}
+              >
+                <Button variant="outline">DAO settings</Button>
+              </Link>
+              <DelegateModal />
             </div>
           </div>
           <div className="mt-4 text-center md:text-left">
@@ -75,5 +74,3 @@ function PageDAO() {
     </div>
   );
 }
-
-export default PageDAO;

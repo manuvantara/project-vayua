@@ -18,10 +18,10 @@ import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 
 const turndownService = new TurndownService();
 
-export default function NewProposal() {
+export default function NewProposalPage() {
   // get the governance contract address
   const router = useRouter();
-  const govAddress = router.query.gov as `0x${string}`;
+  const govAddress = router.query.organisationAddress as `0x${string}`;
   // propose function
   const proposeWrite = useContractWrite({
     address: govAddress,
@@ -133,7 +133,7 @@ export default function NewProposal() {
               proposeWrite.write({
                 args: [
                   ["0x0000000000000000000000000000000000000000"],
-                  [0],
+                  [0n],
                   ["0x00"],
                   "Put your mark here along with the title",
                 ],

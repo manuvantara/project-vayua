@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import {
@@ -11,18 +11,29 @@ import {
 import { Label } from "@/components/ui/Label";
 import { Input } from "./ui/Input";
 
-import { useAccount, useContractWrite } from "wagmi";
-import { tokenAbi } from "@/utils/abi/openzeppelin-contracts";
+import { useAccount, useContractRead, useContractWrite } from "wagmi";
+import { governorAbi, tokenAbi } from "@/utils/abi/openzeppelin-contracts";
 
 import { isNotEmpty, useForm } from "@mantine/form";
 import { DelegateVoteFormValues } from "@/types/forms";
+import { useRouter } from "next/router";
 
-interface DelegateModalProps {
-  tokenAddress: `0x${string}`;
-}
+export default function DelegateModal() {
+  const [switchDelegateForm, setSwitchDelegateForm] = useState(true);
 
-export default function DelegateModal({ tokenAddress }: DelegateModalProps) {
+  const router = useRouter();
+  // get the governance contract address from route
+  const govAddress = router.query.organisationAddress as `0x${string}`;
+  // read token address from governance
+  const read = useContractRead({
+    address: govAddress,
+    abi: governorAbi,
+    functionName: "token",
+  });
+  const tokenAddress: `0x${string}` = read.data as `0x${string}`;
+  // get the account address from connected wallet
   const account = useAccount();
+  const accountAddress = account.address as `0x${string}`;
 
   const delegateVotesWrite = useContractWrite({
     address: tokenAddress,
@@ -37,44 +48,48 @@ export default function DelegateModal({ tokenAddress }: DelegateModalProps) {
     },
   });
 
-  const [showDelegateForm, setShowDelegateForm] = useState(true);
-
-  const handleDelegateDialog = () => {
-    setShowDelegateForm(true);
+  const openDelegateDialog = () => {
+    setSwitchDelegateForm(true);
+    router.push(`/gov/${govAddress}/#delegation`);
   };
 
-  const handleDelegate = () => {
-    setShowDelegateForm((prevValue) => !prevValue);
+  const closeDelegateDialog = () => {
+    setSwitchDelegateForm((prevValue) => !prevValue);
+    router.push(`/gov/${govAddress}`);
+  };
+
+  const delegateToSomeone = () => {
+    setSwitchDelegateForm((prevValue) => !prevValue);
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={handleDelegateDialog}>
+        <Button variant="outline" onClick={openDelegateDialog}>
           Delegate
         </Button>
       </DialogTrigger>
       <DialogContent
-        onCloseAutoFocus={handleDelegate}
+        onCloseAutoFocus={closeDelegateDialog}
         className="sm:max-w-[425px]"
       >
         <DialogHeader>
           <DialogTitle>Delegate voting power</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          {showDelegateForm ? (
+          {switchDelegateForm ? (
             <>
               <Button
                 disabled={!delegateVotesWrite.write}
                 onClick={() =>
                   delegateVotesWrite.write({
-                    args: [account.address],
+                    args: [accountAddress],
                   })
                 }
               >
                 Myself
               </Button>
-              <Button variant="outline" onClick={handleDelegate}>
+              <Button variant="outline" onClick={delegateToSomeone}>
                 To someone
               </Button>
             </>

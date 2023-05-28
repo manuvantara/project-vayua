@@ -47,7 +47,7 @@ type SharedFormValues = {
 
 // -------------
 
-export default function ProfileSettings() {
+export default function ProfileSettingsPage() {
   const { toast } = useToast();
   const { address } = useAccount();
 
