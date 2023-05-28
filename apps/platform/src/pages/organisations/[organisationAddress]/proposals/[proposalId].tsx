@@ -114,6 +114,8 @@ export default function ProposalPage() {
   const isTargetsString = typeof targets === "string";
   const isValuesString = typeof values === "string";
 
+  console.log(description);
+
   return (
     <div>
       <div className="flex flex-col p-6 bg-white rounded-md border border-border mt-5">
@@ -156,7 +158,10 @@ export default function ProposalPage() {
                 href={`https://explorer.thetatoken.org/account/${proposer}`}
                 target="_blank"
               >
-                <span className="font-semibold text-slate-500">{proposer}</span>
+                <span className="font-semibold text-slate-500">
+                  {" "}
+                  {proposer}
+                </span>
               </Link>
             </div>
           </div>
