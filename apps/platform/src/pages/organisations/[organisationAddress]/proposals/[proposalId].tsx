@@ -115,7 +115,7 @@ export default function ProposalPage() {
   const isValuesString = typeof values === "string";
 
   return (
-    <div className="pt-20">
+    <div>
       <div className="flex flex-col p-6 shadow-lg rounded-md border border-border">
         <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
           <h2 className="text-xl md:text-2xl font-semibold mt-1">
@@ -136,7 +136,7 @@ export default function ProposalPage() {
           </h2>
         </div>
       </div>
-      <div className="flex flex-col p-6 shadow-lg rounded-md border border-border">
+      <div className="flex flex-col p-6 shadow-lg rounded-md border border-border mt-8 md:mt-10">
         <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
           <div>
             <div>
