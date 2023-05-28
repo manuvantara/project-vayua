@@ -229,7 +229,7 @@ export default function Proposals() {
         <TableHeader>
           <TableRow>
             <TableHead>Proposal Id</TableHead>
-            <TableHead>Proposed on</TableHead>
+            <TableHead>Vote starts at</TableHead>
             <TableHead>Proposer</TableHead>
             <TableHead>Description</TableHead>
           </TableRow>
@@ -248,6 +248,7 @@ export default function Proposals() {
                     query: {
                       description: proposal.description,
                       proposer: proposal.proposer,
+                      voteStart: proposal.voteStart,
                     },
                   }}
                 >

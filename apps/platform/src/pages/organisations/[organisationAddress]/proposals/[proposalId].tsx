@@ -1,6 +1,7 @@
+import { useRouter } from "next/router";
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { ClockIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -10,78 +11,49 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import { ClockIcon } from "lucide-react";
+
 import ReactMarkdown from "react-markdown";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
-import { useRouter } from "next/router";
-import { useContractRead, useContractReads } from "wagmi";
+
+import { useContractRead } from "wagmi";
 import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
-import { useEffect } from "react";
 import { shortenString } from "@/utils/shorten-address";
-import Link from "next/link";
+
 import CastVoteModal from "@/components/CastVoteModal";
 
-const PROPOSAL_ID = "4";
-
-const PROPOSAL_TITLE = "Proposal title";
-const PROPOSAL_DESCRIPTION = `
----
-title: Refill voteRefund balance
----
-
-## Proposal Description
-
-This proposal aims to implement the following changes:
-
-- Update ContractA and ContractB with new functionalities.
-- Transfer funds from the sender to ContractC.
-- Call a method in ContractD with specific parameters.
-
-### Targets
-
-- ContractA
-- ContractB
-- ContractC
-- ContractD
-
-### Values
-
-- ContractA: 100 tokens
-- ContractB: 200 tokens
-- ContractC: 500 tokens
-- ContractD: 250 tokens
-
-### Signatures
-
-- ContractA: \`methodA(uint256)\`
-- ContractB: \`methodB(uint256)\`
-- ContractC: \`methodC(uint256)\`
-- ContractD: \`methodD(uint256)\`
-
-### Calldatas
-
-- ContractA: \`123\`
-- ContractB: \`456\`
-- ContractC: \`789\`
-- ContractD: \`101\`
-
-### Timing
-
-- Start Block: 1000
-- End Block: 2000
-
-This proposal is currently in the **Pending** state.
-`;
-
-const daoContract = {
-  address: "...",
-  abi: "...",
-};
-
-const MOCK_STATUS = "PENDING";
-
-type MarkdownFrontmatter = {
-  title?: string;
-};
+function ProposalStateInstructions({
+  proposalState,
+  govAddress,
+  proposalId,
+  voteStart,
+}: ProposalStateInstructionsProps) {
+  switch (proposalState) {
+    case "Active":
+      return <CastVoteModal govAddress={govAddress} proposalId={proposalId} />;
+    case "Pending":
+      return (
+        <>
+          <ClockIcon className="w-4 h-4 mr-2" />
+          Voting starts at {voteStart} block
+        </>
+      );
+    case "Canceled":
+      return <>The proposal was canceled by proposer</>;
+    case "Defeated":
+      return <>The proposal was defeated</>;
+    case "Succeeded":
+      return <>The proposal succeeded</>;
+    case "Queued":
+      return <>The proposal is queued</>;
+    case "Expired":
+      return <>The proposal expired</>;
+    case "Executed":
+      return <>The proposal was executed</>;
+    default:
+      return <>Unknown state instructions</>;
+  }
+}
 
 export default function ProposalPage() {
   const router = useRouter();
@@ -131,17 +103,23 @@ export default function ProposalPage() {
 
   const proposalState = proposalStateMap[state ? state : -1] || "Unknown State";
 
+  // get proposal vote start
+  const voteStart = router.query.voteStart as string;
+
   return (
     <div className="pt-20">
       <div className="flex flex-col p-6 shadow-lg rounded-md border border-border">
         <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
-          <h2 className="text-xl md:text-1xl font-semibold mt-1">
+          <h2 className="text-xl md:text-2xl font-semibold mt-1">
             <Link
               href={{
                 pathname: `/organisations/${govAddress}`,
               }}
             >
-              DAO {govAddress}
+              DAO
+              <div className="text-sm mt-2">
+                <span className="font-medium">{govAddress}</span>
+              </div>
             </Link>
           </h2>
         </div>
@@ -163,15 +141,12 @@ export default function ProposalPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            {proposalState == "Active" ? (
-              <div className="text-sm flex items-center font-medium text-muted-foreground">
-                {/* <ClockIcon className="w-4 h-4 mr-2" />
-                Voting starts in 2 days */}
-                ...
-              </div>
-            ) : (
-              <CastVoteModal govAddress={govAddress} proposalId={proposalId} />
-            )}
+            <ProposalStateInstructions
+              proposalState={proposalState}
+              govAddress={govAddress}
+              proposalId={proposalId}
+              voteStart={voteStart}
+            />
           </div>
         </div>
       </div>

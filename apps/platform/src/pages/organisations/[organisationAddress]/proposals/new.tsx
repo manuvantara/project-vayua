@@ -126,8 +126,8 @@ export default function NewProposalPage() {
 
         <div className="flex justify-between">
           <Button variant="outline">Return</Button>
-          <Button type="submit">Create proposal</Button>
           <Button
+            type="submit"
             disabled={!proposeWrite.write}
             onClick={() =>
               proposeWrite.write({
@@ -140,7 +140,7 @@ export default function NewProposalPage() {
               })
             }
           >
-            Propose
+            Create proposal
           </Button>
         </div>
       </form>
