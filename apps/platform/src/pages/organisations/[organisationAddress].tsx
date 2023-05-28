@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/Button";
-import React, { useEffect, useState } from "react";
-import DelegateModal from "@/components/DelegateModal";
-import Proposals from "@/components/Proposals";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useContractRead } from "wagmi";
-import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
+
+import { Button } from "@/components/ui/Button";
+import { Settings, Star } from "lucide-react";
+
+import DelegateModal from "@/components/DelegateModal";
+import Proposals from "@/components/Proposals";
 
 const daos = {
   id: 1,
@@ -30,6 +30,9 @@ export default function OrganisationPage() {
             <div className="flex flex-row items-center gap-6 mb-3 md:mb-0">
               <img src={daos.logo} width={40} height={40} alt="DAO image" />
               <h1 className="text-3xl font-bold">{daos.name}</h1>
+              <Button>
+                <Star className="w-4 h-4" />
+              </Button>
             </div>
             <div className="flex flex-row gap-3">
               <Link
@@ -39,14 +42,16 @@ export default function OrganisationPage() {
               >
                 <Button variant="outline">Create proposal</Button>
               </Link>
+              <DelegateModal />
               <Link
                 href={{
                   pathname: `${govAddress}/settings`,
                 }}
               >
-                <Button variant="outline">DAO settings</Button>
+                <Button>
+                  <Settings className="w-4 h-4" />
+                </Button>
               </Link>
-              <DelegateModal />
             </div>
           </div>
           <div className="mt-4 text-center md:text-left">
