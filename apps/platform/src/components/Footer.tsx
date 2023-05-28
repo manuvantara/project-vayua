@@ -17,6 +17,7 @@ export default function Header() {
         <Link href="">GitHub</Link>
         <Link href="">Devpost</Link>
         <Link href="">Twitter</Link>
+        <Link href="mailto:denys.kravchuk@manuvantara.com">denys.kravchuk@manuvantara.com</Link>
       </div>
     </footer>
   );

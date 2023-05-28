@@ -39,3 +39,7 @@ export type CreateDAOFormValues = {
   name: string;
   desc: string;
 };
+
+export type SearchDAOFormValues = {
+  address: string;
+};

@@ -9,8 +9,26 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import Profile from "@/components/Profile";
+import { matches, useForm } from "@mantine/form";
+import { SearchDAOFormValues } from "@/types/forms";
+
 
 export default function Home() {
+
+  const form = useForm<SearchDAOFormValues>({
+    validateInputOnBlur: true,
+    initialValues: {
+      address: "",
+    },
+    validate: {
+      address: matches(
+        /^(0x){1}[0-9a-fA-F]{40}$/,
+        "Please enter a valid address"
+      ),
+    }
+  });
+
+  
   return (
     <main className="flex flex-col gap-8">
       <div className="p-6 border rounded-lg text-card-foreground">
@@ -60,11 +78,22 @@ export default function Home() {
           </CardHeader>
           <CardFooter className="flex md:flex-row gap-4 justify-between flex-col">
             <Input
+              id="address"
+              name="address"
+              type="text"
+              autoComplete="url"
               className="bg-white"
-              type="search"
               placeholder="Search DAO by address"
+              {...form.getInputProps("address")}
             />
-            <Button className="md:w-auto w-full">Search</Button>
+            {form.errors.address && (
+                <p className="text-sm mt-1 text-destructive">
+                  {form.errors.address}
+                </p>
+            )}
+            <Link href={{ pathname: `/organisations/${form.getInputProps("address").value}` }}>
+              <Button className="md:w-auto w-full">Search</Button>
+            </Link>
           </CardFooter>
         </Card>
       </div>
