@@ -1,7 +1,6 @@
 import ClientOnly from "@/components/ClientOnly";
 import WalletConnect from "@/components/WalletConnect";
 import Link from "next/link";
-import useScroll from "@/utils/hooks/use-scroll";
 import { cn } from "@/utils/class-merge";
 import { FiMapPin, FiLink } from "react-icons/fi";
 import { Avatar, AvatarImage, AvatarFallback } from "@radix-ui/react-avatar";
