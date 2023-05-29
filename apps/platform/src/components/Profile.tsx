@@ -1,8 +1,8 @@
 import Link from "next/link";
-// TODO: use Lucide icons
-import { FiLink, FiMapPin } from "react-icons/fi";
+import { MapPin, LinkIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { getInitials } from "@/utils/shorten-name";
+import Image from "next/image";
 
 const user = {
   name: `Emily Thompson`,
@@ -28,19 +28,19 @@ export default function Profile() {
                 src={user.avatar || ""}
               />
               <AvatarFallback delayMs={300}>
-                {/* TODO: Next.js Image component instead of regular img */}
-                <img
+                <Image
                   src={`https://avatar.vercel.sh/${
                     user.name || "no-name"
                   }.svg?text=${encodeURIComponent(getInitials(user.name))}`}
+                  width="80"
+                  height="80"
                   alt={`Avatar for ${user.name}`}
                   className="select-none pointer-events-none rounded-full"
-                ></img>
+                />
               </AvatarFallback>
             </Avatar>
           </div>
-          {/* TODO: w-full and w-auto at the same time */}
-          <div className="w-full flex flex-col gap-5 w-auto">
+          <div className="w-full flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <div className="flex flex-row items-center gap-2 text-lg font-medium">
                 <div>Emily Thompson</div>
@@ -54,11 +54,11 @@ export default function Profile() {
               </div>
               <div className="flex flex-col mt-3 gap-1">
                 <div className="flex flex-row items-center gap-2">
-                  <FiMapPin />
+                  <MapPin />
                   <div>Austin, Texas</div>
                 </div>
                 <div className="flex flex-row items-center gap-2">
-                  <FiLink />
+                  <LinkIcon />
                   <div>
                     <Link href="https://chat.openai.com/">
                       https://chat.openai.com/
