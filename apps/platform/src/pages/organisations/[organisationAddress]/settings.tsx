@@ -64,7 +64,7 @@ export default function GovernanceProfile({
     <div>
       <SharedProfile
         title="Edit DAO Indentity"
-        type="governance"
+        type="dao"
         address={organisationAddress}
         onSubmit={handleSubmit}
         isTransactionInProgress={isLoading || isWriteLoading}

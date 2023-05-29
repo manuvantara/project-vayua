@@ -27,7 +27,7 @@ import Image from "next/image";
 
 type Props = {
   title: string;
-  type: "user" | "governance";
+  type: "user" | "dao";
   address: `0x${string}` | undefined;
   onSubmit: (
     values: SettingsFormValues,
@@ -39,6 +39,72 @@ type Props = {
   ) => void;
   isTransactionInProgress: boolean;
   isTransactionSuccessful: boolean;
+};
+
+const PROFILE_TEXT = {
+  user: {
+    cardName: "Your name",
+    cardNameDescription:
+      "Your name is how people will know you on the platform.",
+    cardNameLabel: "Name",
+    cardNamePlaceholder: "John Doe",
+    cardNameFooter: "Name is required.",
+    cardBio: "Your Bio",
+    cardBioDescription:
+      "Help people discover your profile by sharing a short bio.",
+    cardBioLabel: "Bio",
+    cardBioPlaceholder: "I'm a software engineer from San Francisco.",
+    cardBioFooter: "Think of this as your elevator pitch.",
+    cardAvatar: "Your Avatar",
+    cardAvatarDescription: "Upload a photo of yourself.",
+    cardAvatarLabel: "Avatar",
+    cardAvatarPlaceholder: "https://...",
+    cardAvatarFooter:
+      "For optimal results, we recommend using a square image that is at least 400px wide.",
+    cardLocation: "Your Location",
+    cardLocationDescription: "Where in the world are you?",
+    cardLocationLabel: "Location",
+    cardLocationPlaceholder: "San Francisco, CA",
+    cardLocationFooter:
+      "City, State, Country, whatever you are comfortable with.",
+    cardWebsite: "Your Website URL",
+    cardWebsiteDescription: "Do you have a website? Share it here.",
+    cardWebsiteLabel: "Website",
+    cardWebsitePlaceholder: "https://mywebsite.com",
+    cardWebsiteFooter:
+      "This could be a personal website, blog, or LinkedIn profile.",
+  },
+  dao: {
+    cardName: "Your DAO's name",
+    cardNameDescription: "What your DAO should be called.",
+    cardNameLabel: "Name",
+    cardNamePlaceholder: "Vayua",
+    cardNameFooter: "Name is required.",
+    cardBio: "Your DAO's Bio",
+    cardBioDescription: "Help people discover your DAO by sharing a short bio.",
+    cardBioLabel: "Bio",
+    cardBioPlaceholder:
+      "We are a DAO that is focused on building a better future.",
+    cardBioFooter: "Think of this as your elevator pitch.",
+    cardAvatar: "Your DAO's Avatar",
+    cardAvatarDescription: "Upload a photo of your DAO.",
+    cardAvatarLabel: "Avatar",
+    cardAvatarPlaceholder: "https://...",
+    cardAvatarFooter:
+      "For optimal results, we recommend using a square image that is at least 400px wide.",
+    cardLocation: "Your DAO's Location",
+    cardLocationDescription: "Where in the world is your DAO?",
+    cardLocationLabel: "Location",
+    cardLocationPlaceholder: "Worldwide",
+    cardLocationFooter:
+      "City, State, Country, whatever you are comfortable with.",
+    cardWebsite: "Your DAO's Website URL",
+    cardWebsiteDescription: "Do you have a website? Share it here.",
+    cardWebsiteLabel: "Website",
+    cardWebsitePlaceholder: "https://mywebsite.com",
+    cardWebsiteFooter:
+      "For example, this could be a website, blog, or Twitter profile.",
+  },
 };
 
 export default function SharedProfile({
@@ -101,7 +167,7 @@ export default function SharedProfile({
       toast({
         description: "Your profile has been successfully updated.",
       });
-      contractRead.refetch().then((r) => console.log("refetch", r));
+      contractRead.refetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTransactionSuccessful]);
@@ -127,7 +193,7 @@ export default function SharedProfile({
           </h1>
         </div>
       </div>
-      {type === "governance" && (
+      {type === "dao" && (
         <div className="w-full mt-4">
           <Alert variant="warning">
             <AlertCircleIcon className="w-4 h-4" />
@@ -151,55 +217,67 @@ export default function SharedProfile({
           <div className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg md:text-xl">Your name</CardTitle>
+                <CardTitle className="text-lg md:text-xl">
+                  {PROFILE_TEXT[type].cardName}
+                </CardTitle>
                 <CardDescription>
-                  Your name is how people will know you on the platform.
+                  {PROFILE_TEXT[type].cardNameDescription}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div>
-                  <Label htmlFor="name" className="sr-only">
-                    Name
+                  <Label
+                    htmlFor={PROFILE_TEXT[type].cardNameLabel.toLowerCase()}
+                    className="sr-only"
+                  >
+                    {PROFILE_TEXT[type].cardNameLabel}
                   </Label>
                   <Input
-                    id="name"
-                    name="name"
+                    id={PROFILE_TEXT[type].cardNameLabel.toLowerCase()}
+                    name={PROFILE_TEXT[type].cardNameLabel.toLowerCase()}
                     type="text"
                     autoComplete="name"
-                    placeholder="Your name"
+                    placeholder={PROFILE_TEXT[type].cardNamePlaceholder}
                     {...form.getInputProps("name")}
                   />
                 </div>
               </CardContent>
               <CardFooter>
-                <p className="text-sm text-destructive">Name is required.</p>
+                <p className="text-sm text-destructive">
+                  {PROFILE_TEXT[type].cardNameFooter}
+                </p>
               </CardFooter>
             </Card>
           </div>
           <div className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg md:text-xl">Your Bio</CardTitle>
+                <CardTitle className="text-lg md:text-xl">
+                  {PROFILE_TEXT[type].cardBio}
+                </CardTitle>
                 <CardDescription>
-                  Help people discover your profile by sharing a short bio.
+                  {PROFILE_TEXT[type].cardBioDescription}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div>
-                  <Label htmlFor="bio" className="sr-only">
-                    Name
+                  <Label
+                    htmlFor={PROFILE_TEXT[type].cardBioLabel.toLowerCase()}
+                    className="sr-only"
+                  >
+                    {PROFILE_TEXT[type].cardBioLabel}
                   </Label>
                   <Textarea
-                    id="bio"
-                    name="bio"
-                    placeholder="I'm a software engineer from San Francisco."
+                    id={PROFILE_TEXT[type].cardBioLabel.toLowerCase()}
+                    name={PROFILE_TEXT[type].cardBioLabel.toLowerCase()}
+                    placeholder={PROFILE_TEXT[type].cardBioPlaceholder}
                     {...form.getInputProps("bio")}
                   />
                 </div>
               </CardContent>
               <CardFooter>
                 <p className="text-sm text-muted-foreground">
-                  Think of this as your elevator pitch.
+                  {PROFILE_TEXT[type].cardBioFooter}
                 </p>
               </CardFooter>
             </Card>
@@ -209,9 +287,11 @@ export default function SharedProfile({
               <CardHeader className="flex-row justify-between">
                 <div>
                   <CardTitle className="text-lg md:text-xl">
-                    Your Avatar
+                    {PROFILE_TEXT[type].cardAvatar}
                   </CardTitle>
-                  <CardDescription>This is your avatar.</CardDescription>
+                  <CardDescription>
+                    {PROFILE_TEXT[type].cardAvatarDescription}
+                  </CardDescription>
                 </div>
                 <div>
                   <Avatar className="md:h-20 md:w-20 border">
@@ -240,23 +320,25 @@ export default function SharedProfile({
               </CardHeader>
               <CardContent>
                 <div>
-                  <Label htmlFor="avatar" className="sr-only">
-                    Avatar
+                  <Label
+                    htmlFor={PROFILE_TEXT[type].cardAvatarLabel.toLowerCase()}
+                    className="sr-only"
+                  >
+                    {PROFILE_TEXT[type].cardAvatarLabel}
                   </Label>
                   <Input
-                    id="avatar"
-                    name="avatar"
+                    id={PROFILE_TEXT[type].cardAvatarLabel.toLowerCase()}
+                    name={PROFILE_TEXT[type].cardAvatarLabel.toLowerCase()}
                     type="text"
                     autoComplete="url"
-                    placeholder="https://..."
+                    placeholder={PROFILE_TEXT[type].cardAvatarPlaceholder}
                     {...form.getInputProps("avatar")}
                   />
                 </div>
               </CardContent>
               <CardFooter>
                 <p className="text-sm text-muted-foreground">
-                  For optimal results, we recommend using a square image that is
-                  at least 400px wide.
+                  {PROFILE_TEXT[type].cardAvatarFooter}
                 </p>
               </CardFooter>
             </Card>
@@ -264,27 +346,34 @@ export default function SharedProfile({
           <div className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg md:text-xl">Location</CardTitle>
-                <CardDescription>Where in the world are you?</CardDescription>
+                <CardTitle className="text-lg md:text-xl">
+                  {PROFILE_TEXT[type].cardLocation}
+                </CardTitle>
+                <CardDescription>
+                  {PROFILE_TEXT[type].cardLocationDescription}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div>
-                  <Label htmlFor="location" className="sr-only">
-                    Location
+                  <Label
+                    htmlFor={PROFILE_TEXT[type].cardLocationLabel.toLowerCase()}
+                    className="sr-only"
+                  >
+                    {PROFILE_TEXT[type].cardLocationLabel}
                   </Label>
                   <Input
-                    id="location"
-                    name="location"
+                    id={PROFILE_TEXT[type].cardLocationLabel.toLowerCase()}
+                    name={PROFILE_TEXT[type].cardLocationLabel.toLowerCase()}
                     type="text"
                     autoComplete="country"
-                    placeholder="San Francisco, CA"
+                    placeholder={PROFILE_TEXT[type].cardLocationPlaceholder}
                     {...form.getInputProps("location")}
                   />
                 </div>
               </CardContent>
               <CardFooter>
                 <p className="text-sm text-muted-foreground">
-                  Let people know where you are from.
+                  {PROFILE_TEXT[type].cardLocationFooter}
                 </p>
               </CardFooter>
             </Card>
@@ -292,20 +381,27 @@ export default function SharedProfile({
           <div className="w-full">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg md:text-xl">Website</CardTitle>
-                <CardDescription>Your Website URL</CardDescription>
+                <CardTitle className="text-lg md:text-xl">
+                  {PROFILE_TEXT[type].cardWebsite}
+                </CardTitle>
+                <CardDescription>
+                  {PROFILE_TEXT[type].cardWebsiteDescription}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div>
-                  <Label htmlFor="website" className="sr-only">
-                    Website
+                  <Label
+                    htmlFor={PROFILE_TEXT[type].cardWebsiteLabel.toLowerCase()}
+                    className="sr-only"
+                  >
+                    {PROFILE_TEXT[type].cardWebsiteLabel}
                   </Label>
                   <Input
-                    id="website"
-                    name="website"
+                    id={PROFILE_TEXT[type].cardWebsiteLabel.toLowerCase()}
+                    name={PROFILE_TEXT[type].cardWebsiteLabel.toLowerCase()}
                     type="text"
                     autoComplete="url"
-                    placeholder="https://mywebsite.com"
+                    placeholder={PROFILE_TEXT[type].cardWebsitePlaceholder}
                     {...form.getInputProps("website")}
                   />
                   {form.errors.website && (
@@ -317,7 +413,7 @@ export default function SharedProfile({
               </CardContent>
               <CardFooter>
                 <p className="text-sm text-muted-foreground">
-                  Make sure to include the https://
+                  {PROFILE_TEXT[type].cardWebsiteFooter}
                 </p>
               </CardFooter>
             </Card>
