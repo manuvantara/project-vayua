@@ -10,6 +10,7 @@ import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 import { useContractWrite, useWaitForTransaction } from "wagmi";
 import Web3Button from "./Web3Button";
 import { useEffect, useState } from "react";
+import { useToast } from "./ui/use-toast";
 
 type CastVoteModalProps = {
   govAddress: `0x${string}`;
@@ -20,7 +21,8 @@ export default function CastVoteModal({
   govAddress,
   proposalId,
 }: CastVoteModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const [isDialogOpened, setIsDialogOpened] = useState(true);
 
   const castVoteWrite = useContractWrite({
     address: govAddress,
@@ -28,24 +30,38 @@ export default function CastVoteModal({
     functionName: "castVote",
   });
 
-  const { isLoading: isTransactionLoading } = useWaitForTransaction({
+  const {
+    isLoading: isTransactionLoading,
+    isSuccess: isTransactionSuccessful,
+  } = useWaitForTransaction({
     hash: castVoteWrite.data?.hash,
   });
 
   useEffect(() => {
     if (isTransactionLoading || castVoteWrite.isLoading) {
-      setIsLoading(true);
+      setIsDialogOpened(false);
     } else {
-      setIsLoading(false);
+      setIsDialogOpened(true);
     }
   }, [isTransactionLoading, castVoteWrite.isLoading]);
+
+  useEffect(() => {
+    if (isTransactionSuccessful) {
+      setIsDialogOpened(false);
+      toast({
+        description: "Your vote has been successfully casted.",
+      });
+    }
+  }, [isTransactionSuccessful]);
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Web3Button loading={isLoading}>Vote</Web3Button>
+        <Web3Button loading={isTransactionLoading || castVoteWrite.isLoading}>
+          Vote
+        </Web3Button>
       </DialogTrigger>
-      {!isLoading && (
+      {isDialogOpened && (
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Cast your vote</DialogTitle>
