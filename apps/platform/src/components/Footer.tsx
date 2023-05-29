@@ -1,23 +1,45 @@
-import ClientOnly from "@/components/ClientOnly";
-import WalletConnect from "@/components/WalletConnect";
 import Link from "next/link";
-import useScroll from "@/utils/hooks/use-scroll";
-import { cn } from "@/utils/class-merge";
+import { Github, Twitter } from "lucide-react";
 
 export default function Header() {
-  const scrolled = useScroll(0);
+  const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-5 flex lg:flex-row flex-col-reverse items-center justify-between container w-full py-4 min-h-16 mb-4">
-      <div className="flex items-center h-full justify-between lg:mt-0 mt-2 lg:text-left text-center">
-        Made with ♡ by Manuvantara Development
-      </div>
-      <div className="flex flex-row lg:gap-8 gap-4 font-light">
-        <Link href="">Docs</Link>
-        <Link href="">GitHub</Link>
-        <Link href="">Devpost</Link>
-        <Link href="">Twitter</Link>
-        <Link href="mailto:denys.kravchuk@manuvantara.com">denys.kravchuk@manuvantara.com</Link>
+    <footer className="text-muted-foreground bg-gradient-to-b from-[#f7f7f7] to-white">
+      <div className="py-12 mt-12 sm:mt-16 overflow-hidden container sm:py-16 min-h-16">
+        <nav className="w-full" aria-label="Footer">
+          <ul className="sm:space-x-12 columns-2 -mb-6 sm:flex sm:justify-center">
+            <li className="pb-6">
+              <Link className="hover:text-foreground" href="/devpost">
+                DevPost
+              </Link>
+            </li>
+            <li className="pb-6">
+              <Link className="hover:text-foreground" href="/docs">
+                Docs
+              </Link>
+            </li>
+            <li className="pb-6">
+              <Link
+                className="hover:text-foreground"
+                href="mailto:denys.kravchuk@manuvantara.com"
+              >
+                Contact
+              </Link>
+            </li>
+          </ul>
+        </nav>
+        <div className="mt-10 w-full space-x-10 flex justify-center">
+          <Link href="/twitter">
+            <Twitter className="w-6 h-6 hover:text-foreground" />
+          </Link>
+          <Link href="/github">
+            <Github className="w-6 h-6 hover:text-foreground" />
+          </Link>
+        </div>
+        <p className="text-xs text-center mt-10 leading-5">
+          © {currentYear} Manuvantara Development, Inc. All rights reserved.
+        </p>
       </div>
     </footer>
   );
