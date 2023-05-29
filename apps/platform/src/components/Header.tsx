@@ -10,9 +10,9 @@ export default function Header() {
   return (
     <div
       className={cn(
-        "sticky top-0 flex justify-center transition-all duration-300 w-full max-w-full z-50",
+        "sticky top-0 flex justify-center transition-all duration-300 w-full max-w-full z-50 before:absolute before:opacity-0 before:w-full before:h-full before:backdrop-blur-sm before:backdrop-saturate-150 before:-z-[1] before:transition-all before:duration-300 before:ease-in-out before:-top-[1px]",
         {
-          "sm:bg-white/80 shadow-[inset_0_-1px_0_rgba(0,0,0,0.1)] before:absolute before:w-full before:h-full before:backdrop-blur-sm  before:backdrop-saturate-150 before:-z-[1] before:transition-all before:duration-300 before:ease-in-out before:-top-[1px]":
+          "sm:bg-white/80 shadow-[inset_0_-1px_0_rgba(0,0,0,0.1)] before:opacity-100":
             scrolled,
         }
       )}
