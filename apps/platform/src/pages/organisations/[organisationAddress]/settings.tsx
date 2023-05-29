@@ -1,53 +1,26 @@
-import {
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
-import { GetServerSideProps } from "next";
+import { useContractWrite, useWaitForTransaction } from "wagmi";
+import type { GetServerSideProps } from "next";
 import SharedProfile from "@/components/SharedProfile";
-import { SettingsFormValues } from "@/types/forms";
+import type { SettingsFormValues } from "@/types/forms";
 import { Profile_ABI } from "@/utils/abi/profile-contract";
-import { useMemo, useState } from "react";
 import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 import { encodeFunctionData } from "viem";
-import { Toast, ToasterToast } from "@/components/ui/use-toast";
+import type { Toast, ToasterToast } from "@/components/ui/use-toast";
 
 export default function GovernanceProfile({
   organisationAddress,
 }: {
   organisationAddress: `0x${string}`;
 }) {
-  const [formValues, setFormValues] = useState<SettingsFormValues>({
-    avatar: "",
-    bio: "",
-    extra: "",
-    location: "",
-    name: "",
-    website: "",
-  });
-
-  const calldata = useMemo(() => {
-    console.log("updating profile");
-    return encodeFunctionData({
-      functionName: "setProfile",
-      abi: Profile_ABI,
-      args: [formValues],
-    });
-  }, [formValues]);
-
-  const { config } = usePrepareContractWrite({
+  const {
+    data,
+    write,
+    isLoading: isWriteLoading,
+  } = useContractWrite({
     address: organisationAddress,
     abi: governorAbi,
     functionName: "propose",
-    args: [
-      [organisationAddress],
-      [0n],
-      [calldata],
-      "Test Profile update proposal description",
-    ],
   });
-
-  const { data, write, isLoading: isWriteLoading } = useContractWrite(config);
 
   const { isLoading, isSuccess } = useWaitForTransaction({
     hash: data?.hash,
@@ -70,10 +43,21 @@ export default function GovernanceProfile({
       });
       return;
     }
-    setFormValues(values);
-    // console.log("status", status);
-    console.log("trying to write");
-    write();
+
+    const calldata = encodeFunctionData({
+      functionName: "setProfile",
+      abi: Profile_ABI,
+      args: [values],
+    });
+
+    write({
+      args: [
+        [organisationAddress],
+        [0n],
+        [calldata],
+        "Test Profile update proposal description",
+      ],
+    });
   };
 
   return (

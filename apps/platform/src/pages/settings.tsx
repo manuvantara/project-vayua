@@ -1,9 +1,4 @@
-import {
-  useAccount,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
 import {
   Profile_ABI,
   PROFILE_CONTRACT_ADDRESS,
@@ -11,30 +6,21 @@ import {
 import SharedProfile from "@/components/SharedProfile";
 import { SettingsFormValues } from "@/types/forms";
 import { Toast, ToasterToast } from "@/components/ui/use-toast";
-import { useState } from "react";
 
 export default function ProfileSettingsPage() {
   const { address } = useAccount();
 
-  const [formValues, setFormValues] = useState<SettingsFormValues>({
-    avatar: "",
-    bio: "",
-    extra: "",
-    location: "",
-    name: "",
-    website: "",
-  });
-
-  const { config } = usePrepareContractWrite({
+  const {
+    data,
+    write,
+    isLoading: isWriteLoading,
+  } = useContractWrite({
     address: PROFILE_CONTRACT_ADDRESS,
     abi: Profile_ABI,
     functionName: "setProfile",
-    args: [formValues],
   });
 
-  const { data, write, isLoading: isWriteLoading } = useContractWrite(config);
-
-  const { isLoading, isSuccess } = useWaitForTransaction({
+  const { isLoading, isSuccess, error } = useWaitForTransaction({
     hash: data?.hash,
   });
 
@@ -55,9 +41,9 @@ export default function ProfileSettingsPage() {
       return;
     }
 
-    setFormValues(values);
-
-    write();
+    write({
+      args: [values],
+    });
   };
 
   return (
