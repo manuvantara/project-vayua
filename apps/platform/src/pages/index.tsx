@@ -23,7 +23,7 @@ export default function Home() {
     validate: {
       address: matches(
         /^(0x){1}[0-9a-fA-F]{40}$/,
-        "Please enter a valid address"
+        "Please enter a valid Ethereum address"
       ),
     },
   });
@@ -94,14 +94,14 @@ export default function Home() {
                 {form.errors.address}
               </p>
             )}
-            <Link
-              href={{
+            <Link 
+              href={form.isValid() ? {
                 pathname: `/organisations/${
                   form.getInputProps("address").value
                 }`,
-              }}
+              } : ""}
             >
-              <Button className="md:w-auto w-full">Search</Button>
+              <Button className="md:w-auto w-full" disabled={!form.isValid()}>Search</Button>
             </Link>
           </CardFooter>
         </Card>
