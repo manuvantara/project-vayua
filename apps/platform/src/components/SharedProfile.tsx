@@ -21,7 +21,7 @@ import { Toast, ToasterToast, useToast } from "@/components/ui/use-toast";
 import { useEffect } from "react";
 import { SettingsFormValues } from "@/types/forms";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/Alert";
-import { Terminal } from "lucide-react";
+import { AlertCircleIcon } from "lucide-react";
 import { getInitials } from "@/utils/shorten-name";
 import Image from "next/image";
 
@@ -127,6 +127,19 @@ export default function SharedProfile({
           </h1>
         </div>
       </div>
+      {type === "governance" && (
+        <div className="w-full mt-4">
+          <Alert variant="warning">
+            <AlertCircleIcon className="w-4 h-4" />
+            <AlertTitle>Updating governance profile</AlertTitle>
+            <AlertDescription>
+              In order to update your governance profile, you will create a
+              proposal with your new profile. This proposal will be voted on by
+              the community.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
       <form
         className="max-w-5xl shadow-lg border mx-auto flex w-full rounded-md my-8"
         onSubmit={form.onSubmit(
@@ -135,19 +148,6 @@ export default function SharedProfile({
         )}
       >
         <div className="flex items-stretch gap-6 justify-start w-full flex-col p-6">
-          {type === "governance" && (
-            <div className="w-full">
-              <Alert variant="warning">
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Updating governance profile</AlertTitle>
-                <AlertDescription>
-                  In order to update your governance profile, you will create a
-                  proposal with your new profile. This proposal will be voted on
-                  by the community.
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
           <div className="w-full">
             <Card>
               <CardHeader>

@@ -2,10 +2,10 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './src/pages/**/*.{ts,tsx}',
-    './src/components/**/*.{ts,tsx}',
-    './src/app/**/*.{ts,tsx}',
-	],
+    "./src/pages/**/*.{ts,tsx}",
+    "./src/components/**/*.{ts,tsx}",
+    "./src/app/**/*.{ts,tsx}",
+  ],
   theme: {
     container: {
       center: true,
@@ -16,7 +16,10 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", ...require("tailwindcss/defaultTheme").fontFamily.sans],
+        sans: [
+          "var(--font-inter)",
+          ...require("tailwindcss/defaultTheme").fontFamily.sans,
+        ],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -41,8 +44,10 @@ module.exports = {
           foreground: "hsl(var(--success-foreground))",
         },
         warning: {
-          DEFAULT: "hsl(var(--warning))",
-          foreground: "hsl(var(--warning-foreground))",
+          DEFAULT: "var(--warning)",
+          dark: "var(--warning-dark)",
+          light: "var(--warning-light)",
+          lighter: "var(--warning-lighter)",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -83,4 +88,4 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
-}
+};
