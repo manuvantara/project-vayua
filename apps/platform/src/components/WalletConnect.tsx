@@ -85,7 +85,7 @@ export default function WalletConnect() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Connect</Button>
+        <Button variant="default">Connect Wallet</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

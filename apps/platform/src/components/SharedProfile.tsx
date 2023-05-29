@@ -24,6 +24,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/Alert";
 import { AlertCircleIcon } from "lucide-react";
 import { getInitials } from "@/utils/shorten-name";
 import Image from "next/image";
+import Web3Button from "@/components/Web3Button";
 
 type Props = {
   title: string;
@@ -419,9 +420,9 @@ export default function SharedProfile({
             </Card>
           </div>
           <div className="flex items-center justify-end">
-            <Button loading={isTransactionInProgress} type="submit">
+            <Web3Button loading={isTransactionInProgress} type="submit">
               Save
-            </Button>
+            </Web3Button>
           </div>
         </div>
       </form>
