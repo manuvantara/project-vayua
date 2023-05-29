@@ -14,7 +14,7 @@ import {
 import { Button } from "./ui/Button";
 
 import { ethers } from "ethers";
-import { useContractRead, usePublicClient } from "wagmi";
+import { useBlockNumber, useContractRead, usePublicClient } from "wagmi";
 import { parseAbiItem } from "viem";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
 import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
@@ -138,8 +138,8 @@ export default function Proposals() {
   const [proposals, setProposals] = useState<any[]>([]);
   const publicClient = usePublicClient();
 
-  //const { data: blockNumber, isError } = useBlockNumber();
-  const blockNumber = 21176027n;
+  const { data: blockNumber, isError } = useBlockNumber();
+  //const blockNumber = 21176027n;
 
   const { data: votingPeriod } = useContractRead({
     address: govAddress,
