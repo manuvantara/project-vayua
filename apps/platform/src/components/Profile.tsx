@@ -15,7 +15,7 @@ const user = {
 export default function Profile() {
   return (
     <div className="border rounded-lg shadow-sm bg-card text-card-foreground flex flex-col divide-y w-auto md:text-base text-xs">
-      <div className="text-xl font-semibold px-6 pt-6 pb-3">Your Identity</div>
+      <div className="text-xl font-semibold px-5 pt-5 pb-3">Your Identity</div>
       <div className="font-light px-6 pt-3 pb-6">
         <div className="flex flex-row lg:justify-between gap-5 items-start w-full">
           <div className="w-20 h-20">
