@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -49,9 +48,9 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardFooter className="border-none bg-white p-5 pt-3">
-              <Link href={{ pathname: `/wizard` }}>
-                <Button>Deploy DAO</Button>
-              </Link>
+              <Button asChild>
+                <Link href="/wizard">Deploy DAO</Link>
+              </Button>
             </CardFooter>
           </Card>
           <Card className="md:w-1/2 w-full flex flex-col justify-between">
@@ -67,9 +66,9 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardFooter className="border-none bg-white p-5 pt-3">
-              <Link href={{ pathname: `/settings` }}>
-                <Button variant="outline">Edit my profile</Button>
-              </Link>
+              <Button variant="outline" asChild>
+                <Link href="/settings">Edit my profile</Link>
+              </Button>
             </CardFooter>
           </Card>
         </div>
@@ -94,15 +93,13 @@ export default function Home() {
                 {form.errors.address}
               </p>
             )}
-            <Link 
-              href={form.isValid() ? {
-                pathname: `/organisations/${
-                  form.getInputProps("address").value
-                }`,
-              } : ""}
+            <Button
+              className="md:w-auto w-full"
+              asChild
+              aria-disabled={!form.isValid()}
             >
-              <Button className="md:w-auto w-full" disabled={!form.isValid()}>Search</Button>
-            </Link>
+              <Link href={`/organisations/${form.values.address}`}>Search</Link>
+            </Button>
           </CardFooter>
         </Card>
       </div>
