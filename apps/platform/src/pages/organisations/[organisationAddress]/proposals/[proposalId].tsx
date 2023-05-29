@@ -272,8 +272,8 @@ export default function ProposalPage() {
             <TableBody>
               {votes ? (
                 <TableRow className="text-center">
-                  <TableCell>{votes[0].toString()}</TableCell>
                   <TableCell>{votes[1].toString()}</TableCell>
+                  <TableCell>{votes[0].toString()}</TableCell>
                   <TableCell>{votes[2].toString()}</TableCell>
                 </TableRow>
               ) : (
