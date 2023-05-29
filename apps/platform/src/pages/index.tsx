@@ -29,10 +29,14 @@ export default function Home() {
 
   return (
     <main className="flex flex-col gap-5">
-      <div className="p-5 text-card-foreground mt-5 border rounded-lg">
-        <div className="lg:text-left text-center">
-          <h1 className="text-4xl font-bold ">Welcome to Vayua</h1>
-          <p className="pt-1">Be open to new experiences</p>
+      <div>
+        <div className="flex flex-col lg:text-left text-center">
+          <h1 className="mt-12 tracking-tight text-center md:text-left font-extrabold text-5xl lg:text-6xl leading-tight xl:leading-snug bg-clip-text text-transparent bg-gradient-to-b from-black/60 to-black">
+            Welcome to Vayua
+          </h1>
+          <p className="pt-1 text-muted-foreground">
+            Be open to new experiences
+          </p>
         </div>
         <div className="mt-5 flex md:flex-row md:justify-between gap-5 md:items-stretch flex-col items-center">
           <Card className="md:w-1/2 flex flex-col justify-between">
