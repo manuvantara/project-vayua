@@ -36,7 +36,7 @@ export default function Home() {
           <h1 className="mt-12 tracking-tight text-center md:text-left font-extrabold text-5xl lg:text-6xl leading-tight xl:leading-snug bg-clip-text text-transparent bg-gradient-to-b from-black/60 to-black">
             Welcome to Vayua
           </h1>
-          <p className="pt-1 text-muted-foreground">
+          <p className="pt-1 text-muted-foreground xl:leading-snug md:text-left">
             Be open to new experiences
           </p>
         </div>
@@ -114,7 +114,7 @@ export default function Home() {
         <div className="border rounded-lg shadow-sm bg-card text-card-foreground divide-y flex flex-col w-full">
           <div className="text-xl font-semibold px-5 pt-5 pb-3">Saved DAOs</div>
           <div className="px-5 pt-3 pb-5 font-light">
-            Create a new DAO or add existing one
+            Create a new DAO or add existing one.
           </div>
         </div>
       </div>

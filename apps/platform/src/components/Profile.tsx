@@ -124,7 +124,7 @@ export default function Profile({address}: AddressProps) {
         <div className="w-full flex flex-col gap-5">
         <div className="flex flex-col gap-2">      
         <div className="lg:w-96 w-full">
-          Connect a wallet to view your identity
+          Connect a wallet to view your identity.
         </div>
         <div className="flex flex-col mt-3 gap-1">
         <div className="flex flex-row items-center gap-2">
