@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { MapPin, LinkIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { LinkIcon, MapPin } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { getInitials } from "@/utils/shorten-name";
 import Image from "next/image";
 import { useContractRead } from "wagmi";
-import { PROFILE_CONTRACT_ADDRESS, Profile_ABI } from "@/utils/abi/profile-contract";
+import {
+  Profile_ABI,
+  PROFILE_CONTRACT_ADDRESS,
+} from "@/utils/abi/profile-contract";
 import { useEffect, useState } from "react";
 
 type AddressProps = {
@@ -12,12 +15,12 @@ type AddressProps = {
 };
 
 type UserData = {
-  name: string | undefined,
-  bio: string | undefined,
-  avatar: string | undefined,
-  website: string | undefined,
-  location: string | undefined,
-  extra: string | undefined,
+  name: string | undefined;
+  bio: string | undefined;
+  avatar: string | undefined;
+  website: string | undefined;
+  location: string | undefined;
+  extra: string | undefined;
 };
 
 /*
@@ -30,15 +33,14 @@ const user = {
 };
 */
 
-export default function Profile({address}: AddressProps) {
-  
+export default function Profile({ address }: AddressProps) {
   const [userData, setUserData] = useState<UserData>({
     name: "",
     bio: "",
     avatar: "",
     website: "",
     location: "",
-    extra: ""
+    extra: "",
   });
 
   const contractRead = useContractRead({
@@ -50,8 +52,8 @@ export default function Profile({address}: AddressProps) {
 
   useEffect(() => {
     const userProfileData: string[] = contractRead?.data as string[];
-    if (contractRead.isSuccess){
-      setUserData ({
+    if (contractRead.isSuccess) {
+      setUserData({
         name: userProfileData[0],
         bio: userProfileData[1],
         avatar: userProfileData[2],
@@ -60,10 +62,9 @@ export default function Profile({address}: AddressProps) {
         extra: userProfileData[5],
       });
     }
-  },[contractRead?.data]);
-  
-  return (
-    (contractRead.isSuccess) ? (
+  }, [contractRead?.data]);
+
+  return contractRead.isSuccess ? (
     <div className="border rounded-lg shadow-sm bg-card text-card-foreground flex flex-col divide-y w-auto md:text-base text-xs">
       <div className="text-xl font-semibold px-5 pt-5 pb-3">Your Identity</div>
       <div className="font-light px-6 pt-3 pb-6">
@@ -81,7 +82,9 @@ export default function Profile({address}: AddressProps) {
                 <Image
                   src={`https://avatar.vercel.sh/${
                     userData.name || "no-name"
-                  }.svg?text=${encodeURIComponent(getInitials(userData.name as string))}`}
+                  }.svg?text=${encodeURIComponent(
+                    getInitials(userData.name as string)
+                  )}`}
                   width="80"
                   height="80"
                   alt={`Avatar for ${userData.name}`}
@@ -95,9 +98,7 @@ export default function Profile({address}: AddressProps) {
               <div className="flex flex-row items-center gap-2 text-lg font-medium">
                 <div>{userData.name}</div>
               </div>
-              <div className="lg:w-96 w-full">
-                {userData.bio}
-              </div>
+              <div className="lg:w-96 w-full">{userData.bio}</div>
               <div className="flex flex-col mt-3 gap-1">
                 <div className="flex flex-row items-center gap-2">
                   <MapPin />
@@ -117,23 +118,21 @@ export default function Profile({address}: AddressProps) {
         </div>
       </div>
     </div>
-  ): (
+  ) : (
     <div className="border rounded-lg shadow-sm bg-card text-card-foreground flex flex-col divide-y w-auto md:text-base text-xs">
       <div className="text-xl font-semibold px-5 pt-5 pb-3">Your Identity</div>
-        <div className="font-light px-6 pt-3 pb-6">
+      <div className="font-light px-6 pt-3 pb-6">
         <div className="w-full flex flex-col gap-5">
-        <div className="flex flex-col gap-2">      
-        <div className="lg:w-96 w-full">
-          Connect a wallet to view your identity.
-        </div>
-        <div className="flex flex-col mt-3 gap-1">
-        <div className="flex flex-row items-center gap-2">
-        </div>
-        </div>
-        </div>
+          <div className="flex flex-col gap-2">
+            <div className="lg:w-96 w-full">
+              Connect a wallet to view your identity.
+            </div>
+            <div className="flex flex-col mt-3 gap-1">
+              <div className="flex flex-row items-center gap-2"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  )
   );
 }
