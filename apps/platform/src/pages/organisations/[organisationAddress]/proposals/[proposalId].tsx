@@ -18,7 +18,7 @@ import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-descrip
 
 import { useContractEvent, useContractRead } from "wagmi";
 import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
-import { shortenString } from "@/utils/shorten-address";
+import { shortenAddress, shortenString } from "@/utils/shorten-address";
 
 import CastVoteModal from "@/components/CastVoteModal";
 
@@ -154,7 +154,7 @@ export default function ProposalPage() {
 
                 <div className="text-sm mt-2">
                   <span className="font-semibold text-slate-500">
-                    {govAddress}
+                    {govAddress ? shortenAddress(govAddress) : null}
                   </span>
                 </div>
               </Link>
@@ -182,7 +182,7 @@ export default function ProposalPage() {
               >
                 <span className="font-semibold text-slate-500">
                   {" "}
-                  {proposer}
+                  {proposer ? shortenAddress(proposer) : null}
                 </span>
               </Link>
             </div>
