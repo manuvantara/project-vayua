@@ -1,5 +1,4 @@
 import { Group, Stepper as MStepper, Text, Title } from "@mantine/core";
-import CompilerDeployer from "@/components/wizard/CompilerDeployer";
 import { useAtom } from "jotai";
 import { stepsAtom } from "@/atoms";
 import SuccessfullyDeployed from "@/components/wizard/SuccessfullyDeployed";
@@ -7,8 +6,18 @@ import Governance from "@/components/wizard/Governance";
 import Token from "@/components/wizard/Token";
 import { Button } from "@/components/ui/Button";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import dynamic from "next/dynamic";
 
 const NUMBER_OF_STEPS = 3;
+
+const CompilerDeployer = dynamic(
+  () => import("@/components/wizard/CompilerDeployer"),
+  {
+    loading: () => (
+      <div className="flex justify-center items-center h-64">Loading...</div>
+    ),
+  }
+);
 
 export default function Stepper() {
   const [active, setActive] = useAtom(stepsAtom);
