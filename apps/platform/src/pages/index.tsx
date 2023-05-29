@@ -12,6 +12,7 @@ import Profile from "@/components/Profile";
 import { matches, useForm } from "@mantine/form";
 import { SearchDAOFormValues } from "@/types/forms";
 import { Fingerprint, Wand2 } from "lucide-react";
+import { useAccount } from "wagmi";
 
 export default function Home() {
   const form = useForm<SearchDAOFormValues>({
@@ -27,6 +28,7 @@ export default function Home() {
     },
   });
 
+  const { address } = useAccount(); 
   return (
     <main className="flex flex-col gap-5">
       <div>
@@ -108,7 +110,7 @@ export default function Home() {
         </Card>
       </div>
       <div className="flex lg:flex-row flex-col justify-between w-full gap-5">
-        <Profile />
+      <Profile address={address}/>
         <div className="border rounded-lg shadow-sm bg-card text-card-foreground divide-y flex flex-col w-full">
           <div className="text-xl font-semibold px-5 pt-5 pb-3">Saved DAOs</div>
           <div className="px-5 pt-3 pb-5 font-light">

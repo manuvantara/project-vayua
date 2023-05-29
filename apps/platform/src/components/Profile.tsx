@@ -3,7 +3,24 @@ import { MapPin, LinkIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { getInitials } from "@/utils/shorten-name";
 import Image from "next/image";
+import { useContractRead } from "wagmi";
+import { PROFILE_CONTRACT_ADDRESS, Profile_ABI } from "@/utils/abi/profile-contract";
+import { useEffect, useState } from "react";
 
+type AddressProps = {
+  address: `0x${string}` | undefined;
+};
+
+type UserData = {
+  name: string | undefined,
+  bio: string | undefined,
+  avatar: string | undefined,
+  website: string | undefined,
+  location: string | undefined,
+  extra: string | undefined,
+};
+
+/*
 const user = {
   name: `Emily Thompson`,
   bio: "Emily Thompson was born on May 10, 1990, in a small town in California. From a young age, she displayed a natural talent for music and began taking piano lessons at the age of six. Her passion for music continued to grow, and she soon started composing her own songs.",
@@ -11,9 +28,42 @@ const user = {
   place: "Austin, Texas",
   url: "https://chat.openai.com/",
 };
+*/
 
-export default function Profile() {
+export default function Profile({address}: AddressProps) {
+  
+  const [userData, setUserData] = useState<UserData>({
+    name: "",
+    bio: "",
+    avatar: "",
+    website: "",
+    location: "",
+    extra: ""
+  });
+
+  const contractRead = useContractRead({
+    address: PROFILE_CONTRACT_ADDRESS,
+    abi: Profile_ABI,
+    functionName: "profiles",
+    args: [address],
+  });
+
+  useEffect(() => {
+    const userProfileData: string[] = contractRead?.data as string[];
+    if (contractRead.isSuccess){
+      setUserData ({
+        name: userProfileData[0],
+        bio: userProfileData[1],
+        avatar: userProfileData[2],
+        website: userProfileData[4],
+        location: userProfileData[3],
+        extra: userProfileData[5],
+      });
+    }
+  },[contractRead?.data]);
+  
   return (
+    (contractRead.isSuccess) ? (
     <div className="border rounded-lg shadow-sm bg-card text-card-foreground flex flex-col divide-y w-auto md:text-base text-xs">
       <div className="text-xl font-semibold px-5 pt-5 pb-3">Your Identity</div>
       <div className="font-light px-6 pt-3 pb-6">
@@ -24,17 +74,17 @@ export default function Profile() {
                 className="object-top"
                 decoding="async"
                 loading="lazy"
-                title={`Avatar for ${user.name}`}
-                src={user.avatar || ""}
+                title={`Avatar for ${userData.name}`}
+                src={userData.avatar || ""}
               />
               <AvatarFallback delayMs={300}>
                 <Image
                   src={`https://avatar.vercel.sh/${
-                    user.name || "no-name"
-                  }.svg?text=${encodeURIComponent(getInitials(user.name))}`}
+                    userData.name || "no-name"
+                  }.svg?text=${encodeURIComponent(getInitials(userData.name as string))}`}
                   width="80"
                   height="80"
-                  alt={`Avatar for ${user.name}`}
+                  alt={`Avatar for ${userData.name}`}
                   className="select-none pointer-events-none rounded-full"
                 />
               </AvatarFallback>
@@ -43,25 +93,21 @@ export default function Profile() {
           <div className="w-full flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <div className="flex flex-row items-center gap-2 text-lg font-medium">
-                <div>Emily Thompson</div>
+                <div>{userData.name}</div>
               </div>
               <div className="lg:w-96 w-full">
-                Emily Thompson was born on May 10, 1990, in a small town in
-                California. From a young age, she displayed a natural talent for
-                music and began taking piano lessons at the age of six. Her
-                passion for music continued to grow, and she soon started
-                composing her own songs.
+                {userData.bio}
               </div>
               <div className="flex flex-col mt-3 gap-1">
                 <div className="flex flex-row items-center gap-2">
                   <MapPin />
-                  <div>Austin, Texas</div>
+                  <div>{userData.location}</div>
                 </div>
                 <div className="flex flex-row items-center gap-2">
                   <LinkIcon />
                   <div>
-                    <Link href="https://chat.openai.com/">
-                      https://chat.openai.com/
+                    <Link href={userData.website as string}>
+                      {userData.website}
                     </Link>
                   </div>
                 </div>
@@ -71,5 +117,23 @@ export default function Profile() {
         </div>
       </div>
     </div>
+  ): (
+    <div className="border rounded-lg shadow-sm bg-card text-card-foreground flex flex-col divide-y w-auto md:text-base text-xs">
+      <div className="text-xl font-semibold px-5 pt-5 pb-3">Your Identity</div>
+        <div className="font-light px-6 pt-3 pb-6">
+        <div className="w-full flex flex-col gap-5">
+        <div className="flex flex-col gap-2">      
+        <div className="lg:w-96 w-full">
+          Connect a wallet to view your identity
+        </div>
+        <div className="flex flex-col mt-3 gap-1">
+        <div className="flex flex-row items-center gap-2">
+        </div>
+        </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  )
   );
 }
