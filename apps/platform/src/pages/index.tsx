@@ -13,6 +13,7 @@ import { matches, useForm } from "@mantine/form";
 import { SearchDAOFormValues } from "@/types/forms";
 import { Fingerprint, Wand2 } from "lucide-react";
 import { useAccount } from "wagmi";
+import ClientOnly from "@/components/ClientOnly";
 
 export default function Home() {
   const form = useForm<SearchDAOFormValues>({
@@ -28,12 +29,12 @@ export default function Home() {
     },
   });
 
-  const { address } = useAccount(); 
+  const { address } = useAccount();
   return (
     <main className="flex flex-col gap-5">
       <div>
         <div className="flex flex-col lg:text-left text-center">
-          <h1 className="mt-12 tracking-tight text-center md:text-left font-extrabold text-5xl lg:text-6xl leading-tight xl:leading-snug bg-clip-text text-transparent bg-gradient-to-b from-black/60 to-black">
+          <h1 className="mt-12 pb-1 tracking-tight text-center md:text-left font-extrabold leading-none text-5xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b from-black/70 to-black">
             Welcome to Vayua
           </h1>
           <p className="pt-1 text-muted-foreground xl:leading-snug md:text-left">
@@ -110,7 +111,9 @@ export default function Home() {
         </Card>
       </div>
       <div className="flex lg:flex-row flex-col justify-between w-full gap-5">
-      <Profile address={address}/>
+      <ClientOnly>
+        <Profile address={address}/>
+      </ClientOnly>
         <div className="border rounded-lg shadow-sm bg-card text-card-foreground divide-y flex flex-col w-full">
           <div className="text-xl font-semibold px-5 pt-5 pb-3">Saved DAOs</div>
           <div className="px-5 pt-3 pb-5 font-light">
