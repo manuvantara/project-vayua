@@ -16,7 +16,7 @@ import { ClockIcon, ArrowUpLeft } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
 
-import { useContractRead } from "wagmi";
+import { useContractEvent, useContractRead } from "wagmi";
 import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 import { shortenString } from "@/utils/shorten-address";
 
@@ -79,7 +79,7 @@ export default function ProposalPage() {
     );
 
   // get votes
-  const { data: votes } = useContractRead({
+  const votesContractRead = useContractRead({
     address: govAddress,
     abi: governorAbi,
     functionName: "proposalVotes",
@@ -121,7 +121,22 @@ export default function ProposalPage() {
   const isTargetsString = typeof targets === "string";
   const isValuesString = typeof values === "string";
 
-  console.log(description);
+  // listen to cast vote event and read votes again if event was emitted
+  useContractEvent({
+    address: govAddress,
+    abi: governorAbi,
+    eventName: "VoteCast",
+    listener(logs) {
+      if (logs) {
+        logs.map((log: any) => {
+          const { args } = log;
+          if (args.proposalId.toString() == proposalId) {
+            votesContractRead.refetch();
+          }
+        });
+      }
+    },
+  });
 
   return (
     <div>
@@ -270,11 +285,11 @@ export default function ProposalPage() {
             </TableHeader>
 
             <TableBody>
-              {votes ? (
+              {votesContractRead.data ? (
                 <TableRow className="text-center">
-                  <TableCell>{votes[1].toString()}</TableCell>
-                  <TableCell>{votes[0].toString()}</TableCell>
-                  <TableCell>{votes[2].toString()}</TableCell>
+                  <TableCell>{votesContractRead.data[1].toString()}</TableCell>
+                  <TableCell>{votesContractRead.data[0].toString()}</TableCell>
+                  <TableCell>{votesContractRead.data[2].toString()}</TableCell>
                 </TableRow>
               ) : (
                 <TableRow className="text-center">
