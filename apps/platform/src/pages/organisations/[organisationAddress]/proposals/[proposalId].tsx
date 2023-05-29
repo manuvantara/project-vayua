@@ -22,6 +22,13 @@ import { shortenString } from "@/utils/shorten-address";
 
 import CastVoteModal from "@/components/CastVoteModal";
 
+type ProposalStateInstructionsProps = {
+  proposalState: string;
+  govAddress: `0x${string}`;
+  proposalId: string;
+  voteStart: string;
+};
+
 function ProposalStateInstructions({
   proposalState,
   govAddress,

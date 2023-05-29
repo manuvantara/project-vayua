@@ -10,6 +10,11 @@ import {
 import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 import { useContractWrite } from "wagmi";
 
+type CastVoteModalProps = {
+  govAddress: `0x${string}`;
+  proposalId: string;
+};
+
 export default function CastVoteModal({
   govAddress,
   proposalId,
