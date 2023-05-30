@@ -18,8 +18,6 @@ import { usePublicClient } from "wagmi";
 import { Block, parseAbiItem } from "viem";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
 
-/////////////////////////////////////////////////
-
 const MIN_BLOCK_NUMBER = 21041027n;
 
 export default function Proposals() {
@@ -27,8 +25,32 @@ export default function Proposals() {
   const router = useRouter();
   const govAddress = router.query.organisationAddress as `0x${string}`;
 
-  const [proposals, setProposals] = useState<any[]>([]);
   const publicClient = usePublicClient();
+  const [block, setBlock] = useState<Block>();
+
+  const [proposals, setProposals] = useState<any[]>([]);
+
+  const parseLogs = (logsPerCycle: any) => {
+    const parsedLogs = logsPerCycle.map((log: any) => {
+      const { args } = log;
+      // transform args array into an object
+      const proposalObject = {
+        proposalId: args[0].toString(),
+        proposer: args[1].toString(),
+        targets: args[2],
+        values: args[3].map((value: ethers.BigNumber) => value.toString()),
+        signatures: args[4],
+        calldatas: args[5],
+        voteStart: args[6].toString(),
+        voteEnd: args[7].toString(),
+        description: args[8].toString(),
+      };
+
+      return proposalObject;
+    });
+
+    return parsedLogs;
+  };
 
   const fetchLogsPerCycle = async (toBlock: bigint) => {
     const fromBlock = toBlock - 4999n;
@@ -50,28 +72,6 @@ export default function Proposals() {
     }
   };
 
-  const parseLogs = (logsPerCycle: any) => {
-    const parsedLogs = logsPerCycle.map((log: any) => {
-      const { args } = log;
-      // Transform args array into an object
-      const proposalObject = {
-        proposalId: args[0].toString(),
-        proposer: args[1].toString(),
-        targets: args[2],
-        values: args[3].map((value: ethers.BigNumber) => value.toString()),
-        signatures: args[4],
-        calldatas: args[5],
-        voteStart: args[6].toString(),
-        voteEnd: args[7].toString(),
-        description: args[8].toString(),
-      };
-
-      return proposalObject;
-    });
-
-    return parsedLogs;
-  };
-
   const fetchLogs = async () => {
     if (!block?.number) {
       return;
@@ -81,12 +81,14 @@ export default function Proposals() {
     while (toBlock >= MIN_BLOCK_NUMBER) {
       await fetchLogsPerCycle(toBlock);
       toBlock -= 5000n;
+      window.localStorage.setItem(
+        "toBlock",
+        JSON.stringify(toBlock.toString())
+      );
     }
   };
 
   //const { data: blockNumber, isError } = useBlockNumber();
-
-  const [block, setBlock] = useState<Block>();
   useEffect(() => {
     publicClient
       .getBlock() // https://viem.sh/docs/actions/public/getBlock.html
@@ -101,13 +103,16 @@ export default function Proposals() {
     // if (storedProposals) {
     //   setProposals(JSON.parse(storedProposals));
     // }
-    console.log("UseEffect:", block);
+
+    //console.log("UseEffect:", block);
 
     fetchLogs();
-    //window.localStorage.setItem("proposals", JSON.stringify(proposals));
   }, [block]);
 
-  //////////////////////////////
+  useEffect(() => {
+    window.localStorage.setItem("proposals", JSON.stringify(proposals));
+  }, [proposals]);
+
   return (
     <div className="">
       <Table>
