@@ -1,53 +1,26 @@
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { useEffect, useState } from "react";
-import { Label } from "@/components/ui/Label";
-import { useContractWrite, useWaitForTransaction } from "wagmi";
-import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
-import type { Options } from "easymde";
 import type { GetServerSideProps } from "next";
-import dynamic from "next/dynamic";
+import { Input } from "@/components/ui/Input";
+import { useCallback, useEffect, useState } from "react";
+import { Label } from "@/components/ui/Label";
+import {
+  erc20ABI,
+  useAccount,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
+import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import remarkGfm from "remark-gfm";
-import "easymde/dist/easymde.min.css";
-import ReactMarkdown from "react-markdown";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import { useRouter } from "next/router";
 import { useToast } from "@/components/ui/use-toast";
-
-const SimpleMDEditor = dynamic(() => import("react-simplemde-editor"), {
-  ssr: false,
-});
-
-const options: Options = {
-  autofocus: true,
-  spellChecker: false,
-  placeholder: "Please Enter Markdown Text",
-  toolbar: [
-    "bold",
-    "italic",
-    "strikethrough",
-    "heading-1",
-    "heading-2",
-    "heading-3",
-    "heading-smaller",
-    "heading-bigger",
-    "|",
-    "code",
-    "|",
-    "quote",
-    "unordered-list",
-    "ordered-list",
-    "|",
-    "link",
-    "image",
-    "table",
-    "horizontal-rule",
-    "|",
-    "guide",
-  ],
-};
+import { encodeFunctionData } from "viem";
+import { useAtomValue } from "jotai";
+import { markdownEditorValueAtom } from "@/atoms";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import Link from "next/link";
+import Web3Button from "@/components/Web3Button";
+import MarkdownEditor from "@/components/MarkdownEditor";
 
 export default function NewProposalPage({
   organisationAddress,
@@ -55,26 +28,35 @@ export default function NewProposalPage({
   organisationAddress: `0x${string}`;
 }) {
   const router = useRouter();
+  const { address } = useAccount();
   const { toast } = useToast();
-  const [proposalName, setProposalName] = useState("");
-  const [editorValue, setEditorValue] = useState("");
-  const [targetContractAddress, setTargetContractAddress] = useState("");
-  const [targetContractABI, setTargetContractABI] = useState("");
-  const [targetFunction, setTargetFunction] = useState("");
 
-  const { write, data } = useContractWrite({
+  const [proposalName, setProposalName] = useState("");
+  const markdownEditorValue = useAtomValue(markdownEditorValueAtom);
+
+  const [targetContractAddress, setTargetContractAddress] = useState("");
+  const [targetContractABI, setTargetContractABI] = useState([]);
+  const [targetFunctionId, setTargetFunctionId] = useState(0);
+  const [targetContractFunctions, setTargetContractFunctions] = useState<
+    { id: number; name: string; inputs: { name: string; type: string }[] }[]
+  >([]);
+  const [targetFunctionArguments, setTargetFunctionArguments] = useState<{
+    [key: string]: string;
+  } | null>();
+
+  const {
+    write,
+    data,
+    isLoading: isWriteLoading,
+  } = useContractWrite({
     address: organisationAddress,
     abi: governorAbi,
     functionName: "propose",
   });
 
-  const { isLoading, isSuccess } = useWaitForTransaction({
+  const { isLoading: isTransactionLoading, isSuccess } = useWaitForTransaction({
     hash: data?.hash,
   });
-
-  const handleEditorValue = (value: string) => {
-    setEditorValue(value);
-  };
 
   const handleProposalNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setProposalName(e.target.value);
@@ -89,28 +71,135 @@ export default function NewProposalPage({
 
     const reader = new FileReader();
 
-    reader.onload = async (e) => {
-      const abiJson = JSON.parse(reader.result as string);
-      console.log(abiJson);
-      setTargetContractABI(abiJson);
+    reader.onloadend = () => {
+      const abi = reader.result as string;
+      try {
+        const parsedAbi = JSON.parse(abi);
+        setTargetContractABI(parsedAbi);
+
+        let functionId = 0;
+        const functions: {
+          id: number;
+          name: string;
+          inputs: { name: string; type: string }[];
+        }[] = parsedAbi
+          // TODO: Somehow type this, maybe use a library https://abitype.dev/
+          .filter((item: any) => item.type === "function")
+          .map((item: any) => {
+            return {
+              id: functionId++,
+              name: item.name,
+              inputs: item.inputs,
+            };
+          });
+
+        setTargetContractFunctions(functions);
+      } catch {
+        toast({
+          title: "Error",
+          description: "Invalid ABI",
+          variant: "destructive",
+        });
+      }
     };
+    reader.readAsText(file);
   };
+
+  const renderTargetFunctionArguments = useCallback(() => {
+    const targetFunction = targetContractFunctions.find(
+      (item) => item.id === targetFunctionId
+    );
+
+    if (!targetFunction) {
+      return null;
+    }
+
+    if (targetFunction.inputs.length === 0) {
+      return null; // No inputs, don't render the wrapper
+    }
+
+    return (
+      <div className="mt-4">
+        <h3 className="text-lg font-semibold mb-2">Calldatas</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          The data for the function arguments you wish to send when the action
+          executes
+        </p>
+        {targetFunction.inputs.map((input) => {
+          const inputValue = targetFunctionArguments?.[input.name] || "";
+
+          const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const newValue = e.target.value;
+            setTargetFunctionArguments((prevArguments) => ({
+              ...(prevArguments || {}),
+              [input.name]: newValue,
+            }));
+          };
+
+          return (
+            <div className="mt-2" key={input.name}>
+              <Label htmlFor={input.name}>{input.name}</Label>
+              <Input
+                id={input.name}
+                className="mt-2"
+                type="text"
+                value={inputValue}
+                onChange={handleChange}
+              />
+            </div>
+          );
+        })}
+      </div>
+    );
+  }, [targetFunctionArguments, targetContractFunctions, targetFunctionId]);
+
+  useEffect(() => {
+    setTargetFunctionArguments({});
+  }, [targetFunctionId]);
 
   const handlePropose = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const formattedDescription = `---\ntitle: ${proposalName}\n---\n ${editorValue}`;
+    const formattedDescription = `---\ntitle: ${proposalName}\n---\n ${markdownEditorValue}`;
 
-    const executableCode = "0x00";
+    let executableCode: `0x${string}` = "0x";
 
-    write({
-      args: [
-        [organisationAddress],
-        [0n],
-        [executableCode],
-        formattedDescription,
-      ],
-    });
+    const targetFunction = targetContractFunctions.find(
+      (item) => item.id === targetFunctionId
+    );
+
+    try {
+      if (!targetFunction) {
+        executableCode = encodeFunctionData({
+          abi: erc20ABI,
+          functionName: "transfer",
+          args: [address as `0x${string}`, 0n],
+        });
+      } else {
+        const args = Object.values(targetFunctionArguments || {});
+        executableCode = encodeFunctionData({
+          abi: targetContractABI,
+          // For some reason the type is wrong here
+          functionName: targetFunction.name as any,
+          args,
+        });
+      }
+
+      write({
+        args: [
+          [organisationAddress],
+          [0n],
+          [executableCode],
+          formattedDescription,
+        ],
+      });
+    } catch (e: any) {
+      toast({
+        title: "Error",
+        description: e.message,
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
@@ -126,7 +215,7 @@ export default function NewProposalPage({
   return (
     <div className="w-full flex flex-col">
       <Link
-        className="flex items-center text-muted-foreground"
+        className="inline-flex items-center text-muted-foreground"
         href={`/organisations/${organisationAddress}`}
       >
         <ArrowLeft className="w-4 h-4 mr-1" />
@@ -170,18 +259,13 @@ export default function NewProposalPage({
               </TabsTrigger>
             </TabsList>
             <TabsContent value="edit">
-              <SimpleMDEditor
-                options={options}
-                id="editor"
-                value={editorValue}
-                onChange={handleEditorValue}
-              />
+              <MarkdownEditor />
             </TabsContent>
             <TabsContent value="preview">
               <div className="border rounded-md p-4 shadow min-h-[400px] w-full">
-                <div className="prose-sm sm:prose">
+                <div className="prose-sm sm:prose !max-w-full">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {editorValue}
+                    {markdownEditorValue}
                   </ReactMarkdown>
                 </div>
               </div>
@@ -214,27 +298,42 @@ export default function NewProposalPage({
               className="mt-2"
               type="file"
               accept=".json"
-              value={targetContractABI}
               onChange={handleContractABIUpload}
             />
           </div>
-          <div className="mt-4">
-            <Label htmlFor="target-function">Target function</Label>
-            <Input
-              id="target-function"
-              className="mt-2"
-              type="text"
-              placeholder="Enter target function (case sensitive)"
-              value={targetFunction}
-              onChange={(e) => setTargetFunction(e.target.value)}
-            />
-          </div>
+          {targetContractABI.length > 0 && (
+            <div className="mt-4">
+              <Label htmlFor="target-function">Target function</Label>
+              <div className="relative flex items-center mt-2 w-[200px]">
+                <select
+                  value={targetFunctionId}
+                  onChange={(e) => setTargetFunctionId(Number(e.target.value))}
+                  id="target-function"
+                  className="cursor-pointer h-10 w-full items-center justify-between rounded-md border appearance-none border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {targetContractFunctions.map((func) => (
+                    <option key={func.id} value={func.id}>
+                      {func.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="inline-flex items-center absolute pointer-events-none right-3 w-4 h-4">
+                  <ChevronDown />
+                </span>
+              </div>
+            </div>
+          )}
+          {renderTargetFunctionArguments()}
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={!write} loading={isLoading}>
+          <Web3Button
+            type="submit"
+            disabled={!write}
+            loading={isTransactionLoading || isWriteLoading}
+          >
             Create proposal
-          </Button>
+          </Web3Button>
         </div>
       </form>
     </div>
