@@ -4,13 +4,19 @@ import styles from "@/styles/Spinner.module.css";
 
 interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: number;
+  color?: `#${string}`;
 }
 
 const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
-  ({ className, size = 20, ...props }, ref) => (
+  ({ className, size = 20, color, ...props }, ref) => (
     <div
       className={cn(styles.spinner_wrapper, className)}
-      style={{ "--spinner-size": `${size}px` } as React.CSSProperties}
+      style={
+        {
+          "--spinner-size": `${size}px`,
+          "--spinner-color": color,
+        } as React.CSSProperties
+      }
       ref={ref}
       {...props}
     >
