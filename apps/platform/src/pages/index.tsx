@@ -17,7 +17,7 @@ import ClientOnly from "@/components/ClientOnly";
 
 export default function Home() {
   const form = useForm<SearchDAOFormValues>({
-    validateInputOnBlur: true,
+    validateInputOnChange: true,
     initialValues: {
       address: "",
     },
@@ -87,7 +87,6 @@ export default function Home() {
           </CardHeader>
           <CardFooter className="flex md:flex-row gap-5 justify-between flex-col">
             <Input
-              id="address"
               name="address"
               type="text"
               autoComplete="url"
