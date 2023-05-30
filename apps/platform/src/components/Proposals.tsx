@@ -34,6 +34,50 @@ function getInitialBlockFromLocalStorage(currentBlockNumber: bigint) {
   );
 }
 
+const parseEvents = (logs: any) => {
+  const parsedLogs = logs.map((log: any) => {
+    const { args } = log;
+
+    const proposalObject = {
+      proposalId: args.proposalId.toString(),
+      proposer: args.proposer.toString(),
+      targets: args.targets,
+      values: args.values.map((value: ethers.BigNumber) => value.toString()),
+      signatures: args.signatures,
+      calldatas: args.calldatas,
+      voteStart: args.startBlock.toString(),
+      voteEnd: args.endBlock.toString(),
+      description: args.description.toString(),
+    };
+
+    return proposalObject;
+  });
+
+  return parsedLogs;
+};
+
+const parseLogs = (logsPerCycle: any) => {
+  const parsedLogs = logsPerCycle.map((log: any) => {
+    const { args } = log;
+    // transform args array into an object
+    const proposalObject = {
+      proposalId: args[0].toString(),
+      proposer: args[1].toString(),
+      targets: args[2],
+      values: args[3].map((value: ethers.BigNumber) => value.toString()),
+      signatures: args[4],
+      calldatas: args[5],
+      voteStart: args[6].toString(),
+      voteEnd: args[7].toString(),
+      description: args[8].toString(),
+    };
+
+    return proposalObject;
+  });
+
+  return parsedLogs;
+};
+
 export default function Proposals() {
   // get the governance contract address from route
   const router = useRouter();
@@ -43,28 +87,6 @@ export default function Proposals() {
   const [block, setBlock] = useState<Block>();
 
   const [proposals, setProposals] = useState<any[]>([]);
-
-  const parseLogs = (logsPerCycle: any) => {
-    const parsedLogs = logsPerCycle.map((log: any) => {
-      const { args } = log;
-      // transform args array into an object
-      const proposalObject = {
-        proposalId: args[0].toString(),
-        proposer: args[1].toString(),
-        targets: args[2],
-        values: args[3].map((value: ethers.BigNumber) => value.toString()),
-        signatures: args[4],
-        calldatas: args[5],
-        voteStart: args[6].toString(),
-        voteEnd: args[7].toString(),
-        description: args[8].toString(),
-      };
-
-      return proposalObject;
-    });
-
-    return parsedLogs;
-  };
 
   const fetchLogsPerCycle = async (fromBlock: bigint, toBlock: bigint) => {
     try {
@@ -162,6 +184,26 @@ export default function Proposals() {
   useEffect(() => {
     window.localStorage.setItem("proposals", JSON.stringify(proposals));
   }, [proposals]);
+
+  // listen to proposal created event and updated proposals list real time
+  useContractEvent({
+    address: govAddress,
+    abi: GOVERNOR_ABI,
+    eventName: "ProposalCreated",
+    listener(logs) {
+      if (logs) {
+        console.log(logs);
+        const parsedLogs = parseEvents(logs);
+        setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
+        if (logs[0].blockNumber) {
+          window.localStorage.setItem(
+            "initialBlockNumber",
+            JSON.stringify(logs[0].blockNumber.toString())
+          );
+        }
+      }
+    },
+  });
 
   return (
     <div className="">
