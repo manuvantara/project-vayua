@@ -1,50 +1,7 @@
 export const PROFILE_CONTRACT_ADDRESS =
-  "0x4C36314a3027531101a03799b60c4f12E75A91B0";
+  "0x1D27dA98f83803A6ddCD6c2e2599082916844973";
 
-export const Profile_ABI = [
-  {
-    type: "event",
-    anonymous: false,
-    name: "ProfileChanged",
-    inputs: [
-      {
-        type: "address",
-        name: "owner",
-        indexed: false,
-      },
-      {
-        type: "tuple",
-        name: "profile",
-        indexed: false,
-        components: [
-          {
-            type: "string",
-            name: "name",
-          },
-          {
-            type: "string",
-            name: "bio",
-          },
-          {
-            type: "string",
-            name: "avatar",
-          },
-          {
-            type: "string",
-            name: "location",
-          },
-          {
-            type: "string",
-            name: "website",
-          },
-          {
-            type: "string",
-            name: "extra",
-          },
-        ],
-      },
-    ],
-  },
+export const PROFILE_ABI = [
   {
     type: "function",
     name: "profiles",
@@ -82,19 +39,6 @@ export const Profile_ABI = [
         name: "extra",
       },
     ],
-  },
-  {
-    type: "function",
-    name: "setExtra",
-    constant: false,
-    payable: false,
-    inputs: [
-      {
-        type: "string",
-        name: "_extra",
-      },
-    ],
-    outputs: [],
   },
   {
     type: "function",

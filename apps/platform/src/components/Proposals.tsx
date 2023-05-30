@@ -14,9 +14,10 @@ import {
 import { Button } from "./ui/Button";
 
 import { ethers } from "ethers";
-import { usePublicClient } from "wagmi";
+import { useContractEvent, usePublicClient } from "wagmi";
 import { Block, parseAbiItem } from "viem";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
+import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 
 const MIN_BLOCK_NUMBER = 21041027n;
 

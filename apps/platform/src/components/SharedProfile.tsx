@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { useContractRead } from "wagmi";
 import {
-  Profile_ABI,
+  PROFILE_ABI,
   PROFILE_CONTRACT_ADDRESS,
 } from "@/utils/abi/profile-contract";
 import { isNotEmpty, matches, useForm } from "@mantine/form";
@@ -140,7 +140,7 @@ export default function SharedProfile({
 
   const contractRead = useContractRead({
     address: PROFILE_CONTRACT_ADDRESS,
-    abi: Profile_ABI,
+    abi: PROFILE_ABI,
     functionName: "profiles",
     args: [address],
   });

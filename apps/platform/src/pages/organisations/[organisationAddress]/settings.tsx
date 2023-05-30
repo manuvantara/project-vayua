@@ -4,9 +4,9 @@ import SharedProfile from "@/components/SharedProfile";
 import type { SettingsFormValues } from "@/types/forms";
 import {
   PROFILE_CONTRACT_ADDRESS,
-  Profile_ABI,
+  PROFILE_ABI,
 } from "@/utils/abi/profile-contract";
-import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
+import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { encodeFunctionData } from "viem";
 import type { Toast, ToasterToast } from "@/components/ui/use-toast";
 
@@ -21,7 +21,7 @@ export default function GovernanceProfile({
     isLoading: isWriteLoading,
   } = useContractWrite({
     address: organisationAddress,
-    abi: governorAbi,
+    abi: GOVERNOR_ABI,
     functionName: "propose",
   });
 
@@ -49,7 +49,7 @@ export default function GovernanceProfile({
 
     const calldata = encodeFunctionData({
       functionName: "setProfile",
-      abi: Profile_ABI,
+      abi: PROFILE_ABI,
       args: [values],
     });
 
@@ -58,12 +58,7 @@ export default function GovernanceProfile({
         [PROFILE_CONTRACT_ADDRESS],
         [0n],
         [calldata],
-        `# Update DAO profile
-        ####Name: ${values.name}
-        ####Bio: ${values.bio}
-        ####Avatar: ${values.avatar}
-        ####Location: ${values.location}
-        ####Website: ${values.website}`,
+        `THIRD ${values.name}`,
       ],
     });
   };

@@ -8,7 +8,7 @@ import {
   useContractWrite,
   useWaitForTransaction,
 } from "wagmi";
-import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
+import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { ArrowLeft, ChevronDown } from "lucide-react";
 import { useRouter } from "next/router";
@@ -50,7 +50,7 @@ export default function NewProposalPage({
     isLoading: isWriteLoading,
   } = useContractWrite({
     address: organisationAddress,
-    abi: governorAbi,
+    abi: GOVERNOR_ABI,
     functionName: "propose",
   });
 

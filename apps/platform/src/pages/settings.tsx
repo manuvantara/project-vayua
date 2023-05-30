@@ -1,6 +1,6 @@
 import { useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
 import {
-  Profile_ABI,
+  PROFILE_ABI,
   PROFILE_CONTRACT_ADDRESS,
 } from "@/utils/abi/profile-contract";
 import SharedProfile from "@/components/SharedProfile";
@@ -16,7 +16,7 @@ export default function ProfileSettingsPage() {
     isLoading: isWriteLoading,
   } = useContractWrite({
     address: PROFILE_CONTRACT_ADDRESS,
-    abi: Profile_ABI,
+    abi: PROFILE_ABI,
     functionName: "setProfile",
   });
 

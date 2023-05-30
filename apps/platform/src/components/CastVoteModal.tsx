@@ -6,7 +6,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/Dialog";
 
-import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
+import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { useContractWrite, useWaitForTransaction } from "wagmi";
 import Web3Button from "./Web3Button";
 import { useEffect, useState } from "react";
@@ -26,7 +26,7 @@ export default function CastVoteModal({
 
   const castVoteWrite = useContractWrite({
     address: govAddress,
-    abi: governorAbi,
+    abi: GOVERNOR_ABI,
     functionName: "castVote",
   });
 

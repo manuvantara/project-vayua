@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/Label";
 import { Input } from "./ui/Input";
 
 import { useAccount, useContractRead, useContractWrite } from "wagmi";
-import { governorAbi, tokenAbi } from "@/utils/abi/openzeppelin-contracts";
+import { GOVERNOR_ABI, TOKEN_ABI } from "@/utils/abi/openzeppelin-contracts";
 
 import { isNotEmpty, useForm } from "@mantine/form";
 import { DelegateVoteFormValues } from "@/types/forms";
@@ -27,7 +27,7 @@ export default function DelegateModal() {
   // read token address from governance
   const read = useContractRead({
     address: govAddress,
-    abi: governorAbi,
+    abi: GOVERNOR_ABI,
     functionName: "token",
   });
   const tokenAddress: `0x${string}` = read.data as `0x${string}`;
@@ -37,7 +37,7 @@ export default function DelegateModal() {
 
   const delegateVotesWrite = useContractWrite({
     address: tokenAddress,
-    abi: tokenAbi,
+    abi: TOKEN_ABI,
     functionName: "delegate",
   });
 

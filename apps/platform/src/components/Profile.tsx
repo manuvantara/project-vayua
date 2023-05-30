@@ -5,7 +5,7 @@ import { getInitials } from "@/utils/shorten-name";
 import Image from "next/image";
 import { useContractRead } from "wagmi";
 import {
-  Profile_ABI,
+  PROFILE_ABI,
   PROFILE_CONTRACT_ADDRESS,
 } from "@/utils/abi/profile-contract";
 import { useEffect, useState } from "react";
@@ -45,7 +45,7 @@ export default function Profile({ address }: AddressProps) {
 
   const contractRead = useContractRead({
     address: PROFILE_CONTRACT_ADDRESS,
-    abi: Profile_ABI,
+    abi: PROFILE_ABI,
     functionName: "profiles",
     args: [address],
   });

@@ -16,11 +16,13 @@ import { ClockIcon, ArrowUpLeft } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
 
-import { useContractEvent, useContractRead } from "wagmi";
-import { governorAbi } from "@/utils/abi/openzeppelin-contracts";
+import { useContractEvent, useContractRead, useContractWrite } from "wagmi";
+import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
 
 import CastVoteModal from "@/components/CastVoteModal";
+import { Button } from "@/components/ui/Button";
+import { hashMessage } from "viem";
 
 type ProposalStateInstructionsProps = {
   proposalState: string;
@@ -81,7 +83,7 @@ export default function ProposalPage() {
   // get votes
   const votesContractRead = useContractRead({
     address: govAddress,
-    abi: governorAbi,
+    abi: GOVERNOR_ABI,
     functionName: "proposalVotes",
     args: [proposalId ? BigInt(proposalId) : 0n],
   });
@@ -92,7 +94,7 @@ export default function ProposalPage() {
   // get proposal state
   const { data: state } = useContractRead({
     address: govAddress,
-    abi: governorAbi,
+    abi: GOVERNOR_ABI,
     functionName: "state",
     args: [proposalId ? BigInt(proposalId) : 0n],
   });
@@ -115,16 +117,17 @@ export default function ProposalPage() {
     ? (router.query.voteStart as string)
     : "";
 
-  // get targets and values
+  // get targets, values and calldatas
   const targets = router.query.targets ? router.query.targets : [];
   const values = router.query.values ? router.query.values : [];
+  const calldatas = router.query.calldatas ? router.query.calldatas : [];
+
   const isTargetsString = typeof targets === "string";
-  const isValuesString = typeof values === "string";
 
   // listen to cast vote event and read votes again if event was emitted
   useContractEvent({
     address: govAddress,
-    abi: governorAbi,
+    abi: GOVERNOR_ABI,
     eventName: "VoteCast",
     listener(logs) {
       if (logs) {
@@ -137,6 +140,14 @@ export default function ProposalPage() {
       }
     },
   });
+
+  // // execute write to contract
+  // const executeWrite = useContractWrite({
+  //   address: govAddress,
+  //   abi: GOVERNOR_ABI,
+  //   functionName: "execute",
+  //   value: 0n,
+  // });
 
   return (
     <div>
@@ -211,7 +222,7 @@ export default function ProposalPage() {
               </article>
             </TabsContent>
             <TabsContent value="code">
-              {isTargetsString && isValuesString ? (
+              {isTargetsString ? (
                 <div className="p-5">
                   <h3 className="mb-2">Function 1:</h3>
                   <div className="border border-border p-5">
@@ -222,7 +233,7 @@ export default function ProposalPage() {
                         target="_blank"
                       >
                         <span className="font-semibold text-slate-500">
-                          {targets}
+                          {targets ? shortenAddress(targets) : null}
                         </span>
                       </Link>
                     </div>
@@ -232,11 +243,25 @@ export default function ProposalPage() {
                         {values}
                       </span>
                     </div>
+                    {/* <Button
+                      className="mt-5"
+                      onClick={() =>
+                        executeWrite.write({
+                          args: [
+                            [targets as `0x${string}`],
+                            [123n],
+                            [calldatas],
+                            [hashMessage(proposalDescription)],
+                          ],
+                        })
+                      }
+                    >
+                      Execute
+                    </Button> */}
                   </div>
                 </div>
               ) : (
                 Array.isArray(targets) &&
-                Array.isArray(values) &&
                 targets.length !== 0 && (
                   <div>
                     {targets.map((target, index) => (
@@ -250,7 +275,7 @@ export default function ProposalPage() {
                               target="_blank"
                             >
                               <span className="font-semibold text-slate-500">
-                                {target}
+                                {target ? shortenAddress(target) : null}
                               </span>
                             </Link>
                           </div>
