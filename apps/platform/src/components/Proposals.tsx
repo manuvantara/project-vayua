@@ -54,7 +54,6 @@ export default function Proposals() {
 
   const fetchLogsPerCycle = async (toBlock: bigint) => {
     const fromBlock = toBlock - 4999n;
-    //console.log("Fetching logs from block", fromBlock, "to block", toBlock);
     try {
       const logsPerCycle = await publicClient.getLogs({
         address: govAddress,
@@ -64,8 +63,8 @@ export default function Proposals() {
         fromBlock: fromBlock,
         toBlock: toBlock,
       });
+
       const parsedLogs = parseLogs(logsPerCycle);
-      //console.log(parsedLogs);
       setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
     } catch (error: any) {
       console.error;
@@ -77,9 +76,15 @@ export default function Proposals() {
       return;
     }
 
-    let toBlock = block.number;
+    const bigintStoredToBlock = BigInt(
+      JSON.parse(window.localStorage.getItem("toBlock") || "0")
+    );
+    let toBlock =
+      bigintStoredToBlock == 0n ? block.number : bigintStoredToBlock;
+
     while (toBlock >= MIN_BLOCK_NUMBER) {
       await fetchLogsPerCycle(toBlock);
+
       toBlock -= 5000n;
       window.localStorage.setItem(
         "toBlock",
@@ -88,7 +93,6 @@ export default function Proposals() {
     }
   };
 
-  //const { data: blockNumber, isError } = useBlockNumber();
   useEffect(() => {
     publicClient
       .getBlock() // https://viem.sh/docs/actions/public/getBlock.html
@@ -97,17 +101,15 @@ export default function Proposals() {
   }, [publicClient]);
 
   useEffect(() => {
-    // const storedProposals = window.localStorage.getItem("proposals");
-
-    // console.log("Stored proposals: ", storedProposals);
-    // if (storedProposals) {
-    //   setProposals(JSON.parse(storedProposals));
-    // }
-
-    //console.log("UseEffect:", block);
-
     fetchLogs();
   }, [block]);
+
+  useEffect(() => {
+    const storedProposals = window.localStorage.getItem("proposals");
+    if (storedProposals) {
+      setProposals(JSON.parse(storedProposals));
+    }
+  }, []);
 
   useEffect(() => {
     window.localStorage.setItem("proposals", JSON.stringify(proposals));
