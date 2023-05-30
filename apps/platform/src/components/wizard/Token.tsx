@@ -47,23 +47,28 @@ export default function Token() {
     } = tokenContractForm.values;
     let contract: string;
 
-    if (tokenType === "erc20") {
-      contract = erc20.print({
-        name: tokenName,
-        symbol: tokenSymbol,
-        premint: premintAmount,
-        mintable: mintNewTokens,
-        votes: true,
-      });
-    } else {
-      contract = erc721.print({
-        name: tokenName,
-        symbol: tokenSymbol,
-        baseUri: baseURI,
-        mintable: mintNewTokens,
-        incremental: true,
-        votes: true,
-      });
+    try {
+      if (tokenType === "erc20") {
+        contract = erc20.print({
+          name: tokenName,
+          symbol: tokenSymbol,
+          premint: String(premintAmount),
+          mintable: mintNewTokens,
+          votes: true,
+        });
+      } else {
+        contract = erc721.print({
+          name: tokenName,
+          symbol: tokenSymbol,
+          baseUri: baseURI,
+          mintable: mintNewTokens,
+          incremental: true,
+          votes: true,
+        });
+      }
+    } catch (error) {
+        console.log(error);
+        return;
     }
 
     setTokenContract({

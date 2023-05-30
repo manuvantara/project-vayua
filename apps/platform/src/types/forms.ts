@@ -16,7 +16,7 @@ export type TokenFormValues = {
   tokenName: string;
   tokenSymbol: string;
   mintNewTokens: boolean;
-  premintAmount: string;
+  premintAmount: number | string;
   // Only for ERC721
   baseURI: string;
 };
