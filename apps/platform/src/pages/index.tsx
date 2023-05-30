@@ -14,6 +14,7 @@ import { SearchDAOFormValues } from "@/types/forms";
 import { Fingerprint, Wand2 } from "lucide-react";
 import { useAccount } from "wagmi";
 import ClientOnly from "@/components/ClientOnly";
+import StarredOrganisations from "@/components/StarredOrganisations";
 
 export default function Home() {
   const form = useForm<SearchDAOFormValues>({
@@ -109,16 +110,11 @@ export default function Home() {
           </CardFooter>
         </Card>
       </div>
-      <div className="flex lg:flex-row flex-col justify-between w-full gap-5">
-      <ClientOnly>
-        <Profile address={address}/>
-      </ClientOnly>
-        <div className="border rounded-lg shadow-sm bg-card text-card-foreground divide-y flex flex-col w-full">
-          <div className="text-xl font-semibold px-5 pt-5 pb-3">Saved DAOs</div>
-          <div className="px-5 pt-3 pb-5 font-light">
-            Create a new DAO or add existing one.
-          </div>
-        </div>
+      <div className="flex lg:flex-row flex-col justify-between w-full gap-5 items-start">
+        <ClientOnly>
+          <Profile address={address} />
+        </ClientOnly>
+        <StarredOrganisations />
       </div>
     </main>
   );
