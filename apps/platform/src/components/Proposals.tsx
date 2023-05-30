@@ -21,19 +21,6 @@ import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 
 const MIN_BLOCK_NUMBER = 21041027n;
 
-function getToBlockFromLocalStorage() {
-  return BigInt(JSON.parse(window.localStorage.getItem("toBlock") || "0"));
-}
-
-function getInitialBlockFromLocalStorage(currentBlockNumber: bigint) {
-  return BigInt(
-    JSON.parse(
-      window.localStorage.getItem("initialBlockNumber") ||
-        currentBlockNumber.toString()
-    )
-  );
-}
-
 const parseEvents = (logs: any) => {
   const parsedLogs = logs.map((log: any) => {
     const { args } = log;
@@ -88,6 +75,21 @@ export default function Proposals() {
 
   const [proposals, setProposals] = useState<any[]>([]);
 
+  function getInitialBlockFromLocalStorage(currentBlockNumber: bigint) {
+    return BigInt(
+      JSON.parse(
+        window.localStorage.getItem(`${govAddress}initialBlockNumber`) ||
+          currentBlockNumber.toString()
+      )
+    );
+  }
+
+  function getToBlockFromLocalStorage() {
+    return BigInt(
+      JSON.parse(window.localStorage.getItem(`${govAddress}toBlock`) || "0")
+    );
+  }
+
   const fetchLogsPerCycle = async (fromBlock: bigint, toBlock: bigint) => {
     try {
       const logsPerCycle = await publicClient.getLogs({
@@ -124,7 +126,7 @@ export default function Proposals() {
       fromBlock = toBlock - 4999n;
 
       window.localStorage.setItem(
-        "toBlock",
+        `${govAddress}toBlock`,
         JSON.stringify(toBlock.toString())
       );
     }
@@ -141,7 +143,7 @@ export default function Proposals() {
 
     if (toBlockStored == 0n) {
       window.localStorage.setItem(
-        "initialBlockNumber",
+        `${govAddress}initialBlockNumber`,
         JSON.stringify(currentBlock.toString())
       );
     }
@@ -156,7 +158,7 @@ export default function Proposals() {
       fromBlock += 5000n;
 
       window.localStorage.setItem(
-        "initialBlockNumber",
+        `${govAddress}initialBlockNumber`,
         JSON.stringify(toBlock.toString())
       );
     }
@@ -175,14 +177,19 @@ export default function Proposals() {
   }, [block]);
 
   useEffect(() => {
-    const storedProposals = window.localStorage.getItem("proposals");
+    const storedProposals = window.localStorage.getItem(
+      `${govAddress}proposals`
+    );
     if (storedProposals) {
       setProposals(JSON.parse(storedProposals));
     }
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem("proposals", JSON.stringify(proposals));
+    window.localStorage.setItem(
+      `${govAddress}proposals`,
+      JSON.stringify(proposals)
+    );
   }, [proposals]);
 
   // listen to proposal created event and updated proposals list real time
@@ -197,7 +204,7 @@ export default function Proposals() {
         setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
         if (logs[0].blockNumber) {
           window.localStorage.setItem(
-            "initialBlockNumber",
+            `${govAddress}initialBlockNumber`,
             JSON.stringify(logs[0].blockNumber.toString())
           );
         }
