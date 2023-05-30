@@ -7,6 +7,7 @@ import Token from "@/components/wizard/Token";
 import { Button } from "@/components/ui/Button";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import dynamic from "next/dynamic";
+import Spinner from "@/components/ui/Spinner";
 
 const NUMBER_OF_STEPS = 3;
 
@@ -14,7 +15,9 @@ const CompilerDeployer = dynamic(
   () => import("@/components/wizard/CompilerDeployer"),
   {
     loading: () => (
-      <div className="flex justify-center items-center h-64">Loading...</div>
+      <div className="flex items-center justify-center w-full mt-16">
+        <Spinner size={128} color="#000000" />
+      </div>
     ),
   }
 );
