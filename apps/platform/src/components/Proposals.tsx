@@ -18,6 +18,7 @@ import { useContractEvent, usePublicClient } from "wagmi";
 import { Block, parseAbiItem } from "viem";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
+import Spinner from "./ui/Spinner";
 
 const MIN_BLOCK_NUMBER = 21041027n;
 
@@ -75,6 +76,8 @@ export default function Proposals({
 
   const [proposals, setProposals] = useState<any[]>([]);
 
+  const [blockCounter, setBlockCounter] = useState(0);
+
   function getInitialBlockFromLocalStorage(currentBlockNumber: bigint) {
     return BigInt(
       JSON.parse(
@@ -127,6 +130,7 @@ export default function Proposals({
 
       toBlock -= 5000n;
       fromBlock = toBlock - 4999n;
+      //setBlockCounter((prev) => prev + 5000);
 
       window.localStorage.setItem(
         `${organisationAddress}toBlock`,
@@ -158,6 +162,8 @@ export default function Proposals({
 
       await fetchLogsPerCycle(fromBlock + 1n, toBlock);
 
+      //console.log(Number(toBlock - fromBlock - 1n));
+      //setBlockCounter((prev) => prev + Number(toBlock - fromBlock - 1n));
       fromBlock += 5000n;
 
       window.localStorage.setItem(
@@ -216,60 +222,63 @@ export default function Proposals({
   });
 
   return (
-    <div className="">
-      <Table>
-        <TableCaption>
-          Proposals for {`Governor name`} ({organisationAddress})
-        </TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Proposal ID</TableHead>
-            <TableHead>Vote starts</TableHead>
-            <TableHead>Proposer</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Get more</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {proposals
-            .sort((a, b) =>
-              BigInt(a.voteStart) > BigInt(b.voteStart) ? -1 : 1
-            )
-            .map((proposal) => (
-              <TableRow key={proposal.proposalId}>
-                <TableCell className="text-left">
-                  {shortenString(proposal.proposalId)}
-                </TableCell>
-                <TableCell className="text-left">
-                  {proposal.voteStart}
-                </TableCell>
-                <TableCell className="text-left">
-                  {shortenAddress(proposal.proposer)}
-                </TableCell>
-                <TableCell className="text-left">
-                  {proposal.description.slice(0, 100)}
-                </TableCell>
-                <TableCell className="text-left">
-                  <Link
-                    href={{
-                      pathname: `${organisationAddress}/proposals/${proposal.proposalId}`,
-                      query: {
-                        description: proposal.description,
-                        proposer: proposal.proposer,
-                        voteStart: proposal.voteStart,
-                        targets: proposal.targets,
-                        values: proposal.values,
-                        // calldatas: proposal.calldatas,
-                      },
-                    }}
-                  >
-                    <Button>More</Button>
-                  </Link>
-                </TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
+    <div>
+      <div className="p-5 flex gap-5">
+        <Spinner size={20} color="#000" className="ml-3" />
+        <div>Scanned {blockCounter} blocks</div>
+      </div>
+      <div className="max-h-96 overflow-auto">
+        <Table>
+          <TableCaption>
+            Proposals for {`Governor name`} ({organisationAddress})
+          </TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Proposal ID</TableHead>
+              <TableHead>Vote starts</TableHead>
+              <TableHead>Proposer</TableHead>
+
+              <TableHead>Get more</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {proposals
+              .sort((a, b) =>
+                BigInt(a.voteStart) > BigInt(b.voteStart) ? -1 : 1
+              )
+              .map((proposal) => (
+                <TableRow key={proposal.proposalId}>
+                  <TableCell className="text-left">
+                    {shortenString(proposal.proposalId)}
+                  </TableCell>
+                  <TableCell className="text-left">
+                    {proposal.voteStart}
+                  </TableCell>
+                  <TableCell className="text-left">
+                    {shortenAddress(proposal.proposer)}
+                  </TableCell>
+                  <TableCell className="text-left">
+                    <Link
+                      href={{
+                        pathname: `${organisationAddress}/proposals/${proposal.proposalId}`,
+                        query: {
+                          description: proposal.description,
+                          proposer: proposal.proposer,
+                          voteStart: proposal.voteStart,
+                          targets: proposal.targets,
+                          values: proposal.values,
+                          // calldatas: proposal.calldatas,
+                        },
+                      }}
+                    >
+                      <Button>More</Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
