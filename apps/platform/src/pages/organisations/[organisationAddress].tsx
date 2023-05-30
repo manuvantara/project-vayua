@@ -2,12 +2,13 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 
 import { Button } from "@/components/ui/Button";
-import { Settings, Star } from "lucide-react";
+import { Plus, Settings, Star } from "lucide-react";
 
 import DelegateModal from "@/components/DelegateModal";
 import Proposals from "@/components/Proposals";
 import { shortenAddress } from "@/utils/shorten-address";
 import { GetServerSideProps } from "next";
+import Spinner from "@/components/ui/Spinner";
 
 const daos = {
   id: 1,
@@ -25,35 +26,45 @@ export default function OrganisationPage({
   organisationAddress: `0x${string}`;
 }) {
   return (
-    <div className="flex flex-col gap-5">
-      <div className="bg-white border border-black-500 rounded-lg p-5 mt-5">
+    <div className="lg:grid lg:grid-cols-3 gap-5">
+      <div className="col-span-1 bg-white border border-black-500 rounded-lg p-5 mt-5">
         <div>
-          <div className="flex md:flex-row md:justify-between items-center flex-col justify-center">
+          <div className="flex flex-col md:gap-5">
             <div className="flex flex-row items-center gap-5">
               <img src={daos.logo} width={40} height={40} alt="DAO image" />
               <h1 className="text-3xl font-bold">{daos.name}</h1>
             </div>
             <div className="flex flex-row gap-3 mt-5 md:mt-0 flex-wrap">
-              <Link
-                href={{
-                  pathname: `${organisationAddress}/proposals/new`,
-                }}
-              >
-                <Button variant="outline">Create proposal</Button>
-              </Link>
-              <DelegateModal />
-              <Link
-                href={{
-                  pathname: `${organisationAddress}/settings`,
-                }}
-              >
-                <Button>
-                  <Settings className="w-4 h-4" />
+              <div className="gap-2 grid grid-cols-2">
+                <Button variant="outline" asChild>
+                  <Link
+                    href={{
+                      pathname: `${organisationAddress}/settings`,
+                    }}
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span className="ml-2">Settings</span>
+                  </Link>
                 </Button>
-              </Link>
-              <Button>
-                <Star className="w-4 h-4" />
-              </Button>
+
+                <Button variant="outline">
+                  <Star className="w-4 h-4" />
+                  <span className="ml-2">Star</span>
+                </Button>
+
+                <Button variant="outline" asChild>
+                  <Link
+                    href={{
+                      pathname: `${organisationAddress}/proposals/new`,
+                    }}
+                  >
+                    <Plus />
+                    <span className="ml-2">Propose</span>
+                  </Link>
+                </Button>
+
+                <DelegateModal />
+              </div>
             </div>
           </div>
           <div className="">
@@ -76,8 +87,8 @@ export default function OrganisationPage({
           </div>
         </div>
       </div>
-      <div className="bg-white border border-black-500 rounded-lg p-5">
-        <div className="flex flex-row items-center justify-between">
+      <div className="col-span-2 bg-white border border-black-500 rounded-lg p-5 mt-5">
+        <div className="flex flex-row items-center">
           <h1 className="text-xl font-bold">Proposals</h1>
         </div>
         <hr className="my-3"></hr>

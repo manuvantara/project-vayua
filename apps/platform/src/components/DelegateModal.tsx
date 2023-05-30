@@ -17,6 +17,7 @@ import { GOVERNOR_ABI, TOKEN_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { isNotEmpty, useForm } from "@mantine/form";
 import { DelegateVoteFormValues } from "@/types/forms";
 import { useRouter } from "next/router";
+import { HelpingHand } from "lucide-react";
 
 export default function DelegateModal() {
   const [switchDelegateForm, setSwitchDelegateForm] = useState(true);
@@ -66,7 +67,8 @@ export default function DelegateModal() {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" onClick={openDelegateDialog}>
-          Delegate
+          <HelpingHand />
+          <span className="ml-2">Delegate</span>
         </Button>
       </DialogTrigger>
       <DialogContent
