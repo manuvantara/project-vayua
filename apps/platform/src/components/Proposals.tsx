@@ -65,11 +65,11 @@ const parseLogs = (logsPerCycle: any) => {
   return parsedLogs;
 };
 
-export default function Proposals() {
-  // get the governance contract address from route
-  const router = useRouter();
-  const govAddress = router.query.organisationAddress as `0x${string}`;
-
+export default function Proposals({
+  organisationAddress,
+}: {
+  organisationAddress: `0x${string}`;
+}) {
   const publicClient = usePublicClient();
   const [block, setBlock] = useState<Block>();
 
@@ -78,22 +78,25 @@ export default function Proposals() {
   function getInitialBlockFromLocalStorage(currentBlockNumber: bigint) {
     return BigInt(
       JSON.parse(
-        window.localStorage.getItem(`${govAddress}initialBlockNumber`) ||
-          currentBlockNumber.toString()
+        window.localStorage.getItem(
+          `${organisationAddress}initialBlockNumber`
+        ) || currentBlockNumber.toString()
       )
     );
   }
 
   function getToBlockFromLocalStorage() {
     return BigInt(
-      JSON.parse(window.localStorage.getItem(`${govAddress}toBlock`) || "0")
+      JSON.parse(
+        window.localStorage.getItem(`${organisationAddress}toBlock`) || "0"
+      )
     );
   }
 
   const fetchLogsPerCycle = async (fromBlock: bigint, toBlock: bigint) => {
     try {
       const logsPerCycle = await publicClient.getLogs({
-        address: govAddress,
+        address: organisationAddress,
         event: parseAbiItem(
           "event ProposalCreated(uint256, address, address[], uint256[], string[], bytes[], uint256, uint256, string)"
         ),
@@ -126,7 +129,7 @@ export default function Proposals() {
       fromBlock = toBlock - 4999n;
 
       window.localStorage.setItem(
-        `${govAddress}toBlock`,
+        `${organisationAddress}toBlock`,
         JSON.stringify(toBlock.toString())
       );
     }
@@ -143,7 +146,7 @@ export default function Proposals() {
 
     if (toBlockStored == 0n) {
       window.localStorage.setItem(
-        `${govAddress}initialBlockNumber`,
+        `${organisationAddress}initialBlockNumber`,
         JSON.stringify(currentBlock.toString())
       );
     }
@@ -158,7 +161,7 @@ export default function Proposals() {
       fromBlock += 5000n;
 
       window.localStorage.setItem(
-        `${govAddress}initialBlockNumber`,
+        `${organisationAddress}initialBlockNumber`,
         JSON.stringify(toBlock.toString())
       );
     }
@@ -178,7 +181,7 @@ export default function Proposals() {
 
   useEffect(() => {
     const storedProposals = window.localStorage.getItem(
-      `${govAddress}proposals`
+      `${organisationAddress}proposals`
     );
     if (storedProposals) {
       setProposals(JSON.parse(storedProposals));
@@ -187,14 +190,14 @@ export default function Proposals() {
 
   useEffect(() => {
     window.localStorage.setItem(
-      `${govAddress}proposals`,
+      `${organisationAddress}proposals`,
       JSON.stringify(proposals)
     );
   }, [proposals]);
 
   // listen to proposal created event and updated proposals list real time
   useContractEvent({
-    address: govAddress,
+    address: organisationAddress,
     abi: GOVERNOR_ABI,
     eventName: "ProposalCreated",
     listener(logs) {
@@ -204,7 +207,7 @@ export default function Proposals() {
         setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
         if (logs[0].blockNumber) {
           window.localStorage.setItem(
-            `${govAddress}initialBlockNumber`,
+            `${organisationAddress}initialBlockNumber`,
             JSON.stringify(logs[0].blockNumber.toString())
           );
         }
@@ -216,7 +219,7 @@ export default function Proposals() {
     <div className="">
       <Table>
         <TableCaption>
-          Proposals for {`Governor name`} ({govAddress})
+          Proposals for {`Governor name`} ({organisationAddress})
         </TableCaption>
         <TableHeader>
           <TableRow>
@@ -249,7 +252,7 @@ export default function Proposals() {
                 <TableCell className="text-left">
                   <Link
                     href={{
-                      pathname: `${govAddress}/proposals/${proposal.proposalId}`,
+                      pathname: `${organisationAddress}/proposals/${proposal.proposalId}`,
                       query: {
                         description: proposal.description,
                         proposer: proposal.proposer,

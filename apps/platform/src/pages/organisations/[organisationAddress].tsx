@@ -7,6 +7,7 @@ import { Settings, Star } from "lucide-react";
 import DelegateModal from "@/components/DelegateModal";
 import Proposals from "@/components/Proposals";
 import { shortenAddress } from "@/utils/shorten-address";
+import { GetServerSideProps } from "next";
 
 const daos = {
   id: 1,
@@ -18,11 +19,11 @@ const daos = {
   failed: 12,
 };
 
-export default function OrganisationPage() {
-  // get the governance contract address from route
-  const router = useRouter();
-  const govAddress = router.query.organisationAddress as `0x${string}`;
-
+export default function OrganisationPage({
+  organisationAddress,
+}: {
+  organisationAddress: `0x${string}`;
+}) {
   return (
     <div className="flex flex-col gap-5">
       <div className="bg-white border border-black-500 rounded-lg p-5 mt-5">
@@ -35,7 +36,7 @@ export default function OrganisationPage() {
             <div className="flex flex-row gap-3 mt-5 md:mt-0 flex-wrap">
               <Link
                 href={{
-                  pathname: `${govAddress}/proposals/new`,
+                  pathname: `${organisationAddress}/proposals/new`,
                 }}
               >
                 <Button variant="outline">Create proposal</Button>
@@ -43,7 +44,7 @@ export default function OrganisationPage() {
               <DelegateModal />
               <Link
                 href={{
-                  pathname: `${govAddress}/settings`,
+                  pathname: `${organisationAddress}/settings`,
                 }}
               >
                 <Button>
@@ -62,11 +63,13 @@ export default function OrganisationPage() {
             <div className="mt-5">
               Governor
               <Link
-                href={`https://explorer.thetatoken.org/account/${govAddress}`}
+                href={`https://explorer.thetatoken.org/account/${organisationAddress}`}
                 target="_blank"
               >
                 <span className="font-semibold text-slate-500 ml-2">
-                  {govAddress ? shortenAddress(govAddress) : null}
+                  {organisationAddress
+                    ? shortenAddress(organisationAddress)
+                    : null}
                 </span>
               </Link>
             </div>
@@ -78,8 +81,20 @@ export default function OrganisationPage() {
           <h1 className="text-xl font-bold">Proposals</h1>
         </div>
         <hr className="my-3"></hr>
-        <Proposals />
+        <Proposals organisationAddress={organisationAddress} />
       </div>
     </div>
   );
 }
+
+// Using arrow function to infer type
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  // Better than useRouter hook because on the client side we will always have the address
+  const organisationAddress = params?.organisationAddress as `0x${string}`;
+
+  return {
+    props: {
+      organisationAddress,
+    },
+  };
+};
