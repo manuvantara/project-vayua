@@ -1,8 +1,8 @@
-export default function Header() {
+export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="p-4 bg-white md:p-8 lg:p-10 dark:bg-gray-800">
+    <footer className="p-4 pt-8 mt-8 rounded-lg md:mt-10 md:p-8 lg:p-10 bg-gray-50">
       <div className="mx-auto max-w-screen-xl text-center">
         <a
           href="#"
@@ -69,8 +69,8 @@ export default function Header() {
           </svg>
         </a>
         <p className="my-6 text-gray-500 dark:text-gray-400">
-          Open-source library of over 400+ web components and interactive
-          elements built for better web.
+          A web3 innovation bridging DAOs into the metaverse, enhancing the
+          Theta Network ecosystem.
         </p>
         <ul className="flex flex-wrap justify-center items-center mb-6 text-gray-900 dark:text-white">
           <li>
@@ -94,7 +94,10 @@ export default function Header() {
             </a>
           </li>
           <li>
-            <a href="mailto:denys.kravchuk@manuvantara.com" className="mr-4 hover:underline md:mr-6">
+            <a
+              href="mailto:denys.kravchuk@manuvantara.com"
+              className="mr-4 hover:underline md:mr-6"
+            >
               Contact
             </a>
           </li>
@@ -106,7 +109,7 @@ export default function Header() {
             target="_blank"
             className="hover:underline"
           >
-            Manuvantara Development, Inc
+            Manuvantara Development
           </a>
           . All Rights Reserved.
         </span>
