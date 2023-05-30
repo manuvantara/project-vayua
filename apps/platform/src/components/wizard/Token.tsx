@@ -32,6 +32,7 @@ export default function Token() {
       tokenName: isNotEmpty("Please provide a lovely name for your token"),
       tokenSymbol: isNotEmpty("Your token needs a charming symbol"),
       baseURI: matches(URI_REGEX, "Unfortunately it's not a valid base URI"),
+      premintAmount: (value,values) => (value == "0" && !values.mintNewTokens ? "Premint amount can't be zero if tokens are not mintable" : null)
     },
   });
 
@@ -147,7 +148,7 @@ export default function Token() {
               id="amount-of-tokens-to-mint"
               placeholder="0"
               min={0}
-              {...tokenContractForm.getInputProps("mintAmount")}
+              {...tokenContractForm.getInputProps("premintAmount")}
             />
           </div>
         </div>
