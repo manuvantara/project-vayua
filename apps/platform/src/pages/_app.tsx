@@ -11,6 +11,19 @@ import Toaster from "@/components/ui/Toaster";
 import { thetaMainnet, thetaTestnet } from "@/utils/chains/theta-chains";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ProgressBar from '@badrap/bar-of-progress';
+import Router from 'next/router';
+
+const progress = new ProgressBar({
+  size: 4,
+  className: 'progress-bar',
+  color: "hsl(var(--foreground))",
+  delay: 100,
+});
+
+Router.events.on('routeChangeStart', progress.start);
+Router.events.on('routeChangeComplete', progress.finish);
+Router.events.on('routeChangeError', progress.finish);
 
 const inter = Inter({
   subsets: ["latin"],
