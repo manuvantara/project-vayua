@@ -18,6 +18,8 @@ import StarredOrganisations from "@/components/StarredOrganisations";
 import { ETH_ADDRESS_REGEX } from "@/utils/regexes";
 
 export default function Home() {
+  const { address } = useAccount();
+
   const form = useForm<SearchDAOFormValues>({
     validateInputOnChange: true,
     initialValues: {
@@ -28,7 +30,6 @@ export default function Home() {
     },
   });
 
-  const { address } = useAccount();
   return (
     <main className="flex flex-col gap-5">
       <div>

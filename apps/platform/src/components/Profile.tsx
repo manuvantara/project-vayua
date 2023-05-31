@@ -1,5 +1,5 @@
 import Link from "next/link";
-import EmptyStateWithIcon from "@/components/ui/EmptyStateWithIcon";
+import EmptyStateWithIcon from "@/components/EmptyStateWithIcon";
 import { LinkIcon, MapPin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { getInitials } from "@/utils/shorten-name";
