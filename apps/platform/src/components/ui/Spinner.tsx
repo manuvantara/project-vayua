@@ -8,7 +8,7 @@ interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
-  ({ className, size = 20, color, ...props }, ref) => (
+  ({ className, size = 20, color = "#000", ...props }, ref) => (
     <div
       className={cn(styles.spinner_wrapper, className)}
       style={
