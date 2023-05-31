@@ -63,10 +63,10 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <div className={`font-sans ${inter.variable}`}>
+    <div className={`font-sans ${inter.variable} min-h-screen flex flex-col`}>
       <WagmiConfig config={config}>
         <Header />
-        <div className="px-4 sm:container">
+        <div className="px-4 sm:container flex-1">
           <Component {...pageProps} />
         </div>
         <Footer />
