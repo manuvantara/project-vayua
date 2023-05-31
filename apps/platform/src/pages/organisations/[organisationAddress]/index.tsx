@@ -1,22 +1,30 @@
 import type { GetServerSideProps } from "next";
 import Proposals from "@/components/Proposals";
 import OrganisationProfile from "@/components/OrganisationProfile";
-
-const daos = {
-  id: 1,
-  name: "Aave",
-  logo: "https://www.tally.xyz/_next/image?url=https%3A%2F%2Fstatic.tally.xyz%2Fde0e6dc7-1c07-4ae4-9f42-e46367984fd2_original.png&w=384&q=75",
-  description:
-    "Aave DAO is a community-driven governance model that enables token holders to propose and vote on changes to the Aave protocol on Ethereum.",
-  passed: 12,
-  failed: 12,
-};
+import { useContractRead } from "wagmi";
+import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function OrganisationPage({
   organisationAddress,
 }: {
   organisationAddress: `0x${string}`;
 }) {
+  const router = useRouter();
+
+  const contractRead = useContractRead({
+    address: organisationAddress,
+    abi: GOVERNOR_ABI,
+    functionName: "token",
+  });
+
+  useEffect(() => {
+    if (contractRead.isError) {
+      router.push("/404");
+    }
+  }, [contractRead.isError]);
+
   return (
     <div className="lg:grid lg:grid-cols-3 gap-5">
       <OrganisationProfile organisationAddress={organisationAddress} />
