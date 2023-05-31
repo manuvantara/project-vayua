@@ -238,7 +238,9 @@ export default function Proposals({
       <div className="sm:flex sm:flex-row items-center">
         <div className="flex items-center mr-5">
           <h1 className="text-xl font-bold">Proposals</h1>
-          <Spinner size={20} color="#000" className="ml-2" />
+          {toScanBlocksCounter > 0 && (
+            <Spinner size={20} color="#000" className="ml-2" />
+          )}
         </div>
         <div className="sm:flex gap-5">
           <div>
