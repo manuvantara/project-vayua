@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/Badge";
@@ -21,6 +20,7 @@ import {
   useContractEvent,
   useContractRead,
   useContractWrite,
+  usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
@@ -32,19 +32,53 @@ import { Button } from "@/components/ui/Button";
 import { getStringHash } from "@/utils/hash-string";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { decodeFunctionData } from "viem";
+import { PROFILE_ABI } from "@/utils/abi/profile-contract";
+import { GetServerSideProps } from "next";
+import ClientOnly from "@/components/ClientOnly";
 
 type ProposalStateInstructionsProps = {
   proposalState: string;
   organisationAddress: `0x${string}`;
   proposalId: string;
   voteStart: string;
+  isTransactionLoading: boolean;
+  isConnected: boolean;
+  executeWrite: (() => void) | undefined;
+  executeLoading: boolean;
 };
+
+function setExecuteWriteArgs(
+  targets: `0x${string}` | `0x${string}`[],
+  values: string | string[],
+  calldatas: `0x${string}` | `0x${string}`[],
+  description: string
+) {
+  const properDescription = getStringHash(description) as `0x${string}`;
+
+  const properTargets = Array.isArray(targets) ? targets : [targets];
+  const properValues = Array.isArray(values)
+    ? values.map((val) => BigInt(val))
+    : [BigInt(values)];
+  const properCalldatas = Array.isArray(calldatas) ? calldatas : [calldatas];
+
+  return [
+    properTargets,
+    properValues,
+    properCalldatas,
+    properDescription,
+  ] as const;
+}
 
 function ProposalStateInstructions({
   proposalState,
   organisationAddress,
   proposalId,
   voteStart,
+  isTransactionLoading,
+  isConnected,
+  executeWrite,
+  executeLoading,
 }: ProposalStateInstructionsProps) {
   switch (proposalState) {
     case "Active":
@@ -66,7 +100,20 @@ function ProposalStateInstructions({
     case "Defeated":
       return <>Proposal defeated</>;
     case "Succeeded":
-      return <>Proposal succeeded</>;
+      return (
+        <>
+          {proposalState == "Succeeded" && (
+            <Button
+              loading={isTransactionLoading || executeLoading}
+              disabled={!executeWrite || !isConnected}
+              className="mt-5"
+              onClick={executeWrite}
+            >
+              Execute
+            </Button>
+          )}
+        </>
+      );
     case "Queued":
       return <>Proposal queued</>;
     case "Expired":
@@ -78,19 +125,30 @@ function ProposalStateInstructions({
   }
 }
 
-export default function ProposalPage() {
+type ProposalPageProps = {
+  organisationAddress: `0x${string}`;
+  targets: `0x${string}` | `0x${string}`[];
+  values: string | string[];
+  calldatas: `0x${string}` | `0x${string}`[];
+  description: string;
+  proposalId: `0x${string}`;
+  proposer: `0x${string}`;
+  voteStart: string;
+};
+
+export default function ProposalPage({
+  organisationAddress,
+  targets,
+  values,
+  calldatas,
+  description,
+  proposalId,
+  proposer,
+  voteStart,
+}: ProposalPageProps) {
   const { isConnected } = useAccount();
-  const router = useRouter();
   const [proposalState, setProposalState] = useState("Unknown State");
 
-  // get the governance contract address from route
-  const organisationAddress = router.query.organisationAddress as `0x${string}`;
-
-  // get proposal id
-  const proposalId = router.query.proposalId as string;
-
-  // get description and title
-  const { description } = router.query;
   const { title, proposalDescription } =
     parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(
       description ? (description as string) : ""
@@ -103,9 +161,6 @@ export default function ProposalPage() {
     functionName: "proposalVotes",
     args: [proposalId ? BigInt(proposalId) : 0n],
   });
-
-  // get proposer
-  const proposer = router.query.proposer as `0x${string}`;
 
   // get proposal state
   const proposalStateMap: Record<number, string> = {
@@ -143,16 +198,6 @@ export default function ProposalPage() {
     Executed: "success",
   };
 
-  // get proposal vote start
-  const voteStart = router.query.voteStart
-    ? (router.query.voteStart as string)
-    : "";
-
-  // get targets, values and calldatas
-  const targets = router.query.targets ? router.query.targets : [];
-  const values = router.query.values ? router.query.values : [];
-  const calldatas = router.query.calldatas ? router.query.calldatas : [];
-
   const isTargetsString = typeof targets === "string";
 
   // listen to cast vote event and read votes again if event was emitted
@@ -173,7 +218,7 @@ export default function ProposalPage() {
   });
 
   // execute write to contract
-  const executeWrite = useContractWrite({
+  const { config: executeWriteConfig } = usePrepareContractWrite({
     address: organisationAddress,
     abi: GOVERNOR_ABI,
     functionName: "execute",
@@ -182,7 +227,10 @@ export default function ProposalPage() {
       : (values as string[])
           .map((val) => BigInt(val))
           .reduce((acc, curr) => acc + curr, BigInt(0)),
+    args: setExecuteWriteArgs(targets, values, calldatas, description),
   });
+
+  const executeWrite = useContractWrite(executeWriteConfig);
 
   const {
     isLoading: isTransactionLoading,
@@ -256,6 +304,10 @@ export default function ProposalPage() {
               organisationAddress={organisationAddress}
               proposalId={proposalId}
               voteStart={voteStart}
+              isTransactionLoading={isTransactionLoading}
+              isConnected={isConnected}
+              executeWrite={executeWrite.write}
+              executeLoading={executeWrite.isLoading}
             />
           </div>
         </div>
@@ -296,27 +348,6 @@ export default function ProposalPage() {
                       Value: <br />
                       {values}
                     </div>
-                    {proposalState == "Succeeded" && (
-                      <Button
-                        loading={isTransactionLoading || executeWrite.isLoading}
-                        disabled={!executeWrite.write || !isConnected}
-                        className="mt-5"
-                        onClick={() =>
-                          executeWrite.write({
-                            args: [
-                              [targets as `0x${string}`],
-                              [BigInt(values as string)],
-                              [calldatas as `0x${string}`],
-                              getStringHash(
-                                proposalDescription
-                              ) as `0x${string}`,
-                            ],
-                          })
-                        }
-                      >
-                        Execute
-                      </Button>
-                    )}
                   </div>
                 </div>
               ) : (
@@ -348,29 +379,6 @@ export default function ProposalPage() {
                             {values[index]}
                           </div>
                         </div>
-                        {proposalState == "Succeeded" && (
-                          <Button
-                            loading={
-                              isTransactionLoading || executeWrite.isLoading
-                            }
-                            disabled={!executeWrite.write || !isConnected}
-                            className="mt-5"
-                            onClick={() =>
-                              executeWrite.write({
-                                args: [
-                                  [target as `0x${string}`],
-                                  [BigInt(values[index] as string)],
-                                  [calldatas[index] as `0x${string}`],
-                                  getStringHash(
-                                    proposalDescription
-                                  ) as `0x${string}`,
-                                ],
-                              })
-                            }
-                          >
-                            Execute
-                          </Button>
-                        )}
                       </div>
                     ))}
                   </div>
@@ -391,25 +399,71 @@ export default function ProposalPage() {
                 <TableHead className="text-center">Abstain</TableHead>
               </TableRow>
             </TableHeader>
-
-            <TableBody>
-              {votesContractRead.data ? (
-                <TableRow className="text-center">
-                  <TableCell>{votesContractRead.data[1].toString()}</TableCell>
-                  <TableCell>{votesContractRead.data[0].toString()}</TableCell>
-                  <TableCell>{votesContractRead.data[2].toString()}</TableCell>
-                </TableRow>
-              ) : (
-                <TableRow className="text-center">
-                  <TableCell>n/a</TableCell>
-                  <TableCell>n/a</TableCell>
-                  <TableCell>n/a</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
+            <ClientOnly>
+              <TableBody>
+                {votesContractRead.data ? (
+                  <TableRow className="text-center">
+                    <TableCell>
+                      {votesContractRead.data[1].toString()}
+                    </TableCell>
+                    <TableCell>
+                      {votesContractRead.data[0].toString()}
+                    </TableCell>
+                    <TableCell>
+                      {votesContractRead.data[2].toString()}
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow className="text-center">
+                    <TableCell>n/a</TableCell>
+                    <TableCell>n/a</TableCell>
+                    <TableCell>n/a</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </ClientOnly>
           </Table>
         </div>
       </div>
     </div>
   );
 }
+
+// Using arrow function to infer type
+export const getServerSideProps: GetServerSideProps = async ({
+  params,
+  query,
+}) => {
+  // Better than useRouter hook because on the client side we will always have the address
+  const organisationAddress = params?.organisationAddress as `0x${string}`;
+  const proposalId = (params?.proposalId as string) || "";
+
+  const targets = query?.targets
+    ? (query?.targets as `0x${string}` | `0x${string}`[])
+    : [];
+
+  const values = query?.values ? (query?.values as string | string[]) : [];
+
+  const calldatas = query?.calldatas
+    ? (query?.calldatas as `0x${string}` | `0x${string}`[])
+    : [];
+
+  const description = (query?.description as `0x${string}`) || "";
+
+  const proposer = (query?.proposer as `0x${string}`) || "";
+
+  const voteStart = (query?.proposer as string) || "";
+
+  return {
+    props: {
+      organisationAddress,
+      targets,
+      values,
+      calldatas,
+      description,
+      proposalId,
+      proposer,
+      voteStart,
+    },
+  };
+};

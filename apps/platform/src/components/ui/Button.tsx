@@ -61,7 +61,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             aria-busy={loading}
             {...props}
           >
-            {loading && <Spinner className="mr-2 h-4 w-4" />} {props.children}
+            {loading && <Spinner color="#666" className="mr-2 h-4 w-4" />}{" "}
+            {props.children}
             {/* Added loading spinner */}
           </Comp>
         )}
