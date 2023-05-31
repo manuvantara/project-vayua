@@ -41,6 +41,9 @@
 
     --ring: 215 20.2% 65.1%;
 
+    --link: #0070f3;
+    --link-light: #3291ff;
+
     --radius: 0.5rem;
   }
 }
