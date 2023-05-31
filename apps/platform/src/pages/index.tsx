@@ -9,12 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import Profile from "@/components/Profile";
-import { matches, useForm } from "@mantine/form";
+import { useForm } from "@mantine/form";
 import { SearchDAOFormValues } from "@/types/forms";
 import { Fingerprint, Wand2 } from "lucide-react";
 import { useAccount } from "wagmi";
 import ClientOnly from "@/components/ClientOnly";
 import StarredOrganisations from "@/components/StarredOrganisations";
+import { ETH_ADDRESS_REGEX } from "@/utils/regexes";
 
 export default function Home() {
   const form = useForm<SearchDAOFormValues>({
@@ -23,10 +24,7 @@ export default function Home() {
       address: "",
     },
     validate: {
-      address: matches(
-        /^(0x){1}[0-9a-fA-F]{40}$/,
-        "Please enter a valid Ethereum address"
-      ),
+      address: (value) => (!ETH_ADDRESS_REGEX.test(value) ? (value.length === 0 ? null : "Please enter a valid Ethereum address") : null)
     },
   });
 
