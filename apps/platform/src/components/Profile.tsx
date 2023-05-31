@@ -24,7 +24,6 @@ type UserData = {
   extra: string | undefined;
 };
 
-
 export default function Profile({ address }: AddressProps) {
   const [userData, setUserData] = useState<UserData>({
     name: "",
@@ -56,8 +55,8 @@ export default function Profile({ address }: AddressProps) {
     }
   }, [contractRead?.data]);
 
-  return (contractRead.isSuccess && userData.name) ? (
-    <div className="border rounded-lg shadow-sm bg-card text-card-foreground flex flex-col divide-y w-auto md:text-base text-xs">
+  return contractRead.isSuccess && userData.name ? (
+    <div className="border rounded-lg shadow-sm bg-card text-card-foreground flex flex-col divide-y w-auto md:text-base text-xs w-full">
       <div className="text-xl font-semibold px-5 pt-5 pb-3">Your Identity</div>
       <div className="font-light px-6 pt-3 pb-6">
         <div className="flex flex-row lg:justify-between gap-5 items-start w-full">
@@ -112,8 +111,7 @@ export default function Profile({ address }: AddressProps) {
     </div>
   ) : (
     <div className="w-full">
-        <EmptyStateWithIcon isConnected={contractRead.isSuccess}/>
+      <EmptyStateWithIcon isConnected={contractRead.isSuccess} />
     </div>
   );
 }
-
