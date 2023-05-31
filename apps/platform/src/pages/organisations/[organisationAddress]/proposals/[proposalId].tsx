@@ -177,7 +177,11 @@ export default function ProposalPage() {
     address: organisationAddress,
     abi: GOVERNOR_ABI,
     functionName: "execute",
-    value: BigInt(values as string),
+    value: isTargetsString
+      ? BigInt(values as string)
+      : (values as string[])
+          .map((val) => BigInt(val))
+          .reduce((acc, curr) => acc + curr, BigInt(0)),
   });
 
   const {
