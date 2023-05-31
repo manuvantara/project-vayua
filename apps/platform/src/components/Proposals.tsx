@@ -216,7 +216,6 @@ export default function Proposals({
     eventName: "ProposalCreated",
     listener(logs) {
       if (logs) {
-        console.log(logs);
         const parsedLogs = parseEvents(logs);
         setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
         if (logs[0].blockNumber) {
@@ -228,10 +227,6 @@ export default function Proposals({
       }
     },
   });
-
-  useEffect(() => {
-    console.log(toScanBlocksCounter);
-  }, [toScanBlocksCounter]);
 
   return (
     <div className="col-span-2 bg-white border border-black-500 rounded-lg p-5 mt-5">
@@ -301,7 +296,8 @@ export default function Proposals({
                           voteStart: proposal.voteStart,
                           targets: proposal.targets,
                           values: proposal.values,
-                          // calldatas: proposal.calldatas,
+                          calldatas: proposal.calldatas,
+                          signatures: proposal.signatures,
                         },
                       }}
                     >

@@ -16,13 +16,21 @@ import { ArrowLeft, ClockIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
 
-import { useContractEvent, useContractRead } from "wagmi";
+import {
+  useAccount,
+  useContractEvent,
+  useContractRead,
+  useContractWrite,
+} from "wagmi";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
 
 import CastVoteModal from "@/components/CastVoteModal";
-import {MarkdownFrontmatter, ProposalState} from "@/types/proposals";
-import {VariantProps} from "class-variance-authority";
+import { MarkdownFrontmatter, ProposalState } from "@/types/proposals";
+import { VariantProps } from "class-variance-authority";
+import { Button } from "@/components/ui/Button";
+import { hashMessage } from "viem";
+import { getStringHash } from "@/utils/hash-string";
 
 type ProposalStateInstructionsProps = {
   proposalState: string;
@@ -65,6 +73,7 @@ function ProposalStateInstructions({
 }
 
 export default function ProposalPage() {
+  const { isConnected } = useAccount();
   const router = useRouter();
 
   // get the governance contract address from route
@@ -110,7 +119,10 @@ export default function ProposalPage() {
     7: "Executed",
   };
 
-  const badgeVariantMap: Record<string, "success" | "warning" | "destructive" | "default" | "secondary"> = {
+  const badgeVariantMap: Record<
+    string,
+    "success" | "warning" | "destructive" | "default" | "secondary"
+  > = {
     Pending: "warning",
     Active: "success",
     Canceled: "destructive",
@@ -132,6 +144,8 @@ export default function ProposalPage() {
   const targets = router.query.targets ? router.query.targets : [];
   const values = router.query.values ? router.query.values : [];
   const calldatas = router.query.calldatas ? router.query.calldatas : [];
+  const signatures = router.query.signatures ? router.query.signatures : [];
+  console.log(signatures);
 
   const isTargetsString = typeof targets === "string";
 
@@ -150,6 +164,14 @@ export default function ProposalPage() {
         });
       }
     },
+  });
+
+  // execute write to contract
+  const executeWrite = useContractWrite({
+    address: govAddress,
+    abi: GOVERNOR_ABI,
+    functionName: "execute",
+    value: BigInt(values as string),
   });
 
   return (
@@ -216,6 +238,14 @@ export default function ProposalPage() {
                   <h3 className="mb-2">Function 1:</h3>
                   <div className="border border-border p-5">
                     <div>
+                      Signature: <br />
+                      {signatures}
+                    </div>
+                    <div className="mt-2">
+                      Calldatas: <br />
+                      {calldatas ? shortenString(calldatas as string) : null}
+                    </div>
+                    <div className="mt-2">
                       Target: <br />
                       <Link
                         href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
@@ -227,25 +257,28 @@ export default function ProposalPage() {
                     </div>
                     <div className="mt-2">
                       Value: <br />
-                      <span className="font-semibold text-slate-500">
-                        {values}
-                      </span>
+                      {values}
                     </div>
-                    {/* <Button
-                      className="mt-5"
-                      onClick={() =>
-                        executeWrite.write({
-                          args: [
-                            [targets as `0x${string}`],
-                            [123n],
-                            [calldatas],
-                            [hashMessage(proposalDescription)],
-                          ],
-                        })
-                      }
-                    >
-                      Execute
-                    </Button> */}
+                    {proposalState == "Succeeded" && (
+                      <Button
+                        disabled={!executeWrite.write || !isConnected}
+                        className="mt-5"
+                        onClick={() =>
+                          executeWrite.write({
+                            args: [
+                              [targets as `0x${string}`],
+                              [BigInt(values as string)],
+                              [calldatas as `0x${string}`],
+                              getStringHash(
+                                proposalDescription
+                              ) as `0x${string}`,
+                            ],
+                          })
+                        }
+                      >
+                        Execute
+                      </Button>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -271,6 +304,26 @@ export default function ProposalPage() {
                             {values[index]}
                           </div>
                         </div>
+                        {proposalState == "Succeeded" && (
+                          <Button
+                            disabled={!executeWrite.write || !isConnected}
+                            className="mt-5"
+                            onClick={() =>
+                              executeWrite.write({
+                                args: [
+                                  [target as `0x${string}`],
+                                  [BigInt(values[index] as string)],
+                                  [calldatas[index] as `0x${string}`],
+                                  getStringHash(
+                                    proposalDescription
+                                  ) as `0x${string}`,
+                                ],
+                              })
+                            }
+                          >
+                            Execute
+                          </Button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -284,9 +337,7 @@ export default function ProposalPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center text-success">
-                  For
-                </TableHead>
+                <TableHead className="text-center text-success">For</TableHead>
                 <TableHead className="text-center text-destructive">
                   Against
                 </TableHead>
