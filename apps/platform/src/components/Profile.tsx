@@ -1,4 +1,5 @@
 import Link from "next/link";
+import EmptyStateWithIcon from "@/components/ui/EmptyStateWithIcon";
 import { LinkIcon, MapPin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { getInitials } from "@/utils/shorten-name";
@@ -23,15 +24,6 @@ type UserData = {
   extra: string | undefined;
 };
 
-/*
-const user = {
-  name: `Emily Thompson`,
-  bio: "Emily Thompson was born on May 10, 1990, in a small town in California. From a young age, she displayed a natural talent for music and began taking piano lessons at the age of six. Her passion for music continued to grow, and she soon started composing her own songs.",
-  avatar: "",
-  place: "Austin, Texas",
-  url: "https://chat.openai.com/",
-};
-*/
 
 export default function Profile({ address }: AddressProps) {
   const [userData, setUserData] = useState<UserData>({
@@ -64,7 +56,7 @@ export default function Profile({ address }: AddressProps) {
     }
   }, [contractRead?.data]);
 
-  return contractRead.isSuccess ? (
+  return (contractRead.isSuccess && userData.name) ? (
     <div className="border rounded-lg shadow-sm bg-card text-card-foreground flex flex-col divide-y w-auto md:text-base text-xs">
       <div className="text-xl font-semibold px-5 pt-5 pb-3">Your Identity</div>
       <div className="font-light px-6 pt-3 pb-6">
@@ -119,20 +111,9 @@ export default function Profile({ address }: AddressProps) {
       </div>
     </div>
   ) : (
-    <div className="border rounded-lg shadow-sm bg-card text-card-foreground flex flex-col divide-y w-auto md:text-base text-xs">
-      <div className="text-xl font-semibold px-5 pt-5 pb-3">Your Identity</div>
-      <div className="font-light px-6 pt-3 pb-6">
-        <div className="w-full flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <div className="lg:w-96 w-full">
-              Connect a wallet to view your identity.
-            </div>
-            <div className="flex flex-col mt-3 gap-1">
-              <div className="flex flex-row items-center gap-2"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="w-full">
+        <EmptyStateWithIcon isConnected={contractRead.isSuccess}/>
     </div>
   );
 }
+
