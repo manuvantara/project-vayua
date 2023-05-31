@@ -13,19 +13,19 @@ import { useEffect, useState } from "react";
 import { useToast } from "./ui/use-toast";
 
 type CastVoteModalProps = {
-  govAddress: `0x${string}`;
+  organisationAddress: `0x${string}`;
   proposalId: string;
 };
 
 export default function CastVoteModal({
-  govAddress,
+  organisationAddress,
   proposalId,
 }: CastVoteModalProps) {
   const { toast } = useToast();
   const [isDialogOpened, setIsDialogOpened] = useState(true);
 
   const castVoteWrite = useContractWrite({
-    address: govAddress,
+    address: organisationAddress,
     abi: GOVERNOR_ABI,
     functionName: "castVote",
   });

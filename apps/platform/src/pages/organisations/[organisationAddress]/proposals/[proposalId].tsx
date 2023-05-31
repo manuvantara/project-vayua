@@ -35,20 +35,25 @@ import { toast } from "@/components/ui/use-toast";
 
 type ProposalStateInstructionsProps = {
   proposalState: string;
-  govAddress: `0x${string}`;
+  organisationAddress: `0x${string}`;
   proposalId: string;
   voteStart: string;
 };
 
 function ProposalStateInstructions({
   proposalState,
-  govAddress,
+  organisationAddress,
   proposalId,
   voteStart,
 }: ProposalStateInstructionsProps) {
   switch (proposalState) {
     case "Active":
-      return <CastVoteModal govAddress={govAddress} proposalId={proposalId} />;
+      return (
+        <CastVoteModal
+          organisationAddress={organisationAddress}
+          proposalId={proposalId}
+        />
+      );
     case "Pending":
       return (
         <>
@@ -79,7 +84,7 @@ export default function ProposalPage() {
   const [proposalState, setProposalState] = useState("Unknown State");
 
   // get the governance contract address from route
-  const govAddress = router.query.organisationAddress as `0x${string}`;
+  const organisationAddress = router.query.organisationAddress as `0x${string}`;
 
   // get proposal id
   const proposalId = router.query.proposalId as string;
@@ -93,7 +98,7 @@ export default function ProposalPage() {
 
   // get votes
   const votesContractRead = useContractRead({
-    address: govAddress,
+    address: organisationAddress,
     abi: GOVERNOR_ABI,
     functionName: "proposalVotes",
     args: [proposalId ? BigInt(proposalId) : 0n],
@@ -115,7 +120,7 @@ export default function ProposalPage() {
   };
 
   const proposalStateRead = useContractRead({
-    address: govAddress,
+    address: organisationAddress,
     abi: GOVERNOR_ABI,
     functionName: "state",
     args: [proposalId ? BigInt(proposalId) : 0n],
@@ -152,7 +157,7 @@ export default function ProposalPage() {
 
   // listen to cast vote event and read votes again if event was emitted
   useContractEvent({
-    address: govAddress,
+    address: organisationAddress,
     abi: GOVERNOR_ABI,
     eventName: "VoteCast",
     listener(logs) {
@@ -169,7 +174,7 @@ export default function ProposalPage() {
 
   // execute write to contract
   const executeWrite = useContractWrite({
-    address: govAddress,
+    address: organisationAddress,
     abi: GOVERNOR_ABI,
     functionName: "execute",
     value: BigInt(values as string),
@@ -191,7 +196,7 @@ export default function ProposalPage() {
   }, [isTransactionSuccessful]);
 
   useContractEvent({
-    address: govAddress,
+    address: organisationAddress,
     abi: GOVERNOR_ABI,
     eventName: "ProposalExecuted",
     listener(logs) {
@@ -211,7 +216,7 @@ export default function ProposalPage() {
       <div>
         <Link
           className="inline-flex items-center text-muted-foreground"
-          href={`/organisations/${govAddress}`}
+          href={`/organisations/${organisationAddress}`}
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
           Back
@@ -244,7 +249,7 @@ export default function ProposalPage() {
           <div className="flex gap-4 font-bold text-lg text-slate-500">
             <ProposalStateInstructions
               proposalState={proposalState}
-              govAddress={govAddress}
+              organisationAddress={organisationAddress}
               proposalId={proposalId}
               voteStart={voteStart}
             />
