@@ -9,6 +9,8 @@ import {
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { encodeFunctionData } from "viem";
 import type { Toast, ToasterToast } from "@/components/ui/use-toast";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function GovernanceProfile({
   organisationAddress,
@@ -65,6 +67,13 @@ export default function GovernanceProfile({
 
   return (
     <div>
+      <Link
+        className="inline-flex items-center text-muted-foreground"
+        href={`/organisations/${organisationAddress}`}
+      >
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        Back
+      </Link>
       <SharedProfile
         title="Edit DAO Indentity"
         type="dao"

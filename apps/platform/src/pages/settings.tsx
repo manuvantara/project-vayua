@@ -6,6 +6,8 @@ import {
 import SharedProfile from "@/components/SharedProfile";
 import { SettingsFormValues } from "@/types/forms";
 import { Toast, ToasterToast } from "@/components/ui/use-toast";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export default function ProfileSettingsPage() {
   const { address } = useAccount();
@@ -48,6 +50,13 @@ export default function ProfileSettingsPage() {
 
   return (
     <div>
+      <Link
+        className="inline-flex items-center text-muted-foreground"
+        href={`/`}
+      >
+        <ArrowLeft className="w-4 h-4 mr-1" />
+        Back
+      </Link>
       <SharedProfile
         title="Edit Identity"
         type="user"
