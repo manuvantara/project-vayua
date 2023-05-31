@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
@@ -74,9 +76,9 @@ export default function Footer() {
         </p>
         <ul className="flex flex-wrap justify-center items-center mb-6 text-gray-900 dark:text-white">
           <li>
-            <a href="#" className="mr-4 hover:underline md:mr-6 ">
+            <Link href="/docs" className="mr-4 hover:underline md:mr-6 ">
               Docs
-            </a>
+            </Link>
           </li>
           <li>
             <a href="#" className="mr-4 hover:underline md:mr-6">
@@ -84,7 +86,7 @@ export default function Footer() {
             </a>
           </li>
           <li>
-            <a href="#" className="mr-4 hover:underline md:mr-6 ">
+            <a href="https://github.com/manuvantara/project-vayua" className="mr-4 hover:underline md:mr-6 ">
               GitHub
             </a>
           </li>
