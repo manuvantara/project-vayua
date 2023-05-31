@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/Badge";
+import { Badge, badgeVariants } from "@/components/ui/Badge";
 import {
   Table,
   TableBody,
@@ -11,18 +11,18 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { ClockIcon, ArrowUpLeft, ArrowLeft } from "lucide-react";
+import { ArrowLeft, ClockIcon } from "lucide-react";
 
 import ReactMarkdown from "react-markdown";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
 
-import { useContractEvent, useContractRead, useContractWrite } from "wagmi";
+import { useContractEvent, useContractRead } from "wagmi";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
 
 import CastVoteModal from "@/components/CastVoteModal";
-import { Button } from "@/components/ui/Button";
-import { hashMessage } from "viem";
+import {MarkdownFrontmatter, ProposalState} from "@/types/proposals";
+import {VariantProps} from "class-variance-authority";
 
 type ProposalStateInstructionsProps = {
   proposalState: string;
@@ -99,7 +99,7 @@ export default function ProposalPage() {
     args: [proposalId ? BigInt(proposalId) : 0n],
   });
 
-  const proposalStateMap: ProposalState = {
+  const proposalStateMap: Record<number, string> = {
     0: "Pending",
     1: "Active",
     2: "Canceled",
@@ -108,6 +108,17 @@ export default function ProposalPage() {
     5: "Queued",
     6: "Expired",
     7: "Executed",
+  };
+
+  const badgeVariantMap: Record<string, "success" | "warning" | "destructive" | "default" | "secondary"> = {
+    Pending: "warning",
+    Active: "success",
+    Canceled: "destructive",
+    Defeated: "destructive",
+    Succeeded: "success",
+    Queued: "success",
+    Expired: "destructive",
+    Executed: "success",
   };
 
   const proposalState = proposalStateMap[state ? state : -1] || "Unknown State";
@@ -141,14 +152,6 @@ export default function ProposalPage() {
     },
   });
 
-  // // execute write to contract
-  // const executeWrite = useContractWrite({
-  //   address: govAddress,
-  //   abi: GOVERNOR_ABI,
-  //   functionName: "execute",
-  //   value: 0n,
-  // });
-
   return (
     <div>
       <div>
@@ -164,7 +167,7 @@ export default function ProposalPage() {
         <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
           <div>
             <div>
-              <Badge variant="warning" className="text-black">
+              <Badge variant={badgeVariantMap[proposalState]}>
                 {proposalState}
               </Badge>
               <h1 className="text-xl md:text-2xl font-semibold mt-1">
@@ -281,7 +284,7 @@ export default function ProposalPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center text-green-600">
+                <TableHead className="text-center text-success">
                   For
                 </TableHead>
                 <TableHead className="text-center text-destructive">
