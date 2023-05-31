@@ -69,7 +69,7 @@ export default function CastVoteModal({
           <div className="flex gap-2">
             <Web3Button
               disabled={!castVoteWrite.write}
-              className="flex-1"
+              className="flex-1 bg-success hover:bg-success-light"
               onClick={() => {
                 castVoteWrite.write({
                   args: [BigInt(proposalId), 1],
@@ -80,7 +80,7 @@ export default function CastVoteModal({
             </Web3Button>
             <Web3Button
               disabled={!castVoteWrite.write}
-              className="flex-1"
+              className="flex-1 bg-destructive hover:bg-destructive/90"
               onClick={() => {
                 castVoteWrite.write({
                   args: [BigInt(proposalId), 0],

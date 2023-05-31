@@ -41,7 +41,9 @@ module.exports = {
         },
         success: {
           DEFAULT: "hsl(var(--success))",
-          foreground: "hsl(var(--success-foreground))",
+          dark: "hsl(var(--success-dark))",
+          light: "hsl(var(--success-light))",
+          lighter: "hsl(var(--success-lighter))",
         },
         warning: {
           DEFAULT: "var(--warning)",
