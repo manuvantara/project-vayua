@@ -130,7 +130,7 @@ export default function SharedProfile({
     },
     validate: {
       name: isNotEmpty("Name is required"),
-      website: (value) => (!URL_REGEX.test(value) ? (value.length === 0 ? null : "Please enter a valid URL") : null)
+      website: matches(URL_REGEX, "Please enter a valid URL")
     },
   });
 
@@ -143,7 +143,6 @@ export default function SharedProfile({
 
   useEffect(() => {
     const userProfileData: string[] = contractRead?.data as string[];
-    console.log("userProfileData", userProfileData);
     if (userProfileData) {
       form.setValues({
         name: userProfileData[0],
@@ -217,9 +216,10 @@ export default function SharedProfile({
                 <CardTitle className="text-lg md:text-xl">
                   {PROFILE_TEXT[type].cardName}
                 </CardTitle>
+                {!(contractRead.data as string[])[0].length && (
                 <CardDescription>
                   {PROFILE_TEXT[type].cardNameDescription}
-                </CardDescription>
+                </CardDescription>)}
               </CardHeader>
               <CardContent>
                 <div>
@@ -239,11 +239,12 @@ export default function SharedProfile({
                   />
                 </div>
               </CardContent>
+              {(contractRead.data as string[])[0].length === 0 && (
               <CardFooter>
                 <p className="text-sm text-destructive">
                   {PROFILE_TEXT[type].cardNameFooter}
                 </p>
-              </CardFooter>
+              </CardFooter>)}
             </Card>
           </div>
           <div className="w-full">
@@ -252,9 +253,10 @@ export default function SharedProfile({
                 <CardTitle className="text-lg md:text-xl">
                   {PROFILE_TEXT[type].cardBio}
                 </CardTitle>
+                {(contractRead.data as string[])[1].length === 0 && (
                 <CardDescription>
                   {PROFILE_TEXT[type].cardBioDescription}
-                </CardDescription>
+                </CardDescription>)}
               </CardHeader>
               <CardContent>
                 <div>
@@ -272,11 +274,12 @@ export default function SharedProfile({
                   />
                 </div>
               </CardContent>
+              {(contractRead.data as string[])[1].length === 0 && (
               <CardFooter>
                 <p className="text-sm text-muted-foreground">
                   {PROFILE_TEXT[type].cardBioFooter}
                 </p>
-              </CardFooter>
+              </CardFooter>)}
             </Card>
           </div>
           <div className="w-full">
@@ -286,9 +289,10 @@ export default function SharedProfile({
                   <CardTitle className="text-lg md:text-xl">
                     {PROFILE_TEXT[type].cardAvatar}
                   </CardTitle>
+                  {(contractRead.data as string[])[2].length === 0 && (
                   <CardDescription>
                     {PROFILE_TEXT[type].cardAvatarDescription}
-                  </CardDescription>
+                  </CardDescription>)}
                 </div>
                 <div>
                   <Avatar className="md:h-20 md:w-20 border">
@@ -333,11 +337,12 @@ export default function SharedProfile({
                   />
                 </div>
               </CardContent>
+              {(contractRead.data as string[])[2].length === 0 && (
               <CardFooter>
                 <p className="text-sm text-muted-foreground">
                   {PROFILE_TEXT[type].cardAvatarFooter}
                 </p>
-              </CardFooter>
+              </CardFooter>)}
             </Card>
           </div>
           <div className="w-full">
@@ -346,9 +351,10 @@ export default function SharedProfile({
                 <CardTitle className="text-lg md:text-xl">
                   {PROFILE_TEXT[type].cardLocation}
                 </CardTitle>
+                {(contractRead.data as string[])[3].length === 0 && (
                 <CardDescription>
                   {PROFILE_TEXT[type].cardLocationDescription}
-                </CardDescription>
+                </CardDescription>)}
               </CardHeader>
               <CardContent>
                 <div>
@@ -368,11 +374,12 @@ export default function SharedProfile({
                   />
                 </div>
               </CardContent>
+              {(contractRead.data as string[])[3].length === 0 && (
               <CardFooter>
                 <p className="text-sm text-muted-foreground">
                   {PROFILE_TEXT[type].cardLocationFooter}
                 </p>
-              </CardFooter>
+              </CardFooter>)}
             </Card>
           </div>
           <div className="w-full">
@@ -381,9 +388,10 @@ export default function SharedProfile({
                 <CardTitle className="text-lg md:text-xl">
                   {PROFILE_TEXT[type].cardWebsite}
                 </CardTitle>
+                {(contractRead.data as string[])[4].length === 0 && (
                 <CardDescription>
                   {PROFILE_TEXT[type].cardWebsiteDescription}
-                </CardDescription>
+                </CardDescription>)}
               </CardHeader>
               <CardContent>
                 <div>
@@ -408,11 +416,12 @@ export default function SharedProfile({
                   )}
                 </div>
               </CardContent>
+              {(contractRead.data as string[])[4].length === 0 && (
               <CardFooter>
                 <p className="text-sm text-muted-foreground">
                   {PROFILE_TEXT[type].cardWebsiteFooter}
                 </p>
-              </CardFooter>
+              </CardFooter>)}
             </Card>
           </div>
           <div className="flex items-center justify-end">
