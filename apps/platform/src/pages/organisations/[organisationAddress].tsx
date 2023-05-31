@@ -87,13 +87,7 @@ export default function OrganisationPage({
           </div>
         </div>
       </div>
-      <div className="col-span-2 bg-white border border-black-500 rounded-lg p-5 mt-5">
-        <div className="flex flex-row items-center">
-          <h1 className="text-xl font-bold">Proposals</h1>
-        </div>
-        <hr className="my-3"></hr>
-        <Proposals organisationAddress={organisationAddress} />
-      </div>
+      <Proposals organisationAddress={organisationAddress} />
     </div>
   );
 }

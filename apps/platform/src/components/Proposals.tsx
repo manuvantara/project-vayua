@@ -76,7 +76,8 @@ export default function Proposals({
 
   const [proposals, setProposals] = useState<any[]>([]);
 
-  const [blockCounter, setBlockCounter] = useState(0);
+  const [scannedBlocksCounter, setScannedBlocksCounter] = useState(0);
+  const [toScanBlocksCounter, setToScanBlocksCounter] = useState(0);
 
   function getInitialBlockFromLocalStorage(currentBlockNumber: bigint) {
     return BigInt(
@@ -125,12 +126,16 @@ export default function Proposals({
     let toBlock = toBlockStored == 0n ? currentBlock : toBlockStored;
     let fromBlock = toBlock - 4999n;
 
+    setToScanBlocksCounter((prev) => prev + Number(toBlock - MIN_BLOCK_NUMBER));
+
     while (toBlock >= MIN_BLOCK_NUMBER) {
       await fetchLogsPerCycle(fromBlock, toBlock);
 
       toBlock -= 5000n;
       fromBlock = toBlock - 4999n;
-      //setBlockCounter((prev) => prev + 5000);
+
+      setScannedBlocksCounter((prev) => prev + 5000);
+      setToScanBlocksCounter((prev) => prev - 5000);
 
       window.localStorage.setItem(
         `${organisationAddress}toBlock`,
@@ -156,14 +161,17 @@ export default function Proposals({
     }
 
     let fromBlock = initialBlock;
+    setToScanBlocksCounter((prev) => prev + Number(currentBlock - fromBlock));
     while (fromBlock < currentBlock) {
       const toBlock =
         fromBlock + 5000n <= currentBlock ? fromBlock + 5000n : currentBlock;
 
       await fetchLogsPerCycle(fromBlock + 1n, toBlock);
 
-      //console.log(Number(toBlock - fromBlock - 1n));
-      //setBlockCounter((prev) => prev + Number(toBlock - fromBlock - 1n));
+      const blocksScanned = Number(toBlock - fromBlock);
+      setScannedBlocksCounter((prev) => prev + blocksScanned);
+      setToScanBlocksCounter((prev) => prev - blocksScanned);
+
       fromBlock += 5000n;
 
       window.localStorage.setItem(
@@ -221,12 +229,36 @@ export default function Proposals({
     },
   });
 
+  useEffect(() => {
+    console.log(toScanBlocksCounter);
+  }, [toScanBlocksCounter]);
+
   return (
-    <div>
-      <div className="p-5 flex gap-5">
-        <Spinner size={20} color="#000" className="ml-3" />
-        <div>Scanned {blockCounter} blocks</div>
+    <div className="col-span-2 bg-white border border-black-500 rounded-lg p-5 mt-5">
+      <div className="sm:flex sm:flex-row items-center">
+        <div className="flex items-center mr-5">
+          <h1 className="text-xl font-bold">Proposals</h1>
+          <Spinner size={20} color="#000" className="mx-2" />
+        </div>
+        <div className="sm:flex gap-5">
+          <div>
+            Scanned{" "}
+            <span className="font-semibold text-slate-500 ">
+              {scannedBlocksCounter}
+            </span>{" "}
+            blocks
+          </div>
+          <div>
+            Left{" "}
+            <span className="font-semibold text-slate-500 ">
+              {toScanBlocksCounter >= 0 ? toScanBlocksCounter : 0}
+            </span>{" "}
+            blocks
+          </div>
+        </div>
       </div>
+      <hr className="my-3"></hr>
+
       <div className="max-h-96 overflow-auto">
         <Table>
           <TableCaption>
