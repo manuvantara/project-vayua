@@ -11,16 +11,24 @@ import {
 import { Label } from "@/components/ui/Label";
 import { Input } from "./ui/Input";
 
-import { useAccount, useContractRead, useContractWrite } from "wagmi";
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  useWaitForTransaction,
+} from "wagmi";
 import { GOVERNOR_ABI, TOKEN_ABI } from "@/utils/abi/openzeppelin-contracts";
 
 import { isNotEmpty, useForm } from "@mantine/form";
 import { DelegateVoteFormValues } from "@/types/forms";
 import { useRouter } from "next/router";
 import { HelpingHand } from "lucide-react";
+import { toast } from "./ui/use-toast";
 
 export default function DelegateModal() {
   const [switchDelegateForm, setSwitchDelegateForm] = useState(true);
+  const [open, setOpen] = useState(false);
+  const { isConnected } = useAccount();
 
   const router = useRouter();
   // get the governance contract address from route
@@ -51,22 +59,47 @@ export default function DelegateModal() {
 
   const openDelegateDialog = () => {
     setSwitchDelegateForm(true);
-    router.push(`/organisations/${govAddress}/#delegation`);
   };
 
   const closeDelegateDialog = () => {
     setSwitchDelegateForm((prevValue) => !prevValue);
-    router.push(`/organisations/${govAddress}`);
   };
 
   const delegateToSomeone = () => {
     setSwitchDelegateForm((prevValue) => !prevValue);
   };
 
+  const {
+    isLoading: isTransactionLoading,
+    isSuccess: isTransactionSuccessful,
+  } = useWaitForTransaction({
+    hash: delegateVotesWrite.data?.hash,
+  });
+
+  useEffect(() => {
+    if (isTransactionLoading || delegateVotesWrite.isLoading) {
+      setOpen(false);
+    }
+  }, [isTransactionLoading, delegateVotesWrite.isLoading]);
+
+  useEffect(() => {
+    if (isTransactionSuccessful) {
+      setOpen(false);
+      toast({
+        description: "Your votes have been successfully delegated.",
+      });
+    }
+  }, [isTransactionSuccessful]);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" onClick={openDelegateDialog}>
+        <Button
+          disabled={!isConnected}
+          variant="outline"
+          onClick={openDelegateDialog}
+          loading={isTransactionLoading || delegateVotesWrite.isLoading}
+        >
           <HelpingHand size={20} />
           <span className="ml-2">Delegate</span>
         </Button>
@@ -82,7 +115,7 @@ export default function DelegateModal() {
           {switchDelegateForm ? (
             <>
               <Button
-                disabled={!delegateVotesWrite.write}
+                disabled={!delegateVotesWrite.write || !isConnected}
                 onClick={() =>
                   delegateVotesWrite.write({
                     args: [accountAddress],
@@ -105,7 +138,7 @@ export default function DelegateModal() {
                 {...delegateVotesForm.getInputProps("delegatee")}
               />
               <Button
-                disabled={!delegateVotesWrite.write}
+                disabled={!delegateVotesWrite.write || !isConnected}
                 onClick={() =>
                   delegateVotesWrite.write({
                     args: [delegateVotesForm.values.delegatee],
