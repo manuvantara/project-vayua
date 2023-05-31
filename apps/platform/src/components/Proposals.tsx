@@ -297,7 +297,6 @@ export default function Proposals({
                           targets: proposal.targets,
                           values: proposal.values,
                           calldatas: proposal.calldatas,
-                          signatures: proposal.signatures,
                         },
                       }}
                     >

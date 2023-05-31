@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 
-import { Badge, badgeVariants } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/Badge";
 import {
   Table,
   TableBody,
@@ -21,16 +21,17 @@ import {
   useContractEvent,
   useContractRead,
   useContractWrite,
+  useWaitForTransaction,
 } from "wagmi";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
 
 import CastVoteModal from "@/components/CastVoteModal";
-import { MarkdownFrontmatter, ProposalState } from "@/types/proposals";
-import { VariantProps } from "class-variance-authority";
+import { MarkdownFrontmatter } from "@/types/proposals";
 import { Button } from "@/components/ui/Button";
-import { hashMessage } from "viem";
 import { getStringHash } from "@/utils/hash-string";
+import { useEffect, useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 type ProposalStateInstructionsProps = {
   proposalState: string;
@@ -75,6 +76,7 @@ function ProposalStateInstructions({
 export default function ProposalPage() {
   const { isConnected } = useAccount();
   const router = useRouter();
+  const [proposalState, setProposalState] = useState("Unknown State");
 
   // get the governance contract address from route
   const govAddress = router.query.organisationAddress as `0x${string}`;
@@ -101,13 +103,6 @@ export default function ProposalPage() {
   const proposer = router.query.proposer as `0x${string}`;
 
   // get proposal state
-  const { data: state } = useContractRead({
-    address: govAddress,
-    abi: GOVERNOR_ABI,
-    functionName: "state",
-    args: [proposalId ? BigInt(proposalId) : 0n],
-  });
-
   const proposalStateMap: Record<number, string> = {
     0: "Pending",
     1: "Active",
@@ -118,6 +113,16 @@ export default function ProposalPage() {
     6: "Expired",
     7: "Executed",
   };
+
+  const proposalStateRead = useContractRead({
+    address: govAddress,
+    abi: GOVERNOR_ABI,
+    functionName: "state",
+    args: [proposalId ? BigInt(proposalId) : 0n],
+    onSettled(data) {
+      setProposalState(proposalStateMap[data ? data : -1] || "Unknown State");
+    },
+  });
 
   const badgeVariantMap: Record<
     string,
@@ -133,8 +138,6 @@ export default function ProposalPage() {
     Executed: "success",
   };
 
-  const proposalState = proposalStateMap[state ? state : -1] || "Unknown State";
-
   // get proposal vote start
   const voteStart = router.query.voteStart
     ? (router.query.voteStart as string)
@@ -144,8 +147,6 @@ export default function ProposalPage() {
   const targets = router.query.targets ? router.query.targets : [];
   const values = router.query.values ? router.query.values : [];
   const calldatas = router.query.calldatas ? router.query.calldatas : [];
-  const signatures = router.query.signatures ? router.query.signatures : [];
-  console.log(signatures);
 
   const isTargetsString = typeof targets === "string";
 
@@ -172,6 +173,37 @@ export default function ProposalPage() {
     abi: GOVERNOR_ABI,
     functionName: "execute",
     value: BigInt(values as string),
+  });
+
+  const {
+    isLoading: isTransactionLoading,
+    isSuccess: isTransactionSuccessful,
+  } = useWaitForTransaction({
+    hash: executeWrite.data?.hash,
+  });
+
+  useEffect(() => {
+    if (isTransactionSuccessful) {
+      toast({
+        description: "Execute action successfully applied.",
+      });
+    }
+  }, [isTransactionSuccessful]);
+
+  useContractEvent({
+    address: govAddress,
+    abi: GOVERNOR_ABI,
+    eventName: "ProposalExecuted",
+    listener(logs) {
+      if (logs) {
+        logs.map((log: any) => {
+          const { args } = log;
+          if (args.proposalId.toString() == proposalId) {
+            proposalStateRead.refetch();
+          }
+        });
+      }
+    },
   });
 
   return (
@@ -238,10 +270,6 @@ export default function ProposalPage() {
                   <h3 className="mb-2">Function 1:</h3>
                   <div className="border border-border p-5">
                     <div>
-                      Signature: <br />
-                      {signatures}
-                    </div>
-                    <div className="mt-2">
                       Calldatas: <br />
                       {calldatas ? shortenString(calldatas as string) : null}
                     </div>
@@ -261,6 +289,7 @@ export default function ProposalPage() {
                     </div>
                     {proposalState == "Succeeded" && (
                       <Button
+                        loading={isTransactionLoading || executeWrite.isLoading}
                         disabled={!executeWrite.write || !isConnected}
                         className="mt-5"
                         onClick={() =>
@@ -290,6 +319,12 @@ export default function ProposalPage() {
                         <h3 className="mb-2">Function {index + 1}:</h3>
                         <div className="border border-border p-5">
                           <div>
+                            Calldatas: <br />
+                            {calldatas[index]
+                              ? shortenString(calldatas[index] as string)
+                              : null}
+                          </div>
+                          <div className="mt-2">
                             Target: <br />
                             <Link
                               href={`https://testnet-explorer.thetatoken.org/account/${target}`}
@@ -306,6 +341,9 @@ export default function ProposalPage() {
                         </div>
                         {proposalState == "Succeeded" && (
                           <Button
+                            loading={
+                              isTransactionLoading || executeWrite.isLoading
+                            }
                             disabled={!executeWrite.write || !isConnected}
                             className="mt-5"
                             onClick={() =>
