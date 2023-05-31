@@ -1,14 +1,5 @@
-import Link from "next/link";
-import { useRouter } from "next/router";
-
-import { Button } from "@/components/ui/Button";
-import { Plus, Settings, Star } from "lucide-react";
-
-import DelegateModal from "@/components/DelegateModal";
+import type { GetServerSideProps } from "next";
 import Proposals from "@/components/Proposals";
-import { shortenAddress } from "@/utils/shorten-address";
-import { GetServerSideProps } from "next";
-import Spinner from "@/components/ui/Spinner";
 import OrganisationProfile from "@/components/OrganisationProfile";
 
 const daos = {
