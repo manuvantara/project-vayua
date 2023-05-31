@@ -24,6 +24,22 @@ const nextConfig = {
 
     return config;
   },
+  async rewrites() {
+    return [
+      {
+        source: '/:path*',
+        destination: `/:path*`,
+      },
+      {
+        source: "/docs",
+        destination: `${process.env.DOCS_URL}/docs`
+      },
+      {
+        source: "/docs/:path*",
+        destination: `${process.env.DOCS_URL}/docs/:path*`
+      },
+    ]
+  }
 };
 
 module.exports = nextConfig;
