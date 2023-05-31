@@ -60,12 +60,7 @@ export default function GovernanceProfile({
         [PROFILE_CONTRACT_ADDRESS],
         [0n],
         [calldata],
-        `# Update DAO profile
-        ####Name: ${values.name}
-        ####Bio: ${values.bio}
-        ####Avatar: ${values.avatar}
-        ####Location: ${values.location}
-        ####Website: ${values.website}`,
+        `# Update DAO profile \n\n Name: ${values.name} \n\n Bio: ${values.bio} \n\n Avatar: ${values.avatar} \n\n Location: ${values.location} \n\n Website: ${values.website}`,
       ],
     });
   };
