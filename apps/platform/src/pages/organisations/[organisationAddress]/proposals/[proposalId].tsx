@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { ClockIcon, ArrowUpLeft } from "lucide-react";
+import { ClockIcon, ArrowUpLeft, ArrowLeft } from "lucide-react";
 
 import ReactMarkdown from "react-markdown";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
@@ -151,27 +151,14 @@ export default function ProposalPage() {
 
   return (
     <div>
-      <div className="flex flex-col p-6 bg-white rounded-md border border-border mt-5">
-        <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
-          <h2 className="text-xl md:text-2xl font-semibold mt-1">
-            <div className="text-sm mt-2">
-              <Link href={`/organisations/${govAddress}`}>
-                <div className="flex items-center">
-                  <ArrowUpLeft className="w-10 h-10" />
-                  <h2 className="text-xl md:text-2xl font-semibold mt-1">
-                    DAO
-                  </h2>
-                </div>
-
-                <div className="text-sm mt-2">
-                  <span className="font-semibold text-slate-500">
-                    {govAddress ? shortenAddress(govAddress) : null}
-                  </span>
-                </div>
-              </Link>
-            </div>
-          </h2>
-        </div>
+      <div>
+        <Link
+          className="inline-flex items-center text-muted-foreground"
+          href={`/organisations/${govAddress}`}
+        >
+          <ArrowLeft className="w-4 h-4 mr-1" />
+          Back
+        </Link>
       </div>
       <div className="flex flex-col p-6 bg-white rounded-md border border-border mt-5">
         <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
@@ -188,13 +175,12 @@ export default function ProposalPage() {
             <div className="text-sm mt-2">
               by
               <Link
-                href={`https://explorer.thetatoken.org/account/${proposer}`}
+                href={`https://testnet-explorer.thetatoken.org/account/${proposer}`}
                 target="_blank"
+                className="border-b border-[#999] border-dashed"
               >
-                <span className="font-semibold text-slate-500">
-                  {" "}
-                  {proposer ? shortenAddress(proposer) : null}
-                </span>
+                {" "}
+                {proposer ? shortenAddress(proposer) : null}
               </Link>
             </div>
           </div>
@@ -229,12 +215,11 @@ export default function ProposalPage() {
                     <div>
                       Target: <br />
                       <Link
-                        href={`https://explorer.thetatoken.org/account/${targets}`}
+                        href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
                         target="_blank"
+                        className="border-b border-[#999] border-dashed"
                       >
-                        <span className="font-semibold text-slate-500">
-                          {targets ? shortenAddress(targets) : null}
-                        </span>
+                        {targets ? shortenAddress(targets) : null}
                       </Link>
                     </div>
                     <div className="mt-2">
@@ -271,19 +256,16 @@ export default function ProposalPage() {
                           <div>
                             Target: <br />
                             <Link
-                              href={`https://explorer.thetatoken.org/account/${target}`}
+                              href={`https://testnet-explorer.thetatoken.org/account/${target}`}
                               target="_blank"
+                              className="border-b border-[#999] border-dashed"
                             >
-                              <span className="font-semibold text-slate-500">
-                                {target ? shortenAddress(target) : null}
-                              </span>
+                              {target ? shortenAddress(target) : null}
                             </Link>
                           </div>
                           <div className="mt-2">
                             Value: <br />
-                            <span className="font-semibold text-slate-500">
-                              {values[index]}
-                            </span>
+                            {values[index]}
                           </div>
                         </div>
                       </div>

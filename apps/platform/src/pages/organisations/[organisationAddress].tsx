@@ -9,6 +9,7 @@ import Proposals from "@/components/Proposals";
 import { shortenAddress } from "@/utils/shorten-address";
 import { GetServerSideProps } from "next";
 import Spinner from "@/components/ui/Spinner";
+import OrganisationProfile from "@/components/OrganisationProfile";
 
 const daos = {
   id: 1,
@@ -27,66 +28,7 @@ export default function OrganisationPage({
 }) {
   return (
     <div className="lg:grid lg:grid-cols-3 gap-5">
-      <div className="col-span-1 bg-white border border-black-500 rounded-lg p-5 mt-5">
-        <div>
-          <div className="flex flex-col md:gap-5">
-            <div className="flex flex-row items-center gap-5">
-              <img src={daos.logo} width={40} height={40} alt="DAO image" />
-              <h1 className="text-3xl font-bold">{daos.name}</h1>
-            </div>
-            <div className="flex flex-row gap-3 mt-5 md:mt-0 flex-wrap">
-              <div className="gap-2 grid grid-cols-2">
-                <Button variant="outline" asChild>
-                  <Link
-                    href={{
-                      pathname: `${organisationAddress}/settings`,
-                    }}
-                  >
-                    <Settings className="w-4 h-4" />
-                    <span className="ml-2">Settings</span>
-                  </Link>
-                </Button>
-
-                <Button variant="outline">
-                  <Star className="w-4 h-4" />
-                  <span className="ml-2">Star</span>
-                </Button>
-
-                <Button variant="outline" asChild>
-                  <Link
-                    href={{
-                      pathname: `${organisationAddress}/proposals/new`,
-                    }}
-                  >
-                    <Plus />
-                    <span className="ml-2">Propose</span>
-                  </Link>
-                </Button>
-
-                <DelegateModal />
-              </div>
-            </div>
-          </div>
-          <div className="">
-            <div className="mt-6 max-w-3xl  text-center md:text-left">
-              {daos.description}
-            </div>
-            <div className="mt-5">
-              Governor
-              <Link
-                href={`https://explorer.thetatoken.org/account/${organisationAddress}`}
-                target="_blank"
-              >
-                <span className="font-semibold text-slate-500 ml-2">
-                  {organisationAddress
-                    ? shortenAddress(organisationAddress)
-                    : null}
-                </span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      <OrganisationProfile organisationAddress={organisationAddress} />
       <Proposals organisationAddress={organisationAddress} />
     </div>
   );

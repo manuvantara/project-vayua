@@ -67,7 +67,7 @@ export default function DelegateModal() {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" onClick={openDelegateDialog}>
-          <HelpingHand />
+          <HelpingHand size={20} />
           <span className="ml-2">Delegate</span>
         </Button>
       </DialogTrigger>
