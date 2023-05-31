@@ -6,8 +6,8 @@ export default function Footer() {
   return (
     <footer className="p-4 pt-8 mt-8 rounded-lg md:mt-10 md:p-8 lg:p-10 bg-gray-50">
       <div className="mx-auto max-w-screen-xl text-center">
-        <a
-          href="#"
+        <Link
+          href="/"
           className="flex justify-center items-center text-2xl font-semibold text-gray-900 dark:text-white"
         >
           <svg
@@ -69,7 +69,7 @@ export default function Footer() {
               strokeLinejoin="round"
             />
           </svg>
-        </a>
+        </Link>
         <p className="my-6 text-gray-500 dark:text-gray-400">
           A web3 innovation bridging DAOs into the metaverse, enhancing the
           Theta Network ecosystem.
