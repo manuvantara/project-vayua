@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
 import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { useContractRead } from "wagmi";
@@ -25,6 +24,7 @@ import { AlertCircleIcon } from "lucide-react";
 import { getInitials } from "@/utils/shorten-name";
 import Image from "next/image";
 import Web3Button from "@/components/Web3Button";
+import { URL_REGEX } from "@/utils/regexes";
 
 type Props = {
   title: string;
@@ -130,11 +130,7 @@ export default function SharedProfile({
     },
     validate: {
       name: isNotEmpty("Name is required"),
-      website: matches(
-        // https://stackoverflow.com/a/3809435/1143729
-        /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
-        "Please enter a valid URL"
-      ),
+      website: (value) => (!URL_REGEX.test(value) ? (value.length === 0 ? null : "Please enter a valid URL") : null)
     },
   });
 
