@@ -166,7 +166,7 @@ export default function SharedProfile({
   useEffect(() => {
     if (isTransactionSuccessful) {
       toast({
-        description: "Your profile has been successfully updated.",
+        description: "Success! Your changes have been applied.",
       });
       contractRead.refetch();
     }
