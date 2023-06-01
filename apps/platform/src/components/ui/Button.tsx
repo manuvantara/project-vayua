@@ -34,15 +34,29 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends Omit<
+      React.ButtonHTMLAttributes<HTMLButtonElement>,
+      "prefix" | "suffix"
+    >,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
+  prefix?: React.ReactNode;
+  suffix?: React.ReactNode;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant, size, asChild = false, loading = false, ...props },
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      loading = false,
+      suffix,
+      prefix,
+      ...props
+    },
     ref
   ) => {
     const Comp = asChild ? Slot : "button";
@@ -61,9 +75,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             aria-busy={loading}
             {...props}
           >
-            {loading && <Spinner color="#666" className="mr-2 h-4 w-4" />}{" "}
+            {loading && <Spinner color="#666" className="mr-2 h-4 w-4" />}
+            {prefix && !loading && <span className="mr-2">{prefix}</span>}
             {props.children}
-            {/* Added loading spinner */}
+            {suffix && <span className="ml-2">{suffix}</span>}
           </Comp>
         )}
       </>
