@@ -3,158 +3,179 @@ export const VRC1_CONTRACT_ADDRESS =
 
 export const VRC1_CONTRACT_ABI = [
   {
-    type: "event",
     anonymous: false,
-    name: "ProfileChanged",
     inputs: [
       {
-        type: "address",
-        name: "profileOwner",
         indexed: false,
+        internalType: "address",
+        name: "profileOwner",
+        type: "address"
       },
       {
-        type: "tuple",
+        components: [
+          {
+            internalType: "string",
+            name: "name",
+            type: "string"
+          },
+          {
+            internalType: "string",
+            name: "bio",
+            type: "string"
+          },
+          {
+            internalType: "string",
+            name: "avatar",
+            type: "string"
+          },
+          {
+            internalType: "string",
+            name: "location",
+            type: "string"
+          },
+          {
+            internalType: "string",
+            name: "website",
+            type: "string"
+          }
+        ],
+        indexed: false,
+        internalType: "struct VRC1.Profile",
         name: "profile",
-        indexed: false,
-        components: [
-          {
-            type: "string",
-            name: "name",
-          },
-          {
-            type: "string",
-            name: "bio",
-          },
-          {
-            type: "string",
-            name: "avatar",
-          },
-          {
-            type: "string",
-            name: "location",
-          },
-          {
-            type: "string",
-            name: "website",
-          },
-        ],
-      },
+        type: "tuple"
+      }
     ],
+    name: "ProfileChanged",
+    type: "event"
   },
   {
-    type: "event",
     anonymous: false,
-    name: "ProfileExtensionChanged",
     inputs: [
       {
-        type: "address",
+        indexed: false,
+        internalType: "address",
         name: "profileOwner",
-        indexed: false,
+        type: "address"
       },
       {
-        type: "string",
+        indexed: false,
+        internalType: "string",
         name: "extension",
-        indexed: false,
-      },
+        type: "string"
+      }
     ],
+    name: "ProfileExtensionChanged",
+    type: "event"
   },
   {
-    type: "function",
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address"
+      }
+    ],
     name: "profileExtensions",
-    constant: true,
-    stateMutability: "view",
-    payable: false,
-    inputs: [
-      {
-        type: "address",
-      },
-    ],
     outputs: [
       {
-        type: "string",
-      },
+        internalType: "string",
+        name: "",
+        type: "string"
+      }
     ],
+    stateMutability: "view",
+    type: "function"
   },
   {
-    type: "function",
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address"
+      }
+    ],
     name: "profiles",
-    constant: true,
-    stateMutability: "view",
-    payable: false,
-    inputs: [
-      {
-        type: "address",
-      },
-    ],
     outputs: [
       {
-        type: "string",
+        internalType: "string",
         name: "name",
+        type: "string"
       },
       {
-        type: "string",
+        internalType: "string",
         name: "bio",
+        type: "string"
       },
       {
-        type: "string",
+        internalType: "string",
         name: "avatar",
+        type: "string"
       },
       {
-        type: "string",
+        internalType: "string",
         name: "location",
+        type: "string"
       },
       {
-        type: "string",
+        internalType: "string",
         name: "website",
-      },
+        type: "string"
+      }
     ],
+    stateMutability: "view",
+    type: "function"
   },
   {
-    type: "function",
-    name: "setProfile",
-    constant: false,
-    payable: false,
     inputs: [
       {
-        type: "tuple",
-        name: "_profile",
         components: [
           {
-            type: "string",
+            internalType: "string",
             name: "name",
+            type: "string"
           },
           {
-            type: "string",
+            internalType: "string",
             name: "bio",
+            type: "string"
           },
           {
-            type: "string",
+            internalType: "string",
             name: "avatar",
+            type: "string"
           },
           {
-            type: "string",
+            internalType: "string",
             name: "location",
+            type: "string"
           },
           {
-            type: "string",
+            internalType: "string",
             name: "website",
-          },
+            type: "string"
+          }
         ],
-      },
+        internalType: "struct VRC1.Profile",
+        name: "_profile",
+        type: "tuple"
+      }
     ],
+    name: "setProfile",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function"
   },
   {
-    type: "function",
-    name: "setProfileExtension",
-    constant: false,
-    payable: false,
     inputs: [
       {
-        type: "string",
+        internalType: "string",
         name: "_extension",
-      },
+        type: "string"
+      }
     ],
+    name: "setProfileExtension",
     outputs: [],
-  },
+    stateMutability: "nonpayable",
+    type: "function"
+  }
 ] as const;
