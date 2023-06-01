@@ -23,10 +23,9 @@ import {
 } from "wagmi";
 
 import {
-  VRC1_CONTRACT_ADDRESS,
   VRC1_CONTRACT_ABI,
+  VRC1_CONTRACT_ADDRESS,
 } from "@/utils/abi/VRC1-contract"; // TODO: change path to @/utils/VRC1 or @/utils/VRC1-contract or @/utils/contracts/VRC1
-
 import { useEffect, useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
@@ -73,19 +72,19 @@ function parseOrganisationProfile(
   }
 
   if (data[1].length > 0) {
-    profile.bio = data[0];
+    profile.bio = data[1];
   }
 
   if (data[2].length > 0) {
-    profile.avatar = data[0];
+    profile.avatar = data[2];
   }
 
   if (data[3].length > 0) {
-    profile.location = data[0];
+    profile.location = data[3];
   }
 
   if (data[4].length > 0) {
-    profile.website = data[0];
+    profile.website = data[4];
   }
 
   return profile;
@@ -312,7 +311,7 @@ export default function ({
           </AvatarFallback>
         </Avatar>
         <h1 className="text-3xl font-bold">
-          {organisationProfile.name ? "..." : organisationProfile.name}
+          {organisationProfile.name || "..."}
         </h1>
       </div>
       <div className="gap-2 grid grid-cols-2">
