@@ -32,7 +32,10 @@ export default function Token() {
       tokenName: isNotEmpty("Please provide a lovely name for your token"),
       tokenSymbol: isNotEmpty("Your token needs a charming symbol"),
       baseURI: matches(URI_REGEX, "Unfortunately it's not a valid base URI"),
-      premintAmount: (value,values) => (value == "0" && !values.mintNewTokens ? "Premint amount can't be zero if tokens are not mintable" : null)
+      premintAmount: (value, values) =>
+        value == "0" && !values.mintNewTokens
+          ? "Premint amount can't be zero if tokens are not mintable"
+          : null,
     },
   });
 
@@ -67,8 +70,8 @@ export default function Token() {
         });
       }
     } catch (error) {
-        console.log(error);
-        return;
+      console.log(error);
+      return;
     }
 
     setTokenContract({

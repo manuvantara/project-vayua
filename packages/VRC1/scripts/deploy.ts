@@ -2,9 +2,7 @@ import { ethers } from "hardhat";
 import * as fs from "fs";
 
 async function main() {
-  const VRC1 = await ethers.getContractFactory(
-    "VRC1"
-  );
+  const VRC1 = await ethers.getContractFactory("VRC1");
   const contract = await VRC1.deploy();
 
   await contract.deployed();

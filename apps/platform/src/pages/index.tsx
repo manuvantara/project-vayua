@@ -26,7 +26,12 @@ export default function Home() {
       address: "",
     },
     validate: {
-      address: (value) => (!ETH_ADDRESS_REGEX.test(value) ? (value.length === 0 ? null : "Please enter a valid Ethereum address") : null)
+      address: (value) =>
+        !ETH_ADDRESS_REGEX.test(value)
+          ? value.length === 0
+            ? null
+            : "Please enter a valid Ethereum address"
+          : null,
     },
   });
 
