@@ -25,6 +25,7 @@ import { getInitials } from "@/utils/shorten-name";
 import Image from "next/image";
 import Web3Button from "@/components/Web3Button";
 import { URL_REGEX } from "@/utils/regexes";
+import router from "next/router";
 
 type Props = {
   title: string;
@@ -130,7 +131,12 @@ export default function SharedProfile({
     },
     validate: {
       name: isNotEmpty("Name is required"),
-      website: (value) => (!URL_REGEX.test(value) ? (value.length === 0 ? null : "Please enter a valid URL") : null)
+      website: (value) =>
+        !URL_REGEX.test(value)
+          ? value.length === 0
+            ? null
+            : "Please enter a valid URL"
+          : null,
     },
   });
 
@@ -143,7 +149,7 @@ export default function SharedProfile({
 
   useEffect(() => {
     const userProfileData: string[] = contractRead?.data as string[];
-    console.log("userProfileData", userProfileData);
+    //console.log("userProfileData", userProfileData);
     if (userProfileData) {
       form.setValues({
         name: userProfileData[0],
@@ -161,11 +167,21 @@ export default function SharedProfile({
   // Refetching the data after the transaction is successful
   useEffect(() => {
     if (isTransactionSuccessful) {
-      toast({
-        description: "Success! Your changes have been applied.",
-      });
+      if (type == "dao") {
+        toast({
+          description:
+            "Success! The proposal for DAO profile update has been created.",
+        });
+        router.push(`/organisations/${address}`);
+      } else {
+        toast({
+          description: "Success! Your profile has been successfully changed.",
+        });
+      }
+
       contractRead.refetch();
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTransactionSuccessful]);
 
