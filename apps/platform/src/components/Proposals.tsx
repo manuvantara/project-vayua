@@ -14,7 +14,7 @@ import { Button } from "./ui/Button";
 import { ethers } from "ethers";
 import { useContractEvent, usePublicClient } from "wagmi";
 import { Block, parseAbiItem } from "viem";
-import { shortenAddress, shortenString } from "@/utils/shorten-address";
+import { shortenAddress, shortenText } from "@/utils/shorten-address";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import Spinner from "./ui/Spinner";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
@@ -292,7 +292,7 @@ export default function Proposals({
               .map((proposal) => (
                 <TableRow key={proposal.proposalId}>
                   <TableCell className="text-left">
-                    {shortenString(proposal.proposalId)}
+                    {shortenText(proposal.proposalId)}
                   </TableCell>
                   <TableCell className="text-left">
                     <Link
