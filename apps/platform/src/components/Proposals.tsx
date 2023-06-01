@@ -1,24 +1,31 @@
 import { useEffect, useState } from "react";
-import Link from "next/link";
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/Table";
-import { Button } from "./ui/Button";
 
 import { ethers } from "ethers";
 import { useContractEvent, usePublicClient } from "wagmi";
 import { Block, parseAbiItem } from "viem";
-import { shortenAddress, shortenText } from "@/utils/shorten-address";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import Spinner from "./ui/Spinner";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
 import { MarkdownFrontmatter } from "@/types/proposals";
+import { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "./ProposalsTable";
+
+export const columns: ColumnDef<Proposal>[] = [
+  {
+    header: "Proposals",
+  },
+];
+
+export type Proposal = {
+  proposalId: `0x${string}`;
+  proposer: `0x${string}`;
+  targets: `0x${string}` | `0x${string}`[];
+  values: string | string[];
+  signatures: string | string[];
+  calldatas: `0x${string}` | `0x${string}`[];
+  voteStart: string;
+  voteEnd: string;
+  description: string;
+};
 
 const MIN_BLOCK_NUMBER = 21041027n;
 
@@ -66,7 +73,7 @@ const parseLogs = (logsPerCycle: any) => {
   return parsedLogs;
 };
 
-function getProposalTitle(rawDescription: string) {
+export function getProposalTitle(rawDescription: string) {
   const MAX_LENGTH = 50;
 
   let { title } =
@@ -93,7 +100,7 @@ export default function Proposals({
   const publicClient = usePublicClient();
   const [block, setBlock] = useState<Block>();
 
-  const [proposals, setProposals] = useState<any[]>([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
 
   const [scannedBlocksCounter, setScannedBlocksCounter] = useState(0);
   const [toScanBlocksCounter, setToScanBlocksCounter] = useState(0);
@@ -248,86 +255,14 @@ export default function Proposals({
   });
 
   return (
-    <div className="col-span-2 bg-white border border-black-500 rounded-lg p-5 mt-5">
-      <div className="sm:flex sm:flex-row items-center">
-        <div className="flex items-center mr-5">
-          <h1 className="text-xl font-bold">Proposals</h1>
-          {toScanBlocksCounter > 0 && (
-            <Spinner size={20} color="#000" className="ml-2" />
-          )}
-        </div>
-        <div className="sm:flex gap-5">
-          <div>
-            Scanned{" "}
-            <span className="font-semibold text-slate-500 ">
-              {scannedBlocksCounter}
-            </span>{" "}
-            blocks
-          </div>
-          <div>
-            Left{" "}
-            <span className="font-semibold text-slate-500 ">
-              {toScanBlocksCounter >= 0 ? toScanBlocksCounter : 0}
-            </span>{" "}
-            blocks
-          </div>
-        </div>
-      </div>
-      <hr className="my-3"></hr>
-      <div className="max-h-96 overflow-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Proposal ID</TableHead>
-              <TableHead>Proposer</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Get more</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {proposals
-              .sort((a, b) =>
-                BigInt(a.voteStart) > BigInt(b.voteStart) ? -1 : 1
-              )
-              .map((proposal) => (
-                <TableRow key={proposal.proposalId}>
-                  <TableCell className="text-left">
-                    {shortenText(proposal.proposalId)}
-                  </TableCell>
-                  <TableCell className="text-left">
-                    <Link
-                      href={`https://testnet-explorer.thetatoken.org/account/${proposal.proposer}`}
-                      target="_blank"
-                      className="border-b border-[#999] border-dashed"
-                    >
-                      {shortenAddress(proposal.proposer)}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-left">
-                    {getProposalTitle(proposal.description)}
-                  </TableCell>
-                  <TableCell className="text-left">
-                    <Link
-                      href={{
-                        pathname: `${organisationAddress}/proposals/${proposal.proposalId}`,
-                        query: {
-                          description: proposal.description,
-                          proposer: proposal.proposer,
-                          voteStart: proposal.voteStart,
-                          targets: proposal.targets,
-                          values: proposal.values,
-                          calldatas: proposal.calldatas,
-                        },
-                      }}
-                    >
-                      <Button>More</Button>
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </div>
+    <div className="col-span-2 bg-white mt-5">
+      <DataTable
+        columns={columns}
+        data={proposals}
+        toScanBlocksCounter={toScanBlocksCounter}
+        scannedBlocksCounter={scannedBlocksCounter}
+        organisationAddress={organisationAddress}
+      />
     </div>
   );
 }
