@@ -7,10 +7,11 @@ import {
 } from "@/components/ui/Dialog";
 
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { useContractWrite, useWaitForTransaction } from "wagmi";
+import { useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
 import Web3Button from "./Web3Button";
 import { useEffect, useState } from "react";
 import { useToast } from "./ui/use-toast";
+import { Button } from "./ui/Button";
 
 type CastVoteModalProps = {
   organisationAddress: `0x${string}`;
@@ -21,6 +22,7 @@ export default function CastVoteModal({
   organisationAddress,
   proposalId,
 }: CastVoteModalProps) {
+  const { isConnected } = useAccount();
   const { toast } = useToast();
   const [isDialogOpened, setIsDialogOpened] = useState(true);
 
@@ -67,8 +69,8 @@ export default function CastVoteModal({
             <DialogTitle>Cast your vote</DialogTitle>
           </DialogHeader>
           <div className="flex gap-2">
-            <Web3Button
-              disabled={!castVoteWrite.write}
+            <Button
+              disabled={!castVoteWrite.write || !isConnected}
               className="flex-1 bg-success hover:bg-success-light"
               onClick={() => {
                 castVoteWrite.write({
@@ -77,9 +79,9 @@ export default function CastVoteModal({
               }}
             >
               For
-            </Web3Button>
-            <Web3Button
-              disabled={!castVoteWrite.write}
+            </Button>
+            <Button
+              disabled={!castVoteWrite.write || !isConnected}
               className="flex-1 bg-destructive hover:bg-destructive/90"
               onClick={() => {
                 castVoteWrite.write({
@@ -88,12 +90,12 @@ export default function CastVoteModal({
               }}
             >
               Against
-            </Web3Button>
+            </Button>
           </div>
 
-          <Web3Button
+          <Button
             variant="outline"
-            disabled={!castVoteWrite.write}
+            disabled={!castVoteWrite.write || !isConnected}
             onClick={() => {
               castVoteWrite.write({
                 args: [BigInt(proposalId), 2],
@@ -101,7 +103,7 @@ export default function CastVoteModal({
             }}
           >
             Abstain
-          </Web3Button>
+          </Button>
         </DialogContent>
       )}
     </Dialog>
