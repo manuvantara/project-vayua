@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
-import { useEffect } from "react";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;

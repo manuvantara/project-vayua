@@ -15,6 +15,8 @@ import {
   TableRow,
 } from "@/components/ui/Table";
 
+import { Skeleton } from "@/components/ui/Skeleton";
+
 import { DataTablePagination } from "./ProposalsTablePagination";
 import { shortenAddress, shortenText } from "@/utils/shorten-address";
 import { getProposalTitle } from "./Proposals";
@@ -26,6 +28,9 @@ import { useRouter } from "next/router";
 import { useContractRead, usePublicClient } from "wagmi";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { timestampToDate } from "@/utils/timestamp-to-date";
+import { Badge } from "./ui/Badge";
+import { badgeVariantMap } from "@/pages/organisations/[organisationAddress]/proposals/[proposalId]";
+import { X } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -65,9 +70,9 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-md border p-5">
-      <div>
-        <Table>
+    <div className="rounded-md border sm:p-5">
+      <div className="min-h-[480px]">
+        <Table className="min-h-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -113,7 +118,6 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
@@ -122,7 +126,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} colSpan={columns.length}>
                       <Proposal
                         cellparams={cell.getContext()}
                         organisationAddress={organisationAddress}
@@ -134,11 +138,22 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
+                <TableCell colSpan={columns.length}>
+                  <div className="text-center flex flex-col items-center justify-center min-h-[400px]">
+                    <X size={30} />
+                    <h3 className="text-base font-semibold mt-3">
+                      There aren't any proposals yet.
+                    </h3>
+                    <div className="mt-2">
+                      You could create a{" "}
+                      <Link
+                        className="text-success"
+                        href={`${organisationAddress}/proposals/new`}
+                      >
+                        new proposal
+                      </Link>
+                    </div>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
@@ -161,6 +176,7 @@ function Proposal({
 
   const publicClient = usePublicClient();
   const [proposalSnapshot, setProposalSnapshot] = useState("");
+  const [proposalState, setProposalState] = useState("Unknown State");
 
   // get proposal snapshot
   const { data: votingDelay } = useContractRead({
@@ -168,6 +184,28 @@ function Proposal({
     abi: GOVERNOR_ABI,
     functionName: "proposalSnapshot",
     args: [proposal.proposalId],
+  });
+
+  // get proposal state
+  const proposalStateMap: Record<number, string> = {
+    0: "Pending",
+    1: "Active",
+    2: "Canceled",
+    3: "Defeated",
+    4: "Succeeded",
+    5: "Queued",
+    6: "Expired",
+    7: "Executed",
+  };
+
+  const proposalStateRead = useContractRead({
+    address: organisationAddress,
+    abi: GOVERNOR_ABI,
+    functionName: "state",
+    args: [proposal.proposalId],
+    onSettled(data) {
+      setProposalState(proposalStateMap[data ? data : -1] || "Unknown State");
+    },
   });
 
   // get vote start in format of date
@@ -206,15 +244,19 @@ function Proposal({
           {getProposalTitle(proposal.description)}
         </h3>
         <div className="flex flex-col items-start gap-2 mt-2 md:flex-row">
-          {shortenText(proposal.proposalId, 0, 4, "#")},
-          <Link
-            target="_blank"
-            href={`https://testnet-explorer.thetatoken.org/account/${proposal.proposer}`}
-            className="border-b border-[#999] border-dashed"
-          >
-            {shortenAddress(proposal.proposer)}
-          </Link>
-          <div>Proposed on {proposalSnapshot}</div>
+          {proposalState == "Unknown State" ? (
+            <Skeleton className="w-[57px] h-[20px] rounded-full" />
+          ) : (
+            <Badge variant={badgeVariantMap[proposalState]}>
+              {proposalState}
+            </Badge>
+          )}
+          {shortenText(proposal.proposalId, 0, 4, "#")}
+          {proposalSnapshot == "" ? (
+            <Skeleton className="w-[190px] h-[20px] rounded-full" />
+          ) : (
+            <div>Proposed on {proposalSnapshot}</div>
+          )}
         </div>
       </div>
       <Button asChild className="mt-5 md:m-0">
