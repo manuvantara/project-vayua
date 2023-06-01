@@ -4,7 +4,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="p-4 pt-8 mt-8 rounded-lg md:mt-10 md:p-8 lg:p-10 bg-gray-50">
+    <footer className="p-4 pt-8 mt-8 rounded-3xl md:mt-10 md:p-8 lg:p-10 bg-secondary border md:rounded-none">
       <div className="mx-auto max-w-screen-xl text-center">
         <Link
           href="/"
@@ -86,7 +86,10 @@ export default function Footer() {
             </a>
           </li>
           <li>
-            <a href="https://github.com/manuvantara/project-vayua" className="mr-4 hover:underline md:mr-6 ">
+            <a
+              href="https://github.com/manuvantara/project-vayua"
+              className="mr-4 hover:underline md:mr-6 "
+            >
               GitHub
             </a>
           </li>

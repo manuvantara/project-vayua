@@ -66,7 +66,7 @@ export default function WalletConnect() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" prefix={<Wallet />}>
+          <Button variant="secondary" className="border" prefix={<Wallet />}>
             {shortenAddress(account.address, 4, 4)}
           </Button>
         </DialogTrigger>
