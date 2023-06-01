@@ -21,6 +21,7 @@ import {
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
+  usePublicClient,
   useWaitForTransaction,
 } from "wagmi";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
@@ -32,10 +33,9 @@ import { Button } from "@/components/ui/Button";
 import { getStringHash } from "@/utils/hash-string";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
-import { decodeFunctionData } from "viem";
-import { PROFILE_ABI } from "@/utils/abi/profile-contract";
 import { GetServerSideProps } from "next";
 import ClientOnly from "@/components/ClientOnly";
+import { timestampToDate } from "@/utils/timestamp-to-date";
 
 type ProposalStateInstructionsProps = {
   proposalState: string;
@@ -147,6 +147,9 @@ export default function ProposalPage({
   voteStart,
 }: ProposalPageProps) {
   const { isConnected } = useAccount();
+  const publicClient = usePublicClient();
+
+  const [voteDate, setVoteDate] = useState<string>("");
   const [proposalState, setProposalState] = useState("Unknown State");
 
   const { title, proposalDescription } =
@@ -216,6 +219,35 @@ export default function ProposalPage({
       }
     },
   });
+
+  // get vote start in format of date
+  async function blockNumberToTimestamp(stringifiedBlockNumber: string) {
+    // convert stringified blockNumber to bigint
+    const blockNumber = BigInt(stringifiedBlockNumber);
+
+    // get the block
+    const block = await publicClient.getBlock({
+      blockNumber: blockNumber,
+    });
+
+    // return stringified timestamp
+    return block.timestamp.toString();
+  }
+
+  useEffect(() => {
+    async function getVoteDate() {
+      try {
+        const timestamp = await blockNumberToTimestamp(voteStart);
+        setVoteDate(timestampToDate(timestamp, true));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    if (voteStart) {
+      getVoteDate();
+    }
+  }, [voteStart]);
 
   // execute write to contract
   const { config: executeWriteConfig } = usePrepareContractWrite({
@@ -297,6 +329,7 @@ export default function ProposalPage({
                 {proposer ? shortenAddress(proposer) : null}
               </Link>
             </div>
+            <div className="text-sm mt-2">Vote starts {voteDate}</div>
           </div>
           <div className="flex gap-4 font-bold text-lg text-slate-500">
             <ProposalStateInstructions
@@ -452,7 +485,7 @@ export const getServerSideProps: GetServerSideProps = async ({
 
   const proposer = (query?.proposer as `0x${string}`) || "";
 
-  const voteStart = (query?.proposer as string) || "";
+  const voteStart = (query?.voteStart as string) || "";
 
   return {
     props: {
