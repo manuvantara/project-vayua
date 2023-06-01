@@ -104,14 +104,16 @@ export default function WalletConnect() {
                 loading={isLoading && connector.id === pendingConnector?.id}
                 key={connector.id}
                 onClick={() => handleConnect(connector)}
-              >
-                <span className="flex items-center space-x-2">
+                prefix={
                   <Image
                     src={iconPath}
                     width={24}
                     height={24}
                     alt={connector.name}
                   />
+                }
+              >
+                <span className="flex items-center space-x-2">
                   <span>{connector.name}</span>
                 </span>
               </Button>
