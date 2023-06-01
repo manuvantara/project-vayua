@@ -108,7 +108,6 @@ export default function Token() {
               duration: 200,
               timingFunction: "ease",
             }}
-            withinPortal
             {...tokenContractForm.getInputProps("tokenType")}
           />
         </div>
