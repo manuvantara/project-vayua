@@ -37,7 +37,7 @@ export default function Governance() {
         number: isNotEmpty("Voting period number is required"),
       },
       proposalThreshold: (value) =>
-        Number(value) > 0
+        Number(value) >= 0
           ? null
           : "Doesn't look like a valid number, try any positive number",
       quorum: isInRange(
@@ -128,7 +128,6 @@ export default function Governance() {
                   duration: 200,
                   timingFunction: "ease",
                 }}
-                withinPortal
                 {...governanceContractForm.getInputProps(
                   "votingDelay.timeInterval"
                 )}
@@ -179,7 +178,6 @@ export default function Governance() {
                   duration: 200,
                   timingFunction: "ease",
                 }}
-                withinPortal
                 {...governanceContractForm.getInputProps(
                   "votingPeriod.timeInterval"
                 )}

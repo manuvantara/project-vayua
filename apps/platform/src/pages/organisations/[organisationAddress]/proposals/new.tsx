@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { encodeFunctionData } from "viem";
 import { useAtomValue } from "jotai";
 import { markdownEditorValueAtom, proposalActionsAtom } from "@/atoms";
+import { parseProposalActionInput } from "@/utils/parse-proposal-action-input";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";
@@ -89,7 +90,7 @@ export default function NewProposalPage({
         } = action.action;
 
         const targetContractFunctions = targetContractABI.filter(
-          (item) => item.type === "function"
+          (item) => item.type === "function" && item.stateMutability !== "view"
         );
 
         if (!targetContractFunctions) {
@@ -99,7 +100,10 @@ export default function NewProposalPage({
         const targetFunction = targetContractFunctions[targetFunctionId];
 
         try {
-          const args = Object.values(targetFunctionArguments || {});
+          const args = Object.values(targetFunctionArguments || {}).map((arg) =>
+            parseProposalActionInput(arg)
+          );
+
           const executableCode = encodeFunctionData({
             abi: targetContractABI,
             // For some reason the type is wrong here

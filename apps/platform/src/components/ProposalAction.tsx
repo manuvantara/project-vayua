@@ -64,7 +64,11 @@ export default memo(function ProposalAction({
           inputs: { name: string; type: string }[];
         }[] = parsedAbi
           // TODO: Somehow type this, maybe use a library https://abitype.dev/
-          .filter((item: any) => item.type === "function")
+          // Filter out non-functions and view functions
+          .filter(
+            (item: any) =>
+              item.type === "function" && item.stateMutability !== "view"
+          )
           .map((item: any) => {
             return {
               id: functionId++,
@@ -126,6 +130,7 @@ export default memo(function ProposalAction({
                 type="text"
                 value={inputValue}
                 onChange={handleChange}
+                placeholder={input.type}
               />
             </div>
           );
