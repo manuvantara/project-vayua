@@ -25,7 +25,7 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { shortenAddress, shortenString } from "@/utils/shorten-address";
+import { shortenAddress, shortenText } from "@/utils/shorten-address";
 
 import CastVoteModal from "@/components/CastVoteModal";
 import { MarkdownFrontmatter } from "@/types/proposals";
@@ -315,7 +315,7 @@ export default function ProposalPage({
               </Badge>
               <h1 className="text-xl md:text-2xl font-semibold mt-1">
                 {title ||
-                  `Proposal #${shortenString(proposalId ? proposalId : "")}`}
+                  `Proposal #${shortenText(proposalId ? proposalId : "")}`}
               </h1>
             </div>
             <div className="text-sm mt-2">
@@ -365,7 +365,7 @@ export default function ProposalPage({
                   <div className="border border-border p-5">
                     <div>
                       Calldatas: <br />
-                      {calldatas ? shortenString(calldatas as string) : null}
+                      {calldatas ? shortenText(calldatas as string) : null}
                     </div>
                     <div className="mt-2">
                       Target: <br />
@@ -394,7 +394,7 @@ export default function ProposalPage({
                           <div>
                             Calldatas: <br />
                             {calldatas[index]
-                              ? shortenString(calldatas[index] as string)
+                              ? shortenText(calldatas[index] as string)
                               : null}
                           </div>
                           <div className="mt-2">
