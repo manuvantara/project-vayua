@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
 
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -19,6 +17,8 @@ import { Block, parseAbiItem } from "viem";
 import { shortenAddress, shortenString } from "@/utils/shorten-address";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import Spinner from "./ui/Spinner";
+import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
+import { MarkdownFrontmatter } from "@/types/proposals";
 
 const MIN_BLOCK_NUMBER = 21041027n;
 
@@ -65,6 +65,25 @@ const parseLogs = (logsPerCycle: any) => {
 
   return parsedLogs;
 };
+
+function getProposalTitle(rawDescription: string) {
+  const MAX_LENGTH = 50;
+
+  let { title } =
+    parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(rawDescription);
+
+  if (title) {
+    title =
+      title.length > MAX_LENGTH ? title.slice(0, MAX_LENGTH) + "..." : title;
+  } else {
+    title =
+      rawDescription.length > MAX_LENGTH
+        ? rawDescription.slice(0, MAX_LENGTH) + "..."
+        : rawDescription;
+  }
+
+  return title || "";
+}
 
 export default function Proposals({
   organisationAddress,
@@ -255,18 +274,13 @@ export default function Proposals({
         </div>
       </div>
       <hr className="my-3"></hr>
-
       <div className="max-h-96 overflow-auto">
         <Table>
-          <TableCaption>
-            Proposals for {`Governor name`} ({organisationAddress})
-          </TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Proposal ID</TableHead>
-              <TableHead>Vote starts</TableHead>
               <TableHead>Proposer</TableHead>
-
+              <TableHead>Name</TableHead>
               <TableHead>Get more</TableHead>
             </TableRow>
           </TableHeader>
@@ -281,10 +295,16 @@ export default function Proposals({
                     {shortenString(proposal.proposalId)}
                   </TableCell>
                   <TableCell className="text-left">
-                    {proposal.voteStart}
+                    <Link
+                      href={`https://testnet-explorer.thetatoken.org/account/${proposal.proposer}`}
+                      target="_blank"
+                      className="border-b border-[#999] border-dashed"
+                    >
+                      {shortenAddress(proposal.proposer)}
+                    </Link>
                   </TableCell>
                   <TableCell className="text-left">
-                    {shortenAddress(proposal.proposer)}
+                    {getProposalTitle(proposal.description)}
                   </TableCell>
                   <TableCell className="text-left">
                     <Link
