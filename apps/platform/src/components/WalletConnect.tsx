@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/Dialog";
 import { shortenAddress } from "@/utils/shorten-address";
 import Image from "next/image";
+import { Wallet } from "lucide-react";
 
 const connectorsIcons: { [key: string]: any } = {
   MetaMask: "/icons/metamask.svg",
@@ -25,7 +26,7 @@ export default function WalletConnect() {
 
   const [open, setOpen] = useState(false);
 
-  const { connector: activeConnector, isConnected, address } = useAccount();
+  const account = useAccount();
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect({
       chainId: thetaTestnet.id,
@@ -61,15 +62,17 @@ export default function WalletConnect() {
     connect({ connector });
   };
 
-  if (isConnected) {
+  if (account.isConnected && account.address) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline">{shortenAddress(address as string)}</Button>
+          <Button variant="outline" prefix={<Wallet />}>
+            {shortenAddress(account.address, 4, 4)}
+          </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Disconnect Wallet</DialogTitle>
+            <DialogTitle>Disconnect</DialogTitle>
             <DialogDescription>
               Do you want to disconnect your wallet?
             </DialogDescription>
@@ -85,11 +88,13 @@ export default function WalletConnect() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Connect Wallet</Button>
+        <Button variant="default" prefix={<Wallet />}>
+          Connect
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Wallet Connect</DialogTitle>
+          <DialogTitle>Connect</DialogTitle>
           <DialogDescription>
             Please connect your wallet to continue using the app.
           </DialogDescription>
