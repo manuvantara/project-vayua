@@ -24,6 +24,7 @@ import { DelegateVoteFormValues } from "@/types/forms";
 import { useRouter } from "next/router";
 import { HelpingHand } from "lucide-react";
 import { toast } from "./ui/use-toast";
+import ClientOnly from "@/components/ClientOnly";
 
 export default function DelegateModal() {
   const [switchDelegateForm, setSwitchDelegateForm] = useState(true);
@@ -93,17 +94,19 @@ export default function DelegateModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          disabled={!isConnected}
-          variant="outline"
-          onClick={openDelegateDialog}
-          loading={isTransactionLoading || delegateVotesWrite.isLoading}
-        >
-          <HelpingHand size={20} />
-          <span className="ml-2">Delegate</span>
-        </Button>
-      </DialogTrigger>
+      <ClientOnly>
+        <DialogTrigger asChild>
+          <Button
+            disabled={!isConnected}
+            variant="outline"
+            onClick={openDelegateDialog}
+            loading={isTransactionLoading || delegateVotesWrite.isLoading}
+          >
+            <HelpingHand size={20} />
+            <span className="ml-2">Delegate</span>
+          </Button>
+        </DialogTrigger>
+      </ClientOnly>
       <DialogContent
         onCloseAutoFocus={closeDelegateDialog}
         className="sm:max-w-[425px]"
