@@ -10,6 +10,22 @@ import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import Toaster from "@/components/ui/Toaster";
 import { thetaMainnet, thetaTestnet } from "@/utils/chains/theta-chains";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ProgressBar from "@badrap/bar-of-progress";
+import Router from "next/router";
+import { DefaultSeo } from "next-seo";
+import SEO from "@/utils/next-seo.config";
+
+const progress = new ProgressBar({
+  size: 4,
+  className: "progress-bar",
+  color: "hsl(var(--foreground))",
+  delay: 100,
+});
+
+Router.events.on("routeChangeStart", progress.start);
+Router.events.on("routeChangeComplete", progress.finish);
+Router.events.on("routeChangeError", progress.finish);
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,14 +65,18 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <div className={`font-sans ${inter.variable}`}>
-      <WagmiConfig config={config}>
-        <Header />
-        <div className="px-4 sm:container">
-          <Component {...pageProps} />
-        </div>
-      </WagmiConfig>
-      <Toaster />
-    </div>
+    <>
+      <DefaultSeo {...SEO} />
+      <div className={`font-sans ${inter.variable} min-h-screen flex flex-col`}>
+        <WagmiConfig config={config}>
+          <Header />
+          <div className="px-4 sm:container flex-1">
+            <Component {...pageProps} />
+          </div>
+          <Footer />
+        </WagmiConfig>
+        <Toaster />
+      </div>
+    </>
   );
 }

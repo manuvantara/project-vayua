@@ -2,10 +2,10 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './src/pages/**/*.{ts,tsx}',
-    './src/components/**/*.{ts,tsx}',
-    './src/app/**/*.{ts,tsx}',
-	],
+    "./src/pages/**/*.{ts,tsx}",
+    "./src/components/**/*.{ts,tsx}",
+    "./src/app/**/*.{ts,tsx}",
+  ],
   theme: {
     container: {
       center: true,
@@ -16,7 +16,10 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", ...require("tailwindcss/defaultTheme").fontFamily.sans],
+        sans: [
+          "var(--font-inter)",
+          ...require("tailwindcss/defaultTheme").fontFamily.sans,
+        ],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -38,11 +41,15 @@ module.exports = {
         },
         success: {
           DEFAULT: "hsl(var(--success))",
-          foreground: "hsl(var(--success-foreground))",
+          dark: "hsl(var(--success-dark))",
+          light: "hsl(var(--success-light))",
+          lighter: "hsl(var(--success-lighter))",
         },
         warning: {
-          DEFAULT: "hsl(var(--warning))",
-          foreground: "hsl(var(--warning-foreground))",
+          DEFAULT: "var(--warning)",
+          dark: "var(--warning-dark)",
+          light: "var(--warning-light)",
+          lighter: "var(--warning-lighter)",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -60,6 +67,10 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        link: {
+          DEFAULT: "var(--link)",
+          light: "var(--link-light)",
+        }
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -83,4 +94,4 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
-}
+};

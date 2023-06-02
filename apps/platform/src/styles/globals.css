@@ -31,15 +31,19 @@
     --destructive: 0 100% 50%;
     --destructive-foreground: 210 40% 98%;
 
-    --success: 120 100% 27.1%;
-    --success-foreground: 210 40% 98%;
+    --success: 212, 100%, 48%;
+    --success-dark: 213, 94%, 42%;
+    --success-light: 212, 100%, 60%;
+    --success-lighter: 215, 100%, 91%;
 
-    --warning: 45 100% 50%;
-    --warning-foreground: 210 40% 98%;
+    --warning: #f5a623;
+    --warning-dark: #ab570a;
+    --warning-light: #f7b955;
+    --warning-lighter: #ffefcf;
 
     --ring: 215 20.2% 65.1%;
 
-    --radius: 0.5rem;
+    --radius: 1.5rem;
   }
 }
 
@@ -47,8 +51,18 @@
   * {
     @apply border-border;
   }
+
+  html, body, #__next {
+    @apply h-full;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  ::selection {
+    background: #79ffe1;
+    color: #000;
   }
 }

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/Dialog";
 import { shortenAddress } from "@/utils/shorten-address";
 import Image from "next/image";
+import { Wallet } from "lucide-react";
 
 const connectorsIcons: { [key: string]: any } = {
   MetaMask: "/icons/metamask.svg",
@@ -25,7 +26,7 @@ export default function WalletConnect() {
 
   const [open, setOpen] = useState(false);
 
-  const { connector: activeConnector, isConnected, address } = useAccount();
+  const account = useAccount();
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect({
       chainId: thetaTestnet.id,
@@ -61,20 +62,22 @@ export default function WalletConnect() {
     connect({ connector });
   };
 
-  if (isConnected) {
+  if (account.isConnected && account.address) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="default">{shortenAddress(address as string)}</Button>
+          <Button variant="outline" className="border-0" prefix={<Wallet />}>
+            {shortenAddress(account.address, 4, 4)}
+          </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Disconnect Wallet</DialogTitle>
+            <DialogTitle>Disconnect</DialogTitle>
             <DialogDescription>
               Do you want to disconnect your wallet?
             </DialogDescription>
           </DialogHeader>
-          <Button variant="outline" onClick={handleDisconnect}>
+          <Button variant="default" onClick={handleDisconnect}>
             Disconnect
           </Button>
         </DialogContent>
@@ -85,11 +88,13 @@ export default function WalletConnect() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Connect</Button>
+        <Button variant="default" prefix={<Wallet />}>
+          Connect
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Wallet Connect</DialogTitle>
+          <DialogTitle>Connect</DialogTitle>
           <DialogDescription>
             Please connect your wallet to continue using the app.
           </DialogDescription>
@@ -104,14 +109,16 @@ export default function WalletConnect() {
                 loading={isLoading && connector.id === pendingConnector?.id}
                 key={connector.id}
                 onClick={() => handleConnect(connector)}
-              >
-                <span className="flex items-center space-x-2">
+                prefix={
                   <Image
                     src={iconPath}
                     width={24}
                     height={24}
                     alt={connector.name}
                   />
+                }
+              >
+                <span className="flex items-center space-x-2">
                   <span>{connector.name}</span>
                 </span>
               </Button>

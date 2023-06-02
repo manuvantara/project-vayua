@@ -1,4 +1,4 @@
-export const governorAbi = [
+export const GOVERNOR_ABI = [
   {
     inputs: [
       { internalType: "contract IVotes", name: "_token", type: "address" },
@@ -500,7 +500,7 @@ export const governorAbi = [
   { stateMutability: "payable", type: "receive" },
 ] as const;
 
-export const tokenAbi = [
+export const TOKEN_ABI = [
   {
     inputs: [
       { internalType: "address", name: "account", type: "address" },
