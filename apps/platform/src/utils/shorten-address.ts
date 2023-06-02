@@ -26,5 +26,5 @@ export function shortenText(text: string, prefixLength: number = 8, suffixLength
 export function shortenAddress(text: string, prefixLength: number = 8, suffixLength: number = 8, delimiter: string = "..."): string {
   const address = getAddress(text);
 
-  return shortenText(address, prefixLength, suffixLength, delimiter);
+  return shortenText(address, prefixLength + 2, suffixLength, delimiter);
 }
