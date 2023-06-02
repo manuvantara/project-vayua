@@ -199,7 +199,7 @@ export const UserStarringExtensionView: FC<UserStarringExtensionView> = ({
       {extension.organisations.map((organisationAddress) => (
         <li key={organisationAddress}>
           <Link
-            href={organisationAddress}
+            href={`/organisations/${organisationAddress}`}
             className="py-4 flex justify-between items-center"
           >
             <span>{shortenAddress(organisationAddress)}</span>
