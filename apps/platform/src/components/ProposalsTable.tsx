@@ -2,8 +2,8 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  useReactTable,
   getPaginationRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
 
 import {
@@ -18,18 +18,17 @@ import {
 import { Skeleton } from "@/components/ui/Skeleton";
 
 import { DataTablePagination } from "./ProposalsTablePagination";
-import { shortenAddress, shortenText } from "@/utils/shorten-address";
+import { shortenText } from "@/utils/shorten-address";
 import { getProposalTitle } from "./Proposals";
 import { useEffect, useState } from "react";
 import Spinner from "./ui/Spinner";
 import Link from "next/link";
 import { Button } from "./ui/Button";
-import { useRouter } from "next/router";
 import { useContractRead, usePublicClient } from "wagmi";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { timestampToDate } from "@/utils/timestamp-to-date";
 import { Badge } from "./ui/Badge";
-import { badgeVariantMap } from "@/pages/organisations/[organisationAddress]/proposals/[proposalId]";
+import { badgeVariantMap, proposalStateMap } from "@/utils/proposal-states";
 import { X } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
@@ -186,18 +185,6 @@ function Proposal({
     args: [proposal.proposalId],
   });
 
-  // get proposal state
-  const proposalStateMap: Record<number, string> = {
-    0: "Pending",
-    1: "Active",
-    2: "Canceled",
-    3: "Defeated",
-    4: "Succeeded",
-    5: "Queued",
-    6: "Expired",
-    7: "Executed",
-  };
-
   const proposalStateRead = useContractRead({
     address: organisationAddress,
     abi: GOVERNOR_ABI,
@@ -267,6 +254,7 @@ function Proposal({
               description: proposal.description,
               proposer: proposal.proposer,
               voteStart: proposal.voteStart,
+              voteEnd: proposal.voteEnd,
               targets: proposal.targets,
               values: proposal.values,
               calldatas: proposal.calldatas,

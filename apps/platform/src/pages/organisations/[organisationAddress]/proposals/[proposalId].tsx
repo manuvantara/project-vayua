@@ -1,20 +1,13 @@
-import Link from "next/link";
+import type { GetServerSideProps } from "next";
+import type { MarkdownFrontmatter } from "@/types/proposals";
 
+import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/Table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { ArrowLeft, ClockIcon } from "lucide-react";
+import { ArrowLeft, CalendarOff, Check, ClockIcon, Vote } from "lucide-react";
 
 import ReactMarkdown from "react-markdown";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
-
 import {
   useAccount,
   useContractEvent,
@@ -24,18 +17,18 @@ import {
   usePublicClient,
   useWaitForTransaction,
 } from "wagmi";
+
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { shortenAddress, shortenText } from "@/utils/shorten-address";
-
-import CastVoteModal from "@/components/CastVoteModal";
-import { MarkdownFrontmatter } from "@/types/proposals";
 import { Button } from "@/components/ui/Button";
 import { getStringHash } from "@/utils/hash-string";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
-import { GetServerSideProps } from "next";
-import ClientOnly from "@/components/ClientOnly";
 import { timestampToDate } from "@/utils/timestamp-to-date";
+import CastVoteModal from "@/components/CastVoteModal";
+import Image from "next/image";
+import { Progress } from "@/components/ui/Progress";
+import { badgeVariantMap, proposalStateMap } from "@/utils/proposal-states";
 
 type ProposalStateInstructionsProps = {
   proposalState: string;
@@ -95,31 +88,17 @@ function ProposalStateInstructions({
           Voting starts at {voteStart} block
         </>
       );
-    case "Canceled":
-      return <>Proposal canceled by proposer</>;
-    case "Defeated":
-      return <>Proposal defeated</>;
     case "Succeeded":
       return (
-        <>
-          {proposalState == "Succeeded" && (
-            <Button
-              loading={isTransactionLoading || executeLoading}
-              disabled={!executeWrite || !isConnected}
-              className="mt-5"
-              onClick={executeWrite}
-            >
-              Execute
-            </Button>
-          )}
-        </>
+        <Button
+          loading={isTransactionLoading || executeLoading}
+          disabled={!executeWrite || !isConnected}
+          className="mt-5"
+          onClick={executeWrite}
+        >
+          Execute
+        </Button>
       );
-    case "Queued":
-      return <>Proposal queued</>;
-    case "Expired":
-      return <>Proposal expired</>;
-    case "Executed":
-      return <>Proposal executed</>;
     default:
       return <>Unknown state instructions</>;
   }
@@ -134,6 +113,7 @@ type ProposalPageProps = {
   proposalId: `0x${string}`;
   proposer: `0x${string}`;
   voteStart: string;
+  voteEnd: string;
 };
 
 export default function ProposalPage({
@@ -145,17 +125,17 @@ export default function ProposalPage({
   proposalId,
   proposer,
   voteStart,
+  voteEnd,
 }: ProposalPageProps) {
   const { isConnected } = useAccount();
   const publicClient = usePublicClient();
 
-  const [voteDate, setVoteDate] = useState<string>("");
+  const [voteDate, setVoteDate] = useState("");
+  const [voteEndDate, setVoteEndDate] = useState("");
   const [proposalState, setProposalState] = useState("Unknown State");
 
   const { title, proposalDescription } =
-    parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(
-      description ? (description as string) : ""
-    );
+    parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
 
   // get votes
   const votesContractRead = useContractRead({
@@ -164,18 +144,6 @@ export default function ProposalPage({
     functionName: "proposalVotes",
     args: [proposalId ? BigInt(proposalId) : 0n],
   });
-
-  // get proposal state
-  const proposalStateMap: Record<number, string> = {
-    0: "Pending",
-    1: "Active",
-    2: "Canceled",
-    3: "Defeated",
-    4: "Succeeded",
-    5: "Queued",
-    6: "Expired",
-    7: "Executed",
-  };
 
   const proposalStateRead = useContractRead({
     address: organisationAddress,
@@ -186,20 +154,6 @@ export default function ProposalPage({
       setProposalState(proposalStateMap[data ? data : -1] || "Unknown State");
     },
   });
-
-  const badgeVariantMap: Record<
-    string,
-    "success" | "warning" | "destructive" | "default" | "secondary"
-  > = {
-    Pending: "warning",
-    Active: "success",
-    Canceled: "destructive",
-    Defeated: "destructive",
-    Succeeded: "success",
-    Queued: "success",
-    Expired: "destructive",
-    Executed: "success",
-  };
 
   const isTargetsString = typeof targets === "string";
 
@@ -235,17 +189,22 @@ export default function ProposalPage({
   }
 
   useEffect(() => {
-    async function getVoteDate() {
+    async function getVoteDate(voteBlockNumber: string) {
       try {
-        const timestamp = await blockNumberToTimestamp(voteStart);
-        setVoteDate(timestampToDate(timestamp, true));
+        const timestamp = await blockNumberToTimestamp(voteBlockNumber);
+        return timestampToDate(timestamp, true);
       } catch (error) {
         console.log(error);
+        return "Unknown Date";
       }
     }
 
     if (voteStart) {
-      getVoteDate();
+      getVoteDate(voteStart).then((date) => setVoteDate(date));
+    }
+
+    if (voteEnd) {
+      getVoteDate(voteEnd).then((date) => setVoteEndDate(date));
     }
   }, [voteStart]);
 
@@ -295,8 +254,44 @@ export default function ProposalPage({
     },
   });
 
+  const renderProposalState = useCallback(() => {
+    switch (proposalState) {
+      case "Pending":
+        return (
+          <>
+            <ClockIcon className="w-4 h-4 mr-2" />
+            Voting starts at {voteStart} block
+          </>
+        );
+      case "Active":
+        return (
+          <CastVoteModal
+            organisationAddress={organisationAddress}
+            proposalId={proposalId}
+          />
+        );
+      case "Succeeded":
+        return (
+          <Button
+            loading={isTransactionLoading || executeWrite.isLoading}
+            disabled={!executeWrite || !isConnected}
+            className="mt-5"
+            onClick={executeWrite.write}
+          >
+            Execute
+          </Button>
+        );
+    }
+  }, [proposalState, voteStart, organisationAddress, proposalId, isTransactionLoading, executeWrite, isConnected]);
+
   return (
-    <div>
+    <div className="relative">
+      <Image
+        fill
+        src="/gradient-2.jpg"
+        className="absolute left-1/2 z-[-1] top-0 max-w-none opacity-20 -translate-y-1/4 translate-x-[-30%] w-[160%] h-auto filter blur-[100px]"
+        alt="gradient"
+      />
       <div>
         <Link
           className="inline-flex items-center text-muted-foreground"
@@ -306,156 +301,191 @@ export default function ProposalPage({
           Back
         </Link>
       </div>
-      <div className="flex flex-col p-6 bg-white rounded-md border border-border mt-5">
-        <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
-          <div>
-            <div>
-              <Badge variant={badgeVariantMap[proposalState]}>
-                {proposalState}
-              </Badge>
-              <h1 className="text-xl md:text-2xl font-semibold mt-1">
-                {title ||
-                  `Proposal #${shortenText(proposalId ? proposalId : "")}`}
-              </h1>
+      <div className="grid items-start grid-cols-3 gap-6 mt-6">
+        <div className="grid grid-cols-1 gap-6">
+          <div className="flex relative flex-col p-6 bg-white rounded-md border">
+            <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
+              <div>
+                <Badge
+                  className="absolute -top-3 left-0"
+                  variant={badgeVariantMap[proposalState]}
+                >
+                  {proposalState}
+                </Badge>
+                <h1 className="text-xl font-semibold">
+                  {title || `Proposal #${shortenText(proposalId)}`}
+                </h1>
+              </div>
+              <div className="flex gap-4 font-medium text-destructive">
+                {renderProposalState()}
+              </div>
             </div>
-            <div className="text-sm mt-2">
-              by
-              <Link
-                href={`https://testnet-explorer.thetatoken.org/account/${proposer}`}
-                target="_blank"
-                className="border-b border-[#999] border-dashed"
-              >
-                {" "}
-                {proposer ? shortenAddress(proposer) : null}
-              </Link>
+            <div className="flex justify-between flex-2 w-full">
+              <div className="text-sm mt-2 space-x-1">
+                <span>by</span>
+                <Link
+                  href={`https://testnet-explorer.thetatoken.org/account/${proposer}`}
+                  target="_blank"
+                  className="border-b border-[#999] border-dashed"
+                >
+                  {shortenAddress(proposer)}
+                </Link>
+              </div>
             </div>
-            <div className="text-sm mt-2">Vote starts {voteDate}</div>
           </div>
-          <div className="flex gap-4 font-bold text-lg text-slate-500">
-            <ProposalStateInstructions
-              proposalState={proposalState}
-              organisationAddress={organisationAddress}
-              proposalId={proposalId}
-              voteStart={voteStart}
-              isTransactionLoading={isTransactionLoading}
-              isConnected={isConnected}
-              executeWrite={executeWrite.write}
-              executeLoading={executeWrite.isLoading}
-            />
+          <div className="flex flex-col p-6 bg-white rounded-md border border-border">
+            <h3 className="text-xl mb-2 font-semibold">Votes</h3>
+            <div className="flex flex-col gap-4">
+              <div>
+                <span>
+                  {/*https://stackoverflow.com/questions/10599933/convert-long-number-into-abbreviated-string-in-javascript-with-a-special-shortn*/}
+                  {Intl.NumberFormat("en-US", {
+                    notation: "compact",
+                    maximumFractionDigits: 1,
+                    compactDisplay: "short",
+                  }).format(Number(votesContractRead.data?.[1] ?? 0))}
+                </span>
+                <Progress
+                  indicatorClassName="bg-success"
+                  value={Number(votesContractRead.data?.[1] ?? 0)}
+                />
+              </div>
+              <div>
+                <span>
+                  {/*https://stackoverflow.com/questions/10599933/convert-long-number-into-abbreviated-string-in-javascript-with-a-special-shortn*/}
+                  {Intl.NumberFormat("en-US", {
+                    notation: "compact",
+                    maximumFractionDigits: 1,
+                    compactDisplay: "short",
+                  }).format(Number(votesContractRead.data?.[0] ?? 0))}
+                </span>
+                <Progress
+                  indicatorClassName="bg-destructive"
+                  value={Number(votesContractRead.data?.[0] ?? 0)}
+                />
+              </div>
+              <div>
+                <span>
+                  {/*https://stackoverflow.com/questions/10599933/convert-long-number-into-abbreviated-string-in-javascript-with-a-special-shortn*/}
+                  {Intl.NumberFormat("en-US", {
+                    notation: "compact",
+                    maximumFractionDigits: 1,
+                    compactDisplay: "short",
+                  }).format(Number(votesContractRead.data?.[2] ?? 0))}
+                </span>
+                <Progress value={Number(votesContractRead.data?.[2] ?? 0)} />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col p-6 bg-white rounded-md border border-border">
+            <h3 className="text-xl mb-2 font-semibold">Status</h3>
+            <div className="flex gap-4">
+              <div className="flex flex-col w-min">
+                <span className="w-3 h-3 border-black border rounded-full my-1"></span>
+                <span className="border-r border-black border-dashed flex-1 self-center w-[1px]"></span>
+              </div>
+              <div>
+                <Vote size={20} />
+                <p className="font-medium">Start voting period</p>
+                <p className="text-sm text-muted-foreground">{voteDate}</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex flex-col w-min">
+                <span className="w-3 h-3 border-black border rounded-full my-1"></span>
+                <span className="border-r border-black border-dashed flex-1 self-center w-[1px]"></span>
+              </div>
+              <div className="mt-4">
+                <CalendarOff size={20} />
+                <p className="font-medium">End voting period</p>
+                <p className="text-sm text-muted-foreground">{voteEndDate}</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex gap-2 mt-2 items-center w-min">
+                <span className="w-4 h-4 flex items-center justify-center border-success border rounded-full my-1">
+                  <Check className="text-success" size={12} />
+                </span>
+                <p className="font-medium">Execute</p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="grid grid-cols-1 items-start mt-5 md:gap-5 md:grid-cols-3">
-        <div className="flex flex-col p-6 bg-white rounded-md border border-border md:col-span-2">
-          <h3 className="text-xl mb-2 font-semibold">Details</h3>
-          <Tabs defaultValue="description" className="">
-            <TabsList>
-              <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="code">Executable code</TabsTrigger>
-            </TabsList>
-            <TabsContent value="description">
-              <article className="prose-sm sm:prose p-5">
-                <ReactMarkdown>{proposalDescription}</ReactMarkdown>
-              </article>
-            </TabsContent>
-            <TabsContent value="code">
-              {isTargetsString ? (
-                <div className="p-5">
-                  <h3 className="mb-2">Function 1:</h3>
-                  <div className="border border-border p-5">
-                    <div>
-                      Calldatas: <br />
-                      {calldatas ? shortenText(calldatas as string) : null}
-                    </div>
-                    <div className="mt-2">
-                      Target: <br />
-                      <Link
-                        href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
-                        target="_blank"
-                        className="border-b border-[#999] border-dashed"
-                      >
-                        {targets ? shortenAddress(targets) : null}
-                      </Link>
-                    </div>
-                    <div className="mt-2">
-                      Value: <br />
-                      {values}
+        <div className="grid grid-cols-1 col-span-2 gap-6">
+          <div className="flex flex-col p-6 bg-white rounded-md border border-border">
+            <h3 className="text-xl mb-2 font-semibold">Details</h3>
+            <Tabs defaultValue="description">
+              <TabsList>
+                <TabsTrigger value="description">Description</TabsTrigger>
+                <TabsTrigger value="code">Executable code</TabsTrigger>
+              </TabsList>
+              <TabsContent value="description">
+                <article className="prose-sm sm:prose p-5">
+                  <ReactMarkdown>{proposalDescription}</ReactMarkdown>
+                </article>
+              </TabsContent>
+              <TabsContent value="code">
+                {isTargetsString ? (
+                  <div className="p-5">
+                    <h3 className="mb-2">Function 1:</h3>
+                    <div className="border border-border p-5">
+                      <div>
+                        Calldatas: <br />
+                        {calldatas ? shortenText(calldatas as string) : null}
+                      </div>
+                      <div className="mt-2">
+                        Target: <br />
+                        <Link
+                          href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
+                          target="_blank"
+                          className="border-b border-[#999] border-dashed"
+                        >
+                          {targets ? shortenAddress(targets) : null}
+                        </Link>
+                      </div>
+                      <div className="mt-2">
+                        Value: <br />
+                        {values}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                Array.isArray(targets) &&
-                targets.length !== 0 && (
-                  <div>
-                    {targets.map((target, index) => (
-                      <div key={index} className="p-5">
-                        <h3 className="mb-2">Function {index + 1}:</h3>
-                        <div className="border border-border p-5">
-                          <div>
-                            Calldatas: <br />
-                            {calldatas[index]
-                              ? shortenText(calldatas[index] as string)
-                              : null}
-                          </div>
-                          <div className="mt-2">
-                            Target: <br />
-                            <Link
-                              href={`https://testnet-explorer.thetatoken.org/account/${target}`}
-                              target="_blank"
-                              className="border-b border-[#999] border-dashed"
-                            >
-                              {target ? shortenAddress(target) : null}
-                            </Link>
-                          </div>
-                          <div className="mt-2">
-                            Value: <br />
-                            {values[index]}
+                ) : (
+                  Array.isArray(targets) &&
+                  targets.length !== 0 && (
+                    <div>
+                      {targets.map((target, index) => (
+                        <div key={index} className="p-5">
+                          <h3 className="mb-2">Function {index + 1}:</h3>
+                          <div className="border border-border p-5">
+                            <div>
+                              Calldatas: <br />
+                              {calldatas[index]
+                                ? shortenText(calldatas[index] as string)
+                                : null}
+                            </div>
+                            <div className="mt-2">
+                              Target: <br />
+                              <Link
+                                href={`https://testnet-explorer.thetatoken.org/account/${target}`}
+                                target="_blank"
+                                className="border-b border-[#999] border-dashed"
+                              >
+                                {target ? shortenAddress(target) : null}
+                              </Link>
+                            </div>
+                            <div className="mt-2">
+                              Value: <br />
+                              {values[index]}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )
-              )}
-            </TabsContent>
-          </Tabs>
-        </div>
-        <div className="flex flex-col p-6 bg-white rounded-md border border-border md:col-span-1">
-          <h3 className="text-xl mb-2 font-semibold">Votes</h3>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-center text-success">For</TableHead>
-                <TableHead className="text-center text-destructive">
-                  Against
-                </TableHead>
-                <TableHead className="text-center">Abstain</TableHead>
-              </TableRow>
-            </TableHeader>
-            <ClientOnly>
-              <TableBody>
-                {votesContractRead.data ? (
-                  <TableRow className="text-center">
-                    <TableCell>
-                      {votesContractRead.data[1].toString()}
-                    </TableCell>
-                    <TableCell>
-                      {votesContractRead.data[0].toString()}
-                    </TableCell>
-                    <TableCell>
-                      {votesContractRead.data[2].toString()}
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <TableRow className="text-center">
-                    <TableCell>n/a</TableCell>
-                    <TableCell>n/a</TableCell>
-                    <TableCell>n/a</TableCell>
-                  </TableRow>
+                      ))}
+                    </div>
+                  )
                 )}
-              </TableBody>
-            </ClientOnly>
-          </Table>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
     </div>
@@ -481,11 +511,13 @@ export const getServerSideProps: GetServerSideProps = async ({
     ? (query?.calldatas as `0x${string}` | `0x${string}`[])
     : [];
 
-  const description = (query?.description as `0x${string}`) || "";
+  const description = (query?.description as string) || "";
 
   const proposer = (query?.proposer as `0x${string}`) || "";
 
   const voteStart = (query?.voteStart as string) || "";
+
+  const voteEnd = (query?.voteEnd as string) || "";
 
   return {
     props: {
@@ -497,6 +529,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       proposalId,
       proposer,
       voteStart,
+      voteEnd,
     },
   };
 };
