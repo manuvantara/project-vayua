@@ -8,7 +8,6 @@ export type SettingsFormValues = {
   avatar: string;
   location: string;
   website: string;
-  extra: string;
 };
 
 export type TokenFormValues = {

@@ -98,7 +98,7 @@ export default function DelegateModal() {
         <DialogTrigger asChild>
           <Button
             disabled={!isConnected}
-            variant="outline"
+            className="w-full text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300 bg-white hover:bg-white"
             onClick={openDelegateDialog}
             loading={isTransactionLoading || delegateVotesWrite.isLoading}
           >
