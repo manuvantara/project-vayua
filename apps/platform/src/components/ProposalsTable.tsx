@@ -178,7 +178,7 @@ function Proposal({
   const [proposalState, setProposalState] = useState("Unknown State");
 
   // get proposal snapshot
-  const { data: votingDelay } = useContractRead({
+  const { data: snapshot } = useContractRead({
     address: organisationAddress,
     abi: GOVERNOR_ABI,
     functionName: "proposalSnapshot",
@@ -210,19 +210,19 @@ function Proposal({
   }
 
   useEffect(() => {
-    async function getVoteDate(votingDelay: string) {
+    async function getVoteDate(snapshot: string) {
       try {
-        const timestamp = await blockNumberToTimestamp(votingDelay);
+        const timestamp = await blockNumberToTimestamp(snapshot);
         setProposalSnapshot(timestampToDate(timestamp, true));
       } catch (error) {
         console.log(error);
       }
     }
 
-    if (votingDelay) {
-      getVoteDate(votingDelay.toString());
+    if (snapshot) {
+      getVoteDate(snapshot.toString());
     }
-  }, [votingDelay]);
+  }, [snapshot]);
 
   return (
     <div className="md:flex md:justify-between items-center">
