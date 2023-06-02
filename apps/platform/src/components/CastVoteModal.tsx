@@ -59,7 +59,10 @@ export default function CastVoteModal({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Web3Button loading={isTransactionLoading || castVoteWrite.isLoading}>
+        <Web3Button
+          loading={isTransactionLoading || castVoteWrite.isLoading}
+          className="w-24"
+        >
           Vote
         </Web3Button>
       </DialogTrigger>
