@@ -117,7 +117,8 @@ export default function ProposalPage({
 
   // get token decimals
   const [tokenAddress, setTokenAddress] = useState<`0x${string}`>("0x00");
-  const [tokenDecimals, setTokenDecimals] = useState(18);
+  const [tokenDecimals, setTokenDecimals] = useState(0);
+  const [fetchTokenDecimals, setFetchTokenDecimals] = useState(false);
 
   useContractRead({
     address: organisationAddress,
@@ -125,6 +126,17 @@ export default function ProposalPage({
     functionName: "token",
     onSuccess(data) {
       setTokenAddress(data);
+      setFetchTokenDecimals(true);
+    },
+  });
+
+  const tokenDecimalsRead = useContractRead({
+    address: tokenAddress,
+    abi: TOKEN_ABI,
+    functionName: "decimals",
+    enabled: fetchTokenDecimals,
+    onSuccess(data) {
+      setTokenDecimals(data);
     },
   });
 
@@ -132,15 +144,6 @@ export default function ProposalPage({
     address: organisationAddress,
     abi: GOVERNOR_ABI,
     functionName: "votingPeriod",
-  });
-
-  const tokenDecimalsRead = useContractRead({
-    address: tokenAddress,
-    abi: TOKEN_ABI,
-    functionName: "decimals",
-    onSuccess(data) {
-      setTokenDecimals(data);
-    },
   });
 
   const { title, proposalDescription } =
@@ -153,10 +156,11 @@ export default function ProposalPage({
     functionName: "proposalVotes",
     args: [BigInt(proposalId)],
     onSuccess(data) {
+      const decimals = tokenDecimals ? tokenDecimals : 18;
       const votes: Votes = {
-        for: Number(data[1]) / 10 ** tokenDecimals,
-        against: Number(data[0]) / 10 ** tokenDecimals,
-        abstain: Number(data[2]) / 10 ** tokenDecimals,
+        for: Number(data[1]) / 10 ** decimals,
+        against: Number(data[0]) / 10 ** decimals,
+        abstain: Number(data[2]) / 10 ** decimals,
         total: 0,
       };
       votes.total = votes.for + votes.against + votes.abstain;
