@@ -21,9 +21,11 @@ export const parseMarkdownWithYamlFrontmatter = <
 
   const frontmatter = Object.fromEntries(
     keyValues.map((keyValue) => {
-      const [key, value] = keyValue.split(":");
+      // If after first split there is more colons, we need to treat them as part of the value
+      const [key, ...rest] = keyValue.split(":");
+      const value = rest.join(":").trim() ?? "";
 
-      return [key ?? keyValue, value?.trim() ?? ""];
+      return [key ?? keyValue, value];
     })
   ) as Record<keyof T, string>;
 
