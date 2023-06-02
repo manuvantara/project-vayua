@@ -169,7 +169,7 @@ export default function Home() {
   });
 
   return (
-    <main className="flex flex-col gap-8">
+    <main className="flex flex-col gap-8 w-fit m-auto mb-12">
       <div className="flex flex-col lg:text-left text-center">
         <h1 className="mt-12 pb-1 tracking-tight text-center font-extrabold leading-none text-5xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b from-black/70 to-black text-center">
           Welcome to Vayua
@@ -178,35 +178,55 @@ export default function Home() {
           Be open to new experiences.
         </p>
       </div>
+      <Card className="w-full flex flex-col justify-between">
+        <CardFooter className="flex flex-col md:flex-row gap-4 justify-between">
+          <Input
+            name="address"
+            type="text"
+            autoComplete="url"
+            className="bg-white p-4 h-10"
+            placeholder="Search DAO by address"
+            {...form.getInputProps("address")}
+          />
+          {form.errors.address && (
+            <p className="text-sm mt-1 text-destructive">
+              {form.errors.address}
+            </p>
+          )}
+          <Button
+            className="w-full md:w-auto"
+            asChild
+            aria-disabled={!form.isValid()}
+          >
+            <Link href={`/organisations/${form.values.address}`}>Search</Link>
+          </Button>
+        </CardFooter>
+      </Card>
       <div className="grid grid-cols-1 md:grid-rows-2 md:grid-flow-col gap-4">
         {/* <ProfileCard> */}
-        {/* <Card className="flex flex-col lg:row-span-2  w-full max-w-sm p-6"> */}
-        <Card className="w-full min-w-xs max-w-sm">
-          <CardHeader>
-            <ClientOnly>
-              <div className="flex flex-col items-center">
-                {account.address && (
-                  <ProfileView
-                    accountAddress={account.address}
-                    profile={userProfile}
-                  />
-                )}
-                {/* {userProfile.extension.organisations.length > 0 && (
-                <UserStarringExtensionView extension={userProfile.extension} />
-              )} */}
-              </div>
-            </ClientOnly>
-          </CardHeader>
-          <CardFooter>
-            <Web3Button className="w-full text-gray-400 hover:text-gray-500 border border-gray-200 hover:border-gray-300 bg-white hover:bg-white">
-              Settings
-            </Web3Button>
-          </CardFooter>
-        </Card>
+        {account.address && (
+          <Card className="row-span-2 w-full min-w-xs md:max-w-sm">
+            <CardHeader>
+              <ClientOnly>
+                <div className="flex flex-col items-center">
+                    <ProfileView
+                      accountAddress={account.address}
+                      profile={userProfile}
+                    />
+                </div>
+              </ClientOnly>
+            </CardHeader>
+            <CardFooter>
+              <Web3Button className="w-full text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300 bg-white hover:bg-white">
+                <Link href="/settings">Settings</Link>
+              </Web3Button>
+            </CardFooter>
+          </Card>
+        )}
         {/* </ProfileCard> */}
 
         {/* WizardCard */}
-        <Card className="flex flex-col justify-between w-full min-w-xs max-w-sm">
+        <Card className="h-fit flex flex-col justify-between w-full md:max-w-sm">
           <CardHeader className="rounded-t-lg">
             <Wand2Icon size={32} />
             <CardTitle>Vayua Wizard</CardTitle>
@@ -217,7 +237,7 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           <CardFooter>
-            <Web3Button className="w-full">
+            <Web3Button className="w-full" asChild>
               <Link href="/wizard">Create a new DAO</Link>
             </Web3Button>
           </CardFooter>
@@ -225,7 +245,7 @@ export default function Home() {
         {/* </WizardCard> */}
 
         {/* <UserStarringExtensionViewCard> */}
-        <Card className="flex flex-col justify-between w-full min-w-xs max-w-sm">
+        <Card className="h-full flex-col justify-between w-full min-w-xs md:max-w-sm">
           <CardHeader className="rounded-t-lg h-full">
             <SparklesIcon size={32} />
             <CardTitle className="text-xl md:text-2xl">
@@ -241,43 +261,6 @@ export default function Home() {
           </CardHeader>
         </Card>
         {/* </UserStarringExtensionViewCard> */}
-      </div>
-      <div>
-        <Card className="w-full flex flex-col justify-between">
-          <CardFooter className="flex flex-col md:flex-row gap-4 justify-between">
-            <Input
-              name="address"
-              type="text"
-              autoComplete="url"
-              className="bg-white p-4 h-10"
-              placeholder="Search DAO by address"
-              {...form.getInputProps("address")}
-            />
-            {form.errors.address && (
-              <p className="text-sm mt-1 text-destructive">
-                {form.errors.address}
-              </p>
-            )}
-            <Button
-              className="w-full md:w-auto"
-              asChild
-              aria-disabled={!form.isValid()}
-            >
-              <Link href={`/organisations/${form.values.address}`}>Search</Link>
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-      <div className="grid grid-rows-2 grid-flow-col gap-4">
-        <div className="row-span-2 bg-red-100 h-fullflex justify-center items-center">
-          01
-        </div>
-        <div className="row-span-1 bg-blue-100 h- flex justify-center items-center">
-          02
-        </div>
-        <div className="row-span-1 bg-green-100 h-40 flex justify-center items-center">
-          03
-        </div>
       </div>
     </main>
   );
