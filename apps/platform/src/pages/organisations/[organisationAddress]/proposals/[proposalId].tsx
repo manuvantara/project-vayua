@@ -40,6 +40,8 @@ import { Progress } from "@/components/ui/Progress";
 import { badgeVariantMap, proposalStateMap } from "@/utils/proposal-states";
 import { Skeleton } from "@/components/ui/Skeleton";
 
+const ONE_BLOCK_IN_SECONDS = 12;
+
 type ProposalStatusProps = {
   proposalSnapshotDate: string;
   proposalVoteStartDate: string;
@@ -126,7 +128,13 @@ export default function ProposalPage({
     },
   });
 
-  useContractRead({
+  const votingPeriodRead = useContractRead({
+    address: organisationAddress,
+    abi: GOVERNOR_ABI,
+    functionName: "votingPeriod",
+  });
+
+  const tokenDecimalsRead = useContractRead({
     address: tokenAddress,
     abi: TOKEN_ABI,
     functionName: "decimals",
@@ -160,8 +168,8 @@ export default function ProposalPage({
     address: organisationAddress,
     abi: GOVERNOR_ABI,
     functionName: "state",
-    args: [proposalId ? BigInt(proposalId) : 0n],
-    onSettled(data) {
+    args: [BigInt(proposalId)],
+    onSuccess(data) {
       setProposalState(proposalStateMap[data ? data : -1] || "Unknown State");
     },
   });
@@ -216,15 +224,42 @@ export default function ProposalPage({
     }
   }
 
-  useEffect(() => {
-    if (voteStart) {
-      getDate(voteStart).then((date) => setProposalVoteStartDate(date));
-    }
+  async function getApproximateFutureDate(
+    voteStartBlockNumber: string,
+    votingPeriod: string
+  ) {
+    try {
+      const voteStartTimestamp = await blockNumberToTimestamp(
+        voteStartBlockNumber
+      );
 
-    if (voteEnd) {
-      getDate(voteEnd).then((date) => setProposalVoteEndDate(date));
+      const approximateVoteEndTimestamp = (
+        (Number(voteStartTimestamp) +
+          ONE_BLOCK_IN_SECONDS * Number(votingPeriod)) |
+        0
+      ).toString();
+
+      return timestampToDate(approximateVoteEndTimestamp, true);
+    } catch (error) {
+      console.log(error);
+      return "Unknown Date";
     }
-  }, [voteStart]);
+  }
+
+  useEffect(() => {
+    getDate(voteStart).then((date) => setProposalVoteStartDate(date));
+  }, []);
+
+  useEffect(() => {
+    if (votingPeriodRead.data) {
+      // since we don't know the exact timestamp for the
+      // future blocks we approximately calculate it
+      getApproximateFutureDate(
+        voteStart,
+        votingPeriodRead.data.toString()
+      ).then((date) => setProposalVoteEndDate(date));
+    }
+  }, [votingPeriodRead.data]);
 
   useEffect(() => {
     if (snapshot) {
@@ -586,7 +621,7 @@ function ProposalStatus({
         </div>
         <div className="mt-4">
           <Vote size={22} />
-          <p className="font-medium">Start voting period</p>
+          <p className="font-medium">Vote start</p>
           {proposalVoteStartDate === "" ? (
             <Skeleton className="w-[150px] h-[20px]" />
           ) : (
@@ -605,7 +640,7 @@ function ProposalStatus({
         </div>
         <div className="mt-4">
           <CalendarOff size={20} />
-          <p className="font-medium">End voting period</p>
+          <p className="font-medium">Vote end ~</p>
           {proposalVoteEndDate === "" ? (
             <Skeleton className="w-[150px] h-[20px]" />
           ) : (
