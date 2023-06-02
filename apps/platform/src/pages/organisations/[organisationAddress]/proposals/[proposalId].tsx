@@ -282,7 +282,15 @@ export default function ProposalPage({
           </Button>
         );
     }
-  }, [proposalState, voteStart, organisationAddress, proposalId, isTransactionLoading, executeWrite, isConnected]);
+  }, [
+    proposalState,
+    voteStart,
+    organisationAddress,
+    proposalId,
+    isTransactionLoading,
+    executeWrite,
+    isConnected,
+  ]);
 
   return (
     <div className="relative">
@@ -298,7 +306,7 @@ export default function ProposalPage({
           href={`/organisations/${organisationAddress}`}
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
-          Back
+          {`organisations/${shortenAddress(organisationAddress)}`}
         </Link>
       </div>
       <div className="grid items-start grid-cols-3 gap-6 mt-6">
