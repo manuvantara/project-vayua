@@ -232,7 +232,7 @@ function Proposal({
         </h3>
         <div className="flex flex-col items-start gap-2 mt-2 md:flex-row">
           {proposalState == "Unknown State" ? (
-            <Skeleton className="w-[90px] h-[20px] rounded-full" />
+            <Skeleton className="w-[75px] h-[22px] rounded-full" />
           ) : (
             <Badge variant={badgeVariantMap[proposalState]}>
               {proposalState}
@@ -240,7 +240,7 @@ function Proposal({
           )}
           {shortenText(proposal.proposalId, 0, 4, "#")}
           {proposalSnapshot == "" ? (
-            <Skeleton className="w-[190px] h-[20px] rounded-full" />
+            <Skeleton className="w-[190px] h-[22px] rounded-full" />
           ) : (
             <div>Proposed on {proposalSnapshot}</div>
           )}
