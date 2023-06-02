@@ -167,7 +167,7 @@ export const ProfileView: FC<ProfileViewProps> = ({
           </div>
         </div>
 
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex justify-center flex-wrap gap-2 text-center">
           <div className="text-gray-500">
             <PencilIcon size={16} className="inline-block align-text-top" />{" "}
             {profile.bio || bio}

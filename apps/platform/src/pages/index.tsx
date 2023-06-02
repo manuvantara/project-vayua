@@ -170,74 +170,78 @@ export default function Home() {
 
   return (
     <main className="flex flex-col gap-8">
-        <div className="flex flex-col lg:text-left text-center">
-          <h1 className="mt-12 pb-1 tracking-tight text-center font-extrabold leading-none text-5xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b from-black/70 to-black text-center">
-            Welcome to Vayua
-          </h1>
-          <p className="text-center text-muted-foreground text-xl md:text-2xl font-semibold leading-none tracking-tight">
-            Be open to new experiences.
-          </p>
-        </div>
-        <div className="w-fit flex flex-wrap gap-4">
-          {/* <ProfileCard> */}
-          {/* <Card className="flex flex-col lg:row-span-2  w-full max-w-sm p-6"> */}
-          <Card className="w-full max-w-sm">
-            <CardHeader>
-              <ClientOnly>
-                <div className="flex flex-col items-center">
-                  {account.address && (
-                    <ProfileView
-                      accountAddress={account.address}
-                      profile={userProfile}
-                    />
-                  )}
-                  {/* {userProfile.extension.organisations.length > 0 && (
+      <div className="flex flex-col lg:text-left text-center">
+        <h1 className="mt-12 pb-1 tracking-tight text-center font-extrabold leading-none text-5xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b from-black/70 to-black text-center">
+          Welcome to Vayua
+        </h1>
+        <p className="text-center text-muted-foreground text-xl md:text-2xl font-semibold leading-none tracking-tight">
+          Be open to new experiences.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-rows-2 md:grid-flow-col gap-4">
+        {/* <ProfileCard> */}
+        {/* <Card className="flex flex-col lg:row-span-2  w-full max-w-sm p-6"> */}
+        <Card className="w-full min-w-xs max-w-sm">
+          <CardHeader>
+            <ClientOnly>
+              <div className="flex flex-col items-center">
+                {account.address && (
+                  <ProfileView
+                    accountAddress={account.address}
+                    profile={userProfile}
+                  />
+                )}
+                {/* {userProfile.extension.organisations.length > 0 && (
                 <UserStarringExtensionView extension={userProfile.extension} />
               )} */}
-                </div>
-              </ClientOnly>
-            </CardHeader>
-            <CardFooter>
-              <Web3Button className="w-full text-gray-400 hover:text-gray-500 border border-gray-200 hover:border-gray-300 bg-white hover:bg-white">Settings</Web3Button>
-            </CardFooter>
-          </Card>
-          {/* </ProfileCard> */}
+              </div>
+            </ClientOnly>
+          </CardHeader>
+          <CardFooter>
+            <Web3Button className="w-full text-gray-400 hover:text-gray-500 border border-gray-200 hover:border-gray-300 bg-white hover:bg-white">
+              Settings
+            </Web3Button>
+          </CardFooter>
+        </Card>
+        {/* </ProfileCard> */}
 
-          {/* WizardCard */}
-          <Card className="flex flex-col justify-between max-w-sm">
-            <CardHeader className="rounded-t-lg">
-              <Wand2Icon size={32} />
-              <CardTitle>Vayua Wizard</CardTitle>
-              <CardDescription>
-                Vayua Wizard is a powerful tool that allows you to effortlessly
-                set up a new Decentralized Autonomous Organization (DAO) in just
-                a few minutes.
-              </CardDescription>
-            </CardHeader>
-            <CardFooter>
-              <Web3Button className="w-full">Create a new DAO</Web3Button>
-            </CardFooter>
-          </Card>
-          {/* </WizardCard> */}
+        {/* WizardCard */}
+        <Card className="flex flex-col justify-between w-full min-w-xs max-w-sm">
+          <CardHeader className="rounded-t-lg">
+            <Wand2Icon size={32} />
+            <CardTitle>Vayua Wizard</CardTitle>
+            <CardDescription>
+              Vayua Wizard is a powerful tool that allows you to effortlessly
+              set up a new Decentralized Autonomous Organization (DAO) in just a
+              few minutes.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter>
+            <Web3Button className="w-full">
+              <Link href="/wizard">Create a new DAO</Link>
+            </Web3Button>
+          </CardFooter>
+        </Card>
+        {/* </WizardCard> */}
 
-          {/* <UserStarringExtensionViewCard> */}
-          <Card className="flex flex-col justify-between max-w-sm">
-            <CardHeader className="rounded-t-lg h-full">
-              <SparklesIcon size={32} />
-              <CardTitle className="text-xl md:text-2xl">
-                User Starring Extension
-              </CardTitle>
-              <CardDescription>
-                A tool that enables users to bookmark or highlight organizations
-                they want to remember.
-              </CardDescription>
-              {userProfile.extension.organisations.length > 0 && (
-                <UserStarringExtensionView extension={userProfile.extension} />
-              )}
-            </CardHeader>
-          </Card>
-          {/* </UserStarringExtensionViewCard> */}
-        </div>
+        {/* <UserStarringExtensionViewCard> */}
+        <Card className="flex flex-col justify-between w-full min-w-xs max-w-sm">
+          <CardHeader className="rounded-t-lg h-full">
+            <SparklesIcon size={32} />
+            <CardTitle className="text-xl md:text-2xl">
+              User Starring Extension
+            </CardTitle>
+            <CardDescription>
+              A tool that enables users to bookmark or highlight organizations
+              they want to remember.
+            </CardDescription>
+            {userProfile.extension.organisations.length > 0 && (
+              <UserStarringExtensionView extension={userProfile.extension} />
+            )}
+          </CardHeader>
+        </Card>
+        {/* </UserStarringExtensionViewCard> */}
+      </div>
       <div>
         <Card className="w-full flex flex-col justify-between">
           <CardFooter className="flex flex-col md:flex-row gap-4 justify-between">
@@ -264,10 +268,16 @@ export default function Home() {
           </CardFooter>
         </Card>
       </div>
-      <div className="grid grid-cols-2 grid-rows-2">
-        <div className="row-span-2 bg-red-100 h-40 flex justify-center items-center">01</div>
-        <div className="bg-blue-100 h-40 flex justify-center items-center">01</div>
-        <div className="bg-green-100 h-40 flex justify-center items-center">01</div>
+      <div className="grid grid-rows-2 grid-flow-col gap-4">
+        <div className="row-span-2 bg-red-100 h-fullflex justify-center items-center">
+          01
+        </div>
+        <div className="row-span-1 bg-blue-100 h- flex justify-center items-center">
+          02
+        </div>
+        <div className="row-span-1 bg-green-100 h-40 flex justify-center items-center">
+          03
+        </div>
       </div>
     </main>
   );
