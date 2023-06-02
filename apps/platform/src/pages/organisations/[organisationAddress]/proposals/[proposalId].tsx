@@ -332,16 +332,18 @@ export default function ProposalPage({
           />
         );
       case "Succeeded":
-        return (
-          <Button
-            loading={isTransactionLoading || executeWrite.isLoading}
-            disabled={!executeWrite || !isConnected}
-            className="mt-5"
-            onClick={executeWrite.write}
-          >
-            Execute
-          </Button>
-        );
+        if (targets != "0x0000000000000000000000000000000000000000") {
+          return (
+            <Button
+              loading={isTransactionLoading || executeWrite.isLoading}
+              disabled={!executeWrite || !isConnected}
+              className="mt-5"
+              onClick={executeWrite.write}
+            >
+              Execute
+            </Button>
+          );
+        }
     }
   }, [
     proposalState,
@@ -472,29 +474,33 @@ export default function ProposalPage({
               </TabsContent>
               <TabsContent value="code">
                 {isTargetsString ? (
-                  <div>
-                    <h3 className="mb-2">Function 1:</h3>
-                    <div className="border border-border p-5">
-                      <div>
-                        Calldatas: <br />
-                        {calldatas ? shortenText(calldatas as string) : null}
-                      </div>
-                      <div className="mt-2">
-                        Target: <br />
-                        <Link
-                          href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
-                          target="_blank"
-                          className="border-b border-[#999] border-dashed"
-                        >
-                          {targets ? shortenAddress(targets) : null}
-                        </Link>
-                      </div>
-                      <div className="mt-2">
-                        Value: <br />
-                        {values}
+                  targets == "0x0000000000000000000000000000000000000000" ? (
+                    <div className="p-5"></div>
+                  ) : (
+                    <div>
+                      <h3 className="mb-2">Function 1:</h3>
+                      <div className="border border-border p-5">
+                        <div>
+                          Calldatas: <br />
+                          {calldatas ? shortenText(calldatas as string) : null}
+                        </div>
+                        <div className="mt-2">
+                          Target: <br />
+                          <Link
+                            href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
+                            target="_blank"
+                            className="border-b border-[#999] border-dashed"
+                          >
+                            {targets ? shortenAddress(targets) : null}
+                          </Link>
+                        </div>
+                        <div className="mt-2">
+                          Value: <br />
+                          {values}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )
                 ) : (
                   Array.isArray(targets) &&
                   targets.length !== 0 && (

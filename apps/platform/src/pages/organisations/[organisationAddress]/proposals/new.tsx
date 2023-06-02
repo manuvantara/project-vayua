@@ -76,9 +76,9 @@ export default function NewProposalPage({
       });
 
       proposalActions.push({
-        targetContractAddress: [organisationAddress],
+        targetContractAddress: ["0x0000000000000000000000000000000000000000"],
         value: [0n],
-        executableCode: [executableCode],
+        executableCode: ["0x00"],
       });
     } else {
       for (const action of actions) {
