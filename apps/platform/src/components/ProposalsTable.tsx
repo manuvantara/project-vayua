@@ -232,7 +232,7 @@ function Proposal({
         </h3>
         <div className="flex flex-col items-start gap-2 mt-2 md:flex-row">
           {proposalState == "Unknown State" ? (
-            <Skeleton className="w-[57px] h-[20px] rounded-full" />
+            <Skeleton className="w-[90px] h-[20px] rounded-full" />
           ) : (
             <Badge variant={badgeVariantMap[proposalState]}>
               {proposalState}
