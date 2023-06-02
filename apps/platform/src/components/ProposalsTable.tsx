@@ -141,7 +141,7 @@ export function DataTable<TData, TValue>({
                   <div className="text-center flex flex-col items-center justify-center min-h-[400px]">
                     <X size={30} />
                     <h3 className="text-base font-semibold mt-3">
-                      There aren't any proposals yet.
+                      There aren&apos;t any proposals yet
                     </h3>
                     <div className="mt-2">
                       You could create a{" "}

@@ -117,7 +117,7 @@ function parseUserProfileExtension(data: string) {
 
 /// Utils section ends here
 
-export default function ({
+export default function OrganisationProfile({
   organisationAddress,
 }: {
   organisationAddress: `0x${string}`;
