@@ -27,7 +27,7 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 
-import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
+import { GOVERNOR_ABI, TOKEN_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { shortenAddress, shortenText } from "@/utils/shorten-address";
 import { Button } from "@/components/ui/Button";
 import { getStringHash } from "@/utils/hash-string";
@@ -81,6 +81,13 @@ type ProposalPageProps = {
   voteEnd: string;
 };
 
+type Votes = {
+  for: number;
+  against: number;
+  abstain: number;
+  total: number;
+};
+
 export default function ProposalPage({
   organisationAddress,
   targets,
@@ -99,6 +106,34 @@ export default function ProposalPage({
   const [proposalVoteStartDate, setProposalVoteStartDate] = useState("");
   const [proposalVoteEndDate, setProposalVoteEndDate] = useState("");
   const [proposalSnapshotDate, setProposalSnapshotDate] = useState("");
+  const [votes, setVotes] = useState<Votes>({
+    for: 0,
+    against: 0,
+    abstain: 0,
+    total: 0,
+  });
+
+  // get token decimals
+  const [tokenAddress, setTokenAddress] = useState<`0x${string}`>("0x00");
+  const [tokenDecimals, setTokenDecimals] = useState(18);
+
+  useContractRead({
+    address: organisationAddress,
+    abi: GOVERNOR_ABI,
+    functionName: "token",
+    onSuccess(data) {
+      setTokenAddress(data);
+    },
+  });
+
+  useContractRead({
+    address: tokenAddress,
+    abi: TOKEN_ABI,
+    functionName: "decimals",
+    onSuccess(data) {
+      setTokenDecimals(data);
+    },
+  });
 
   const { title, proposalDescription } =
     parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
@@ -108,7 +143,17 @@ export default function ProposalPage({
     address: organisationAddress,
     abi: GOVERNOR_ABI,
     functionName: "proposalVotes",
-    args: [proposalId ? BigInt(proposalId) : 0n],
+    args: [BigInt(proposalId)],
+    onSuccess(data) {
+      const votes: Votes = {
+        for: Number(data[1]) / 10 ** tokenDecimals,
+        against: Number(data[0]) / 10 ** tokenDecimals,
+        abstain: Number(data[2]) / 10 ** tokenDecimals,
+        total: 0,
+      };
+      votes.total = votes.for + votes.against + votes.abstain;
+      setVotes(votes);
+    },
   });
 
   const proposalStateRead = useContractRead({
@@ -332,11 +377,12 @@ export default function ProposalPage({
                     notation: "compact",
                     maximumFractionDigits: 1,
                     compactDisplay: "short",
-                  }).format(Number(votesContractRead.data?.[1] ?? 0))}
+                  }).format(votes.for)}
                 </span>
                 <Progress
                   indicatorClassName="bg-success"
-                  value={Number(votesContractRead.data?.[1] ?? 0)}
+                  value={votes.for}
+                  max={votes.total}
                 />
               </div>
               <div>
@@ -346,11 +392,12 @@ export default function ProposalPage({
                     notation: "compact",
                     maximumFractionDigits: 1,
                     compactDisplay: "short",
-                  }).format(Number(votesContractRead.data?.[0] ?? 0))}
+                  }).format(votes.against)}
                 </span>
                 <Progress
                   indicatorClassName="bg-destructive"
-                  value={Number(votesContractRead.data?.[0] ?? 0)}
+                  value={votes.against}
+                  max={votes.total}
                 />
               </div>
               <div>
@@ -360,9 +407,9 @@ export default function ProposalPage({
                     notation: "compact",
                     maximumFractionDigits: 1,
                     compactDisplay: "short",
-                  }).format(Number(votesContractRead.data?.[2] ?? 0))}
+                  }).format(votes.abstain)}
                 </span>
-                <Progress value={Number(votesContractRead.data?.[2] ?? 0)} />
+                <Progress value={votes.abstain} max={votes.total} />
               </div>
             </div>
           </div>
@@ -390,7 +437,7 @@ export default function ProposalPage({
               </TabsContent>
               <TabsContent value="code">
                 {isTargetsString ? (
-                  <div className="p-5">
+                  <div>
                     <h3 className="mb-2">Function 1:</h3>
                     <div className="border border-border p-5">
                       <div>
