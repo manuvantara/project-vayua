@@ -4,7 +4,16 @@ import type { MarkdownFrontmatter } from "@/types/proposals";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { ArrowLeft, CalendarOff, Check, ClockIcon, Vote } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarOff,
+  CheckCircle2,
+  ClockIcon,
+  ListChecks,
+  PlusCircle,
+  Vote,
+  XCircle,
+} from "lucide-react";
 
 import ReactMarkdown from "react-markdown";
 import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
@@ -29,16 +38,13 @@ import CastVoteModal from "@/components/CastVoteModal";
 import Image from "next/image";
 import { Progress } from "@/components/ui/Progress";
 import { badgeVariantMap, proposalStateMap } from "@/utils/proposal-states";
+import { Skeleton } from "@/components/ui/Skeleton";
 
-type ProposalStateInstructionsProps = {
+type ProposalStatusProps = {
+  proposalSnapshotDate: string;
+  proposalVoteStartDate: string;
+  proposalVoteEndDate: string;
   proposalState: string;
-  organisationAddress: `0x${string}`;
-  proposalId: string;
-  voteStart: string;
-  isTransactionLoading: boolean;
-  isConnected: boolean;
-  executeWrite: (() => void) | undefined;
-  executeLoading: boolean;
 };
 
 function setExecuteWriteArgs(
@@ -61,47 +67,6 @@ function setExecuteWriteArgs(
     properCalldatas,
     properDescription,
   ] as const;
-}
-
-function ProposalStateInstructions({
-  proposalState,
-  organisationAddress,
-  proposalId,
-  voteStart,
-  isTransactionLoading,
-  isConnected,
-  executeWrite,
-  executeLoading,
-}: ProposalStateInstructionsProps) {
-  switch (proposalState) {
-    case "Active":
-      return (
-        <CastVoteModal
-          organisationAddress={organisationAddress}
-          proposalId={proposalId}
-        />
-      );
-    case "Pending":
-      return (
-        <>
-          <ClockIcon className="w-4 h-4 mr-2" />
-          Voting starts at {voteStart} block
-        </>
-      );
-    case "Succeeded":
-      return (
-        <Button
-          loading={isTransactionLoading || executeLoading}
-          disabled={!executeWrite || !isConnected}
-          className="mt-5"
-          onClick={executeWrite}
-        >
-          Execute
-        </Button>
-      );
-    default:
-      return <>Unknown state instructions</>;
-  }
 }
 
 type ProposalPageProps = {
@@ -130,9 +95,10 @@ export default function ProposalPage({
   const { isConnected } = useAccount();
   const publicClient = usePublicClient();
 
-  const [voteDate, setVoteDate] = useState("");
-  const [voteEndDate, setVoteEndDate] = useState("");
   const [proposalState, setProposalState] = useState("Unknown State");
+  const [proposalVoteStartDate, setProposalVoteStartDate] = useState("");
+  const [proposalVoteEndDate, setProposalVoteEndDate] = useState("");
+  const [proposalSnapshotDate, setProposalSnapshotDate] = useState("");
 
   const { title, proposalDescription } =
     parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
@@ -174,7 +140,14 @@ export default function ProposalPage({
     },
   });
 
-  // get vote start in format of date
+  // get vote start, end and snapshot in format of date
+  const { data: snapshot } = useContractRead({
+    address: organisationAddress,
+    abi: GOVERNOR_ABI,
+    functionName: "proposalSnapshot",
+    args: [BigInt(proposalId)],
+  });
+
   async function blockNumberToTimestamp(stringifiedBlockNumber: string) {
     // convert stringified blockNumber to bigint
     const blockNumber = BigInt(stringifiedBlockNumber);
@@ -188,25 +161,33 @@ export default function ProposalPage({
     return block.timestamp.toString();
   }
 
-  useEffect(() => {
-    async function getVoteDate(voteBlockNumber: string) {
-      try {
-        const timestamp = await blockNumberToTimestamp(voteBlockNumber);
-        return timestampToDate(timestamp, true);
-      } catch (error) {
-        console.log(error);
-        return "Unknown Date";
-      }
+  async function getDate(blockNumber: string) {
+    try {
+      const timestamp = await blockNumberToTimestamp(blockNumber);
+      return timestampToDate(timestamp, true);
+    } catch (error) {
+      console.log(error);
+      return "Unknown Date";
     }
+  }
 
+  useEffect(() => {
     if (voteStart) {
-      getVoteDate(voteStart).then((date) => setVoteDate(date));
+      getDate(voteStart).then((date) => setProposalVoteStartDate(date));
     }
 
     if (voteEnd) {
-      getVoteDate(voteEnd).then((date) => setVoteEndDate(date));
+      getDate(voteEnd).then((date) => setProposalVoteEndDate(date));
     }
   }, [voteStart]);
+
+  useEffect(() => {
+    if (snapshot) {
+      getDate(snapshot.toString()).then((date) =>
+        setProposalSnapshotDate(date)
+      );
+    }
+  }, [snapshot]);
 
   // execute write to contract
   const { config: executeWriteConfig } = usePrepareContractWrite({
@@ -309,27 +290,27 @@ export default function ProposalPage({
           {`organisations/${shortenAddress(organisationAddress)}`}
         </Link>
       </div>
-      <div className="grid items-start grid-cols-3 gap-6 mt-6">
-        <div className="grid grid-cols-1 gap-6">
+      <div className="grid items-start md:grid-cols-3 gap-5 mt-5">
+        <div className="grid md:grid-cols-1 gap-5">
           <div className="flex relative flex-col p-6 bg-white rounded-md border">
             <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
               <div>
-                <Badge
-                  className="absolute -top-3 left-0"
-                  variant={badgeVariantMap[proposalState]}
-                >
-                  {proposalState}
-                </Badge>
-                <h1 className="text-xl font-semibold">
+                {proposalState == "Unknown State" ? (
+                  <Skeleton className="w-[75px] h-[22px] rounded-full" />
+                ) : (
+                  <Badge variant={badgeVariantMap[proposalState]}>
+                    {proposalState}
+                  </Badge>
+                )}
+                <h1 className="text-xl font-semibold mt-3">
                   {title || `Proposal #${shortenText(proposalId)}`}
                 </h1>
               </div>
-              <div className="flex gap-4 font-medium text-destructive">
-                {renderProposalState()}
-              </div>
+              {renderProposalState()}
             </div>
-            <div className="flex justify-between flex-2 w-full">
-              <div className="text-sm mt-2 space-x-1">
+
+            <div className="flex-2 w-full mt-5">
+              <div className="text-sm space-x-1">
                 <span>by</span>
                 <Link
                   href={`https://testnet-explorer.thetatoken.org/account/${proposer}`}
@@ -385,41 +366,16 @@ export default function ProposalPage({
               </div>
             </div>
           </div>
-          <div className="flex flex-col p-6 bg-white rounded-md border border-border">
-            <h3 className="text-xl mb-2 font-semibold">Status</h3>
-            <div className="flex gap-4">
-              <div className="flex flex-col w-min">
-                <span className="w-3 h-3 border-black border rounded-full my-1"></span>
-                <span className="border-r border-black border-dashed flex-1 self-center w-[1px]"></span>
-              </div>
-              <div>
-                <Vote size={20} />
-                <p className="font-medium">Start voting period</p>
-                <p className="text-sm text-muted-foreground">{voteDate}</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex flex-col w-min">
-                <span className="w-3 h-3 border-black border rounded-full my-1"></span>
-                <span className="border-r border-black border-dashed flex-1 self-center w-[1px]"></span>
-              </div>
-              <div className="mt-4">
-                <CalendarOff size={20} />
-                <p className="font-medium">End voting period</p>
-                <p className="text-sm text-muted-foreground">{voteEndDate}</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex gap-2 mt-2 items-center w-min">
-                <span className="w-4 h-4 flex items-center justify-center border-success border rounded-full my-1">
-                  <Check className="text-success" size={12} />
-                </span>
-                <p className="font-medium">Execute</p>
-              </div>
-            </div>
+          <div className="hidden md:block">
+            <ProposalStatus
+              proposalSnapshotDate={proposalSnapshotDate}
+              proposalVoteStartDate={proposalVoteStartDate}
+              proposalVoteEndDate={proposalVoteEndDate}
+              proposalState={proposalState}
+            />
           </div>
         </div>
-        <div className="grid grid-cols-1 col-span-2 gap-6">
+        <div className="grid md:grid-cols-1 md:col-span-2 gap-5">
           <div className="flex flex-col p-6 bg-white rounded-md border border-border">
             <h3 className="text-xl mb-2 font-semibold">Details</h3>
             <Tabs defaultValue="description">
@@ -495,6 +451,14 @@ export default function ProposalPage({
             </Tabs>
           </div>
         </div>
+        <div className="md:hidden">
+          <ProposalStatus
+            proposalSnapshotDate={proposalSnapshotDate}
+            proposalVoteStartDate={proposalVoteStartDate}
+            proposalVoteEndDate={proposalVoteEndDate}
+            proposalState={proposalState}
+          />
+        </div>
       </div>
     </div>
   );
@@ -541,3 +505,101 @@ export const getServerSideProps: GetServerSideProps = async ({
     },
   };
 };
+
+function ProposalStatus({
+  proposalSnapshotDate,
+  proposalVoteStartDate,
+  proposalVoteEndDate,
+  proposalState,
+}: ProposalStatusProps) {
+  return (
+    <div className="flex flex-col p-6 bg-white rounded-md border border-border">
+      <h3 className="text-xl mb-2 font-semibold">Status</h3>
+      <div className="flex gap-4">
+        <div className="flex flex-col w-min">
+          <span className="w-3 h-3 border-black border rounded-full my-1"></span>
+          <span className="border-r border-black border-dashed flex-1 self-center w-[1px]"></span>
+        </div>
+        <div>
+          <PlusCircle size={20} />
+          <p className="font-medium">Proposed on</p>
+          {proposalSnapshotDate === "" ? (
+            <Skeleton className="w-[150px] h-[20px]" />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {proposalSnapshotDate}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="flex gap-4">
+        <div className="flex flex-col w-min">
+          <span className="w-3 h-3 border-black border rounded-full my-1"></span>
+          <span className="border-r border-black border-dashed flex-1 self-center w-[1px]"></span>
+        </div>
+        <div className="mt-4">
+          <Vote size={22} />
+          <p className="font-medium">Start voting period</p>
+          {proposalVoteStartDate === "" ? (
+            <Skeleton className="w-[150px] h-[20px]" />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {proposalVoteStartDate}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="flex gap-4">
+        <div className="flex flex-col w-min">
+          <span className="w-3 h-3 border-black border rounded-full my-1"></span>
+          {proposalState === "Active" ? null : (
+            <span className="border-r border-black border-dashed flex-1 self-center w-[1px]"></span>
+          )}
+        </div>
+        <div className="mt-4">
+          <CalendarOff size={20} />
+          <p className="font-medium">End voting period</p>
+          {proposalVoteEndDate === "" ? (
+            <Skeleton className="w-[150px] h-[20px]" />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {proposalVoteEndDate}
+            </p>
+          )}
+        </div>
+      </div>
+      {proposalState === "Unknown State" ? (
+        <div className="flex gap-4">
+          <div className="flex gap-2 mt-4 items-center w-min">
+            <Skeleton className="w-[20px] h-[20px] rounded-full" />
+            <Skeleton className="w-[75px] h-[24px]" />
+          </div>
+        </div>
+      ) : null}
+      {proposalState === "Defeated" ? (
+        <div className="flex gap-4">
+          <div className="flex gap-2 mt-4 items-center w-min">
+            <XCircle size={20} />
+            <p className="font-medium">Defeated</p>
+          </div>
+        </div>
+      ) : null}
+      {proposalState === "Succeeded" || proposalState === "Executed" ? (
+        <div className="flex gap-4">
+          <div className="flex gap-2 mt-4 items-center w-min">
+            <CheckCircle2 size={20} />
+            <p className="font-medium">Succeeded</p>
+          </div>
+        </div>
+      ) : null}
+      {proposalState === "Executed" ? (
+        <div className="flex gap-4">
+          <div className="flex gap-2 mt-4 items-center w-min">
+            <ListChecks size={20} />
+            <p className="font-medium">Executed</p>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
