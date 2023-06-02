@@ -26,11 +26,12 @@ import Image from "next/image";
 import Web3Button from "@/components/Web3Button";
 import { URL_REGEX } from "@/utils/regexes";
 import router from "next/router";
+import {VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS} from "@/utils/VRC1";
 
 type Props = {
   title: string;
   type: "user" | "dao";
-  address: `0x${string}` | undefined;
+  address: `0x${string}`;
   onSubmit: (
     values: SettingsFormValues,
     toast: ({ ...props }: Toast) => {
@@ -127,7 +128,6 @@ export default function SharedProfile({
       avatar: "",
       location: "",
       website: "",
-      extra: "",
     },
     validate: {
       name: isNotEmpty("Name is required"),
@@ -141,14 +141,14 @@ export default function SharedProfile({
   });
 
   const contractRead = useContractRead({
-    address: PROFILE_CONTRACT_ADDRESS,
-    abi: PROFILE_ABI,
+    address: VRC1_CONTRACT_ADDRESS,
+    abi: VRC1_CONTRACT_ABI,
     functionName: "profiles",
     args: [address],
   });
 
   useEffect(() => {
-    const userProfileData: string[] = contractRead?.data as string[];
+    const userProfileData: string[] = contractRead?.data as unknown as string[];
     //console.log("userProfileData", userProfileData);
     if (userProfileData) {
       form.setValues({
@@ -157,7 +157,6 @@ export default function SharedProfile({
         avatar: userProfileData[2],
         location: userProfileData[3],
         website: userProfileData[4],
-        extra: userProfileData[5],
       });
       form.resetDirty();
     }

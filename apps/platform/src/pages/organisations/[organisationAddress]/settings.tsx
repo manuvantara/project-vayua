@@ -2,15 +2,12 @@ import { useContractWrite, useWaitForTransaction } from "wagmi";
 import type { GetServerSideProps } from "next";
 import SharedProfile from "@/components/SharedProfile";
 import type { SettingsFormValues } from "@/types/forms";
-import {
-  PROFILE_CONTRACT_ADDRESS,
-  PROFILE_ABI,
-} from "@/utils/abi/profile-contract";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
 import { encodeFunctionData } from "viem";
 import type { Toast, ToasterToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from "@/utils/VRC1";
 
 export default function GovernanceProfile({
   organisationAddress,
@@ -51,13 +48,13 @@ export default function GovernanceProfile({
 
     const calldata = encodeFunctionData({
       functionName: "setProfile",
-      abi: PROFILE_ABI,
+      abi: VRC1_CONTRACT_ABI,
       args: [values],
     });
 
     write({
       args: [
-        [PROFILE_CONTRACT_ADDRESS],
+        [VRC1_CONTRACT_ADDRESS],
         [0n],
         [calldata],
         `---\ntitle: Update DAO profile\n---\n\nName: ${values.name} \n\nBio: ${values.bio} \n\nAvatar: ${values.avatar} \n\nLocation: ${values.location} \n\nWebsite: ${values.website}`,
