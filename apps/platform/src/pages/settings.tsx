@@ -1,13 +1,10 @@
 import { useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
-import {
-  PROFILE_ABI,
-  PROFILE_CONTRACT_ADDRESS,
-} from "@/utils/abi/profile-contract";
 import SharedProfile from "@/components/SharedProfile";
 import { SettingsFormValues } from "@/types/forms";
 import { Toast, ToasterToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from "@/utils/VRC1";
 
 export default function ProfileSettingsPage() {
   const { address } = useAccount();
@@ -17,8 +14,8 @@ export default function ProfileSettingsPage() {
     write,
     isLoading: isWriteLoading,
   } = useContractWrite({
-    address: PROFILE_CONTRACT_ADDRESS,
-    abi: PROFILE_ABI,
+    address: VRC1_CONTRACT_ADDRESS,
+    abi: VRC1_CONTRACT_ABI,
     functionName: "setProfile",
   });
 
@@ -60,7 +57,7 @@ export default function ProfileSettingsPage() {
       <SharedProfile
         title="Edit Identity"
         type="user"
-        address={address}
+        address={address as `0x${string}`}
         onSubmit={handleSubmit}
         isTransactionInProgress={isWriteLoading || isLoading}
         isTransactionSuccessful={isSuccess}
