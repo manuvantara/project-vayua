@@ -13,6 +13,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProgressBar from "@badrap/bar-of-progress";
 import Router from "next/router";
+import { DefaultSeo } from "next-seo";
+import SEO from "@/utils/next-seo.config";
 
 const progress = new ProgressBar({
   size: 4,
@@ -63,15 +65,18 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <div className={`font-sans ${inter.variable} min-h-screen flex flex-col`}>
-      <WagmiConfig config={config}>
-        <Header />
-        <div className="px-4 sm:container flex-1">
-          <Component {...pageProps} />
-        </div>
-        <Footer />
-      </WagmiConfig>
-      <Toaster />
-    </div>
+    <>
+      <DefaultSeo {...SEO} />
+      <div className={`font-sans ${inter.variable} min-h-screen flex flex-col`}>
+        <WagmiConfig config={config}>
+          <Header />
+          <div className="px-4 sm:container flex-1">
+            <Component {...pageProps} />
+          </div>
+          <Footer />
+        </WagmiConfig>
+        <Toaster />
+      </div>
+    </>
   );
 }
