@@ -246,7 +246,7 @@ function Proposal({
           )}
         </div>
       </div>
-      <Button asChild className="mt-5 md:m-0">
+      <Button size="sm" variant="link" asChild className="mt-5 md:m-0">
         <Link
           href={{
             pathname: `${organisationAddress}/proposals/${proposal.proposalId}`,
