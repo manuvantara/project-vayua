@@ -15,6 +15,7 @@ const nextConfig = {
     ],
   },
   compiler: {
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
     removeConsole: process.env.NODE_ENV === "production",
   },
   webpack: (config, { isServer }) => {
