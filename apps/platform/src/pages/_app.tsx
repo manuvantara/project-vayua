@@ -15,6 +15,7 @@ import ProgressBar from "@badrap/bar-of-progress";
 import Router from "next/router";
 import { DefaultSeo } from "next-seo";
 import SEO from "@/utils/next-seo.config";
+import {fantom, fantomTestnet} from "viem/dist/types/chains";
 
 const progress = new ProgressBar({
   size: 4,
@@ -33,7 +34,7 @@ const inter = Inter({
 });
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [thetaTestnet, thetaMainnet],
+  [thetaTestnet, thetaMainnet, fantom, fantomTestnet],
   [publicProvider()]
 );
 
