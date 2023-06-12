@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/Dialog";
-import { shortenAddress } from "@/utils/shorten-address";
+import { shortenAddress } from "@/utils/helpers/shorten.helper";
 import Image from "next/image";
 import { Wallet } from "lucide-react";
 

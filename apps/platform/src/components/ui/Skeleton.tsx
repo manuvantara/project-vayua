@@ -1,4 +1,4 @@
-import { cn } from "@/utils/class-merge";
+import { cn } from "@/utils/helpers/class-merge.helper";
 
 function Skeleton({
   className,

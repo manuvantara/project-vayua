@@ -18,7 +18,7 @@ import {
 import { Skeleton } from "@/components/ui/Skeleton";
 
 import { DataTablePagination } from "./ProposalsTablePagination";
-import { shortenText } from "@/utils/shorten-address";
+import { shortenText } from "@/utils/helpers/shorten.helper";
 import { getProposalTitle } from "./Proposals";
 import { useEffect, useState } from "react";
 import Spinner from "./ui/Spinner";
@@ -26,7 +26,7 @@ import Link from "next/link";
 import { Button } from "./ui/Button";
 import { useContractRead, usePublicClient } from "wagmi";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { timestampToDate } from "@/utils/timestamp-to-date";
+import { proposalTimestampToDate } from "@/utils/helpers/proposal.helper";
 import { Badge } from "./ui/Badge";
 import { badgeVariantMap, proposalStateMap } from "@/utils/proposal-states";
 import { X } from "lucide-react";
@@ -213,7 +213,7 @@ function Proposal({
     async function getVoteDate(snapshot: string) {
       try {
         const timestamp = await blockNumberToTimestamp(snapshot);
-        setProposalSnapshot(timestampToDate(timestamp, true));
+        setProposalSnapshot(proposalTimestampToDate(timestamp, true));
       } catch (error) {
         console.log(error);
       }

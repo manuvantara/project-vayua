@@ -1,8 +1,8 @@
 import ClientOnly from "@/components/ClientOnly";
 import WalletConnect from "@/components/WalletConnect";
 import Link from "next/link";
-import useScroll from "@/utils/hooks/use-scroll";
-import { cn } from "@/utils/class-merge";
+import useScroll from "@/hooks/use-scroll";
+import { cn } from "@/utils/helpers/class-merge.helper";
 
 export default function Header() {
   const scrolled = useScroll(0);

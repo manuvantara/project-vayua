@@ -1,5 +1,5 @@
 import { Text, Title } from "@mantine/core";
-import { shortenAddress } from "@/utils/shorten-address";
+import { shortenAddress } from "@/utils/helpers/shorten.helper";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   deployedGovernorAddressAtom,

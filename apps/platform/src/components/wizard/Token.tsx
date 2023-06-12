@@ -13,7 +13,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { tokenContractAtom, tokenTypeAtom } from "@/atoms";
 import { TokenFormValues } from "@/types/forms";
 import { URI_REGEX } from "@/utils/regexes";
-import { processContractName } from "@/utils/process-contract-name";
+import { processContractName } from "@/utils/helpers/contract.helper";
 
 export default function Token() {
   const [tokenContract, setTokenContract] = useAtom(tokenContractAtom);

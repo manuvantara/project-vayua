@@ -1,12 +1,12 @@
-import { isInRange, isNotEmpty, matches, useForm } from "@mantine/form";
+import { isInRange, isNotEmpty, useForm } from "@mantine/form";
 import { useEffect } from "react";
-import { Accordion, NumberInput, Text, TextInput, Select } from "@mantine/core";
+import { Accordion, NumberInput, Select, Text, TextInput } from "@mantine/core";
 import { governor, OptionsError } from "@openzeppelin/wizard";
 import { Prism } from "@mantine/prism";
 import { useAtom, useAtomValue } from "jotai";
 import { governanceContractAtom, tokenTypeAtom } from "@/atoms";
 import { GovernanceFormValues } from "@/types/forms";
-import { processContractName } from "@/utils/process-contract-name";
+import { processContractName } from "@/utils/helpers/contract.helper";
 
 export default function Governance() {
   const [governanceContract, setGovernanceContract] = useAtom(

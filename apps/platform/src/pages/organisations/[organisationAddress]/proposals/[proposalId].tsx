@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 
 import ReactMarkdown from "react-markdown";
-import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
 import {
   useAccount,
   useContractEvent,
@@ -28,12 +27,12 @@ import {
 } from "wagmi";
 
 import { GOVERNOR_ABI, TOKEN_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { shortenAddress, shortenText } from "@/utils/shorten-address";
+import { shortenAddress, shortenText } from "@/utils/helpers/shorten.helper";
 import { Button } from "@/components/ui/Button";
 import { getStringHash } from "@/utils/hash-string";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
-import { timestampToDate } from "@/utils/timestamp-to-date";
+import { proposalTimestampToDate, parseMarkdownWithYamlFrontmatter } from "@/utils/helpers/proposal.helper";
 import CastVoteModal from "@/components/CastVoteModal";
 import Image from "next/image";
 import { Progress } from "@/components/ui/Progress";
@@ -221,7 +220,7 @@ export default function ProposalPage({
   async function getDate(blockNumber: string) {
     try {
       const timestamp = await blockNumberToTimestamp(blockNumber);
-      return timestampToDate(timestamp, true);
+      return proposalTimestampToDate(timestamp, true);
     } catch (error) {
       console.log(error);
       return "Unknown Date";
@@ -243,7 +242,7 @@ export default function ProposalPage({
         0
       ).toString();
 
-      return timestampToDate(approximateVoteEndTimestamp, true);
+      return proposalTimestampToDate(approximateVoteEndTimestamp, true);
     } catch (error) {
       console.log(error);
       return "Unknown Date";

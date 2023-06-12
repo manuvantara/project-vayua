@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { cn } from "@/utils/class-merge";
+import { cn } from "@/utils/helpers/class-merge.helper";
 import { Check, Copy } from "lucide-react";
 
 interface CopyButtonProps extends React.HTMLAttributes<HTMLButtonElement> {

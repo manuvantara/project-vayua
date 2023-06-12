@@ -11,22 +11,18 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { useContractRead } from "wagmi";
-import {
-  PROFILE_ABI,
-  PROFILE_CONTRACT_ADDRESS,
-} from "@/utils/abi/profile-contract";
-import { isNotEmpty, matches, useForm } from "@mantine/form";
+import { isNotEmpty, useForm } from "@mantine/form";
 import { Toast, ToasterToast, useToast } from "@/components/ui/use-toast";
 import { useEffect } from "react";
 import { SettingsFormValues } from "@/types/forms";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/Alert";
 import { AlertCircleIcon } from "lucide-react";
-import { getInitials } from "@/utils/shorten-name";
+import { getInitials } from "@/utils/helpers/common.helper";
 import Image from "next/image";
 import Web3Button from "@/components/Web3Button";
 import { URL_REGEX } from "@/utils/regexes";
 import router from "next/router";
-import {VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS} from "@/utils/VRC1";
+import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from "@/utils/VRC1";
 
 type Props = {
   title: string;

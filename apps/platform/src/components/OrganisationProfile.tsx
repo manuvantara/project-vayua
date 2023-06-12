@@ -1,6 +1,6 @@
 // TODO: implement toast notifications
 
-import { shortenAddress } from "@/utils/shorten-address";
+import { shortenAddress } from "@/utils/helpers/shorten.helper";
 import Link from "next/link";
 import { Button } from "./ui/Button";
 import {
@@ -30,7 +30,7 @@ import { useEffect, useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
 import Image from "next/image";
-import { getInitials } from "@/utils/shorten-name";
+import { getInitials } from "@/utils/helpers/common.helper";
 
 // TODO: rename to <RenderUsingClientOnly>{children}</RenderUsingClientOnly>
 import ClientOnly from "./ClientOnly";

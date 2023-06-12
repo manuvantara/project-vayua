@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@/utils/class-merge";
+import { cn } from "@/utils/helpers/class-merge.helper";
 import styles from "@/styles/Spinner.module.css";
 
 interface SpinnerProps extends React.HTMLAttributes<HTMLDivElement> {

@@ -4,7 +4,7 @@ import * as React from "react";
 import { HTMLAttributes } from "react";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
 
-import { cn } from "@/utils/class-merge";
+import { cn } from "@/utils/helpers/class-merge.helper";
 
 type ProgressProps = React.ComponentPropsWithoutRef<
   typeof ProgressPrimitive.Root

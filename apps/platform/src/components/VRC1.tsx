@@ -1,10 +1,8 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import Link from "next/link";
 
 // TODO: refactor, separate utils, <Profile /> & <UserStarringExtension>
-
 import {
-  AppWindow,
   ChevronRightIcon,
   Fingerprint,
   LinkIcon,
@@ -12,27 +10,10 @@ import {
   PencilIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
-
-import { getInitials } from "@/utils/shorten-name";
 import Image from "next/image";
 
-import { shortenAddress, shortenText } from "@/utils/shorten-address";
-
-import {
-  VRC1_CONTRACT_ADDRESS,
-  VRC1_CONTRACT_ABI,
-} from "@/utils/abi/VRC1-contract";
-
-import { useAccount, useContractEvent, usePublicClient } from "wagmi";
-import ClientOnly from "./ClientOnly";
-import {
-  Profile,
-  UserStarringExtension,
-  generateAvatarUrl,
-  mockupAvatarUrl,
-  mockupProfile,
-} from "@/utils/VRC1";
-import Web3Button from "./Web3Button";
+import { shortenAddress } from "@/utils/helpers/shorten.helper";
+import { mockupProfile, Profile, UserStarringExtension } from "@/utils/VRC1";
 
 // type Profile = {
 //   name?: string;
@@ -195,17 +176,17 @@ type UserStarringExtensionView = { extension: UserStarringExtension };
 export const UserStarringExtensionView: FC<UserStarringExtensionView> = ({
   extension,
 }) => (
-    <ul className="grid grid-cols-1 divide-y text-gray-500 hover:text-primary">
-      {extension.organisations.map((organisationAddress) => (
-        <li key={organisationAddress}>
-          <Link
-            href={`/organisations/${organisationAddress}`}
-            className="py-4 flex justify-between items-center"
-          >
-            <span>{shortenAddress(organisationAddress)}</span>
-            <ChevronRightIcon height={16} />
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
+  <ul className="grid grid-cols-1 divide-y text-gray-500 hover:text-primary">
+    {extension.organisations.map((organisationAddress) => (
+      <li key={organisationAddress}>
+        <Link
+          href={`/organisations/${organisationAddress}`}
+          className="py-4 flex justify-between items-center"
+        >
+          <span>{shortenAddress(organisationAddress)}</span>
+          <ChevronRightIcon height={16} />
+        </Link>
+      </li>
+    ))}
+  </ul>
+);

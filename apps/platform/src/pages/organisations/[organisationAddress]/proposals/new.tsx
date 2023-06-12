@@ -16,7 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { encodeFunctionData } from "viem";
 import { useAtomValue } from "jotai";
 import { markdownEditorValueAtom, proposalActionsAtom } from "@/atoms";
-import { parseProposalActionInput } from "@/utils/parse-proposal-action-input";
+import { parseProposalActionInput } from "@/utils/helpers/proposal.helper";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";

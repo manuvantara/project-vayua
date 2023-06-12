@@ -1,5 +1,3 @@
-
-
 export const proposalStateMap: Record<number, string> = {
     0: "Pending",
     1: "Active",

@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/Card";
 
 // import UserProfile from "@/components/UserProfile";
-
 import { useForm } from "@mantine/form";
 import { SearchDAOFormValues } from "@/types/forms";
 
@@ -26,15 +25,12 @@ import { useAccount, useContractEvent, usePublicClient } from "wagmi";
 
 import { ProfileView, UserStarringExtensionView } from "@/components/VRC1";
 
-import { UserProfile, parseUserStarringExtension } from "@/utils/VRC1";
-
 import {
-  generateAvatarUrl,
-  mockupAvatarUrl,
   parseProfile,
-  mockupProfile,
-  VRC1_CONTRACT_ADDRESS,
+  parseUserStarringExtension,
+  UserProfile,
   VRC1_CONTRACT_ABI,
+  VRC1_CONTRACT_ADDRESS,
 } from "@/utils/VRC1";
 import Web3Button from "@/components/Web3Button";
 
@@ -171,7 +167,7 @@ export default function Home() {
   return (
     <main className="flex flex-col gap-8 w-fit m-auto mb-12">
       <div className="flex flex-col lg:text-left text-center">
-        <h1 className="mt-12 pb-1 tracking-tight text-center font-extrabold leading-none text-5xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b from-black/70 to-black text-center">
+        <h1 className="mt-12 pb-1 tracking-tight text-center font-extrabold leading-none text-5xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b from-black/70 to-black">
           Welcome to Vayua
         </h1>
         <p className="text-center text-muted-foreground text-xl md:text-2xl font-semibold leading-none tracking-tight">
@@ -209,10 +205,10 @@ export default function Home() {
             <CardHeader>
               <ClientOnly>
                 <div className="flex flex-col items-center">
-                    <ProfileView
-                      accountAddress={account.address}
-                      profile={userProfile}
-                    />
+                  <ProfileView
+                    accountAddress={account.address}
+                    profile={userProfile}
+                  />
                 </div>
               </ClientOnly>
             </CardHeader>

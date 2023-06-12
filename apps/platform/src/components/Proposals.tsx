@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { useContractEvent, usePublicClient } from "wagmi";
 import { Block, parseAbiItem } from "viem";
 import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
+import { parseMarkdownWithYamlFrontmatter } from "@/utils/helpers/proposal.helper";
 import { MarkdownFrontmatter } from "@/types/proposals";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "./ProposalsTable";
