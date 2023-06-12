@@ -15,7 +15,7 @@ import ProgressBar from "@badrap/bar-of-progress";
 import Router from "next/router";
 import { DefaultSeo } from "next-seo";
 import SEO from "@/utils/next-seo.config";
-import {fantom, fantomTestnet} from "viem/dist/types/chains";
+import { fantom, fantomTestnet } from "wagmi/chains";
 
 const progress = new ProgressBar({
   size: 4,
