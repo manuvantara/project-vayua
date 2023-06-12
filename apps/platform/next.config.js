@@ -14,6 +14,9 @@ const nextConfig = {
       },
     ],
   },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
   webpack: (config, { isServer }) => {
     // If client-side, don't polyfill `fs`
     if (!isServer) {
