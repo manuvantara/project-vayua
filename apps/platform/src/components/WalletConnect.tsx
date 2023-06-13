@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/Dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { thetaTestnet } from '@/utils/chains/theta-chains';
 import { shortenAddress } from '@/utils/helpers/shorten.helper';
 import { Wallet } from 'lucide-react';

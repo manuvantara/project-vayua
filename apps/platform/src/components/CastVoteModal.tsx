@@ -9,9 +9,9 @@ import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { useEffect, useState } from 'react';
 import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi';
 
+import { useToast } from '../hooks/use-toast';
 import Web3Button from './Web3Button';
 import { Button } from './ui/Button';
-import { useToast } from './ui/use-toast';
 
 type CastVoteModalProps = {
   organisationAddress: `0x${string}`;

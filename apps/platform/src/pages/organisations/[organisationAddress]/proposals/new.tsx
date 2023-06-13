@@ -7,7 +7,7 @@ import Web3Button from '@/components/Web3Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { parseProposalActionInput } from '@/utils/helpers/proposal.helper';
 import { useAtomValue } from 'jotai';

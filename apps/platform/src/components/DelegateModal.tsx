@@ -22,8 +22,8 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 
+import { toast } from '../hooks/use-toast';
 import { Input } from './ui/Input';
-import { toast } from './ui/use-toast';
 
 export default function DelegateModal() {
   const [switchDelegateForm, setSwitchDelegateForm] = useState(true);

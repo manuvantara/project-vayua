@@ -1,4 +1,4 @@
-import type { Toast, ToasterToast } from '@/components/ui/use-toast';
+import type { Toast, ToasterToast } from '@/hooks/use-toast';
 import type { SettingsFormValues } from '@/types/forms';
 
 import SharedProfile from '@/components/SharedProfile';

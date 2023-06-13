@@ -18,7 +18,7 @@ import {
   type Toast,
   type ToasterToast,
   useToast,
-} from '@/components/ui/use-toast';
+} from '@/hooks/use-toast';
 import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from '@/utils/VRC1';
 import { getInitials } from '@/utils/helpers/common.helper';
 import { URL_REGEX } from '@/utils/regexes';

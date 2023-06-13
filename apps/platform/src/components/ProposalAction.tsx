@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { ChevronDown } from 'lucide-react';
 import { memo, useCallback, useEffect, useState } from 'react';
 
