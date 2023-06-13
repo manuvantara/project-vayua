@@ -1,3 +1,5 @@
+import type { SettingsFormValues } from '@/types/forms';
+
 import Web3Button from '@/components/Web3Button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
@@ -12,8 +14,11 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Textarea } from '@/components/ui/Textarea';
-import { Toast, ToasterToast, useToast } from '@/components/ui/use-toast';
-import { SettingsFormValues } from '@/types/forms';
+import {
+  type Toast,
+  type ToasterToast,
+  useToast,
+} from '@/components/ui/use-toast';
 import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from '@/utils/VRC1';
 import { getInitials } from '@/utils/helpers/common.helper';
 import { URL_REGEX } from '@/utils/regexes';

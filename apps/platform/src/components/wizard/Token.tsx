@@ -1,5 +1,6 @@
+import type { TokenFormValues } from '@/types/forms';
+
 import { tokenContractAtom, tokenTypeAtom } from '@/atoms';
-import { TokenFormValues } from '@/types/forms';
 import { processContractName } from '@/utils/helpers/contract.helper';
 import { URI_REGEX } from '@/utils/regexes';
 import {

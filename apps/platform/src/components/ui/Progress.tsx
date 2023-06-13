@@ -1,8 +1,9 @@
 'use client';
 
+import type { HTMLAttributes } from 'react';
+
 import { cn } from '@/utils/helpers/class-merge.helper';
 import * as ProgressPrimitive from '@radix-ui/react-progress';
-import { HTMLAttributes } from 'react';
 import * as React from 'react';
 
 type ProgressProps = React.ComponentPropsWithoutRef<

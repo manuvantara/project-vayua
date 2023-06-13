@@ -1,5 +1,7 @@
+import type { FC } from 'react';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { Profile, UserStarringExtension, mockupProfile } from '@/utils/VRC1';
+import { type Profile, type UserStarringExtension, mockupProfile } from '@/utils/VRC1';
 import { shortenAddress } from '@/utils/helpers/shorten.helper';
 // TODO: refactor, separate utils, <Profile /> & <UserStarringExtension>
 import {
@@ -11,7 +13,6 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FC } from 'react';
 
 // type Profile = {
 //   name?: string;

@@ -5,8 +5,7 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext", "esnext.bigint"],
-    // TODO: Set this to `true` and fix all errors.
-    "verbatimModuleSyntax": false,
+    "verbatimModuleSyntax": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

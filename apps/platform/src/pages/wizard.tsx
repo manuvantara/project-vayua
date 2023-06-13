@@ -1,5 +1,5 @@
 import Stepper from '@/components/wizard/Stepper';
-import { MantineProvider, MantineThemeOverride } from '@mantine/core';
+import { MantineProvider, type MantineThemeOverride } from '@mantine/core';
 
 const theme: MantineThemeOverride = {
   colorScheme: 'light',

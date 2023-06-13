@@ -1,10 +1,11 @@
-import { MarkdownFrontmatter } from '@/types/proposals';
+import type { MarkdownFrontmatter } from '@/types/proposals';
+import type { ColumnDef } from '@tanstack/react-table';
+
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { parseMarkdownWithYamlFrontmatter } from '@/utils/helpers/proposal.helper';
-import { ColumnDef } from '@tanstack/react-table';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
-import { Block, parseAbiItem } from 'viem';
+import { type Block, parseAbiItem } from 'viem';
 import { useContractEvent, usePublicClient } from 'wagmi';
 
 import { DataTable } from './ProposalsTable';

@@ -12,7 +12,7 @@ import { proposalTimestampToDate } from '@/utils/helpers/proposal.helper';
 import { shortenText } from '@/utils/helpers/shorten.helper';
 import { badgeVariantMap, proposalStateMap } from '@/utils/proposal-states';
 import {
-  ColumnDef,
+  type ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,

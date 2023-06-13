@@ -4,12 +4,11 @@ import ClientOnly from '@/components/ClientOnly';
 import DelegateModal from '@/components/DelegateModal';
 import Proposals from '@/components/Proposals';
 import { ProfileView } from '@/components/VRC1';
-import Web3Button from '@/components/Web3Button';
 import { Button } from '@/components/ui/Button';
 import { Card, CardFooter, CardHeader } from '@/components/ui/Card';
 import {
   type OrganisationProfile,
-  UserStarringExtension,
+  type UserStarringExtension,
   VRC1_CONTRACT_ABI,
   VRC1_CONTRACT_ADDRESS,
   parseProfile,

@@ -1,5 +1,6 @@
+import type { GovernanceFormValues } from '@/types/forms';
+
 import { governanceContractAtom, tokenTypeAtom } from '@/atoms';
-import { GovernanceFormValues } from '@/types/forms';
 import { processContractName } from '@/utils/helpers/contract.helper';
 import { Accordion, NumberInput, Select, Text, TextInput } from '@mantine/core';
 import { isInRange, isNotEmpty, useForm } from '@mantine/form';

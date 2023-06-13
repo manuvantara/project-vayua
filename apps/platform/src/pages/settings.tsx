@@ -1,6 +1,7 @@
+import type { Toast, ToasterToast } from '@/components/ui/use-toast';
+import type { SettingsFormValues } from '@/types/forms';
+
 import SharedProfile from '@/components/SharedProfile';
-import { Toast, ToasterToast } from '@/components/ui/use-toast';
-import { SettingsFormValues } from '@/types/forms';
 import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from '@/utils/VRC1';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';

@@ -1,4 +1,6 @@
 // <RenderUsingClientOnly />
+import type { SearchDAOFormValues } from '@/types/forms';
+
 import ClientOnly from '@/components/ClientOnly';
 import { ProfileView, UserStarringExtensionView } from '@/components/VRC1';
 import Web3Button from '@/components/Web3Button';
@@ -11,9 +13,8 @@ import {
   CardTitle,
 } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { SearchDAOFormValues } from '@/types/forms';
 import {
-  UserProfile,
+  type UserProfile,
   VRC1_CONTRACT_ABI,
   VRC1_CONTRACT_ADDRESS,
   parseProfile,

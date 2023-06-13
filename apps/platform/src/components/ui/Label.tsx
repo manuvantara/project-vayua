@@ -2,7 +2,7 @@
 
 import { cn } from '@/utils/helpers/class-merge.helper';
 import * as LabelPrimitive from '@radix-ui/react-label';
-import { VariantProps, cva } from 'class-variance-authority';
+import { type VariantProps, cva } from 'class-variance-authority';
 import * as React from 'react';
 
 const labelVariants = cva(

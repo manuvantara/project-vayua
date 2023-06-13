@@ -1,5 +1,6 @@
+import type { Options } from 'easymde';
+
 import { markdownEditorValueAtom } from '@/atoms';
-import { Options } from 'easymde';
 import 'easymde/dist/easymde.min.css';
 import { useAtom } from 'jotai';
 import dynamic from 'next/dynamic';
