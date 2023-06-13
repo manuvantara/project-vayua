@@ -1,3 +1,6 @@
+import Web3Button from '@/components/Web3Button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/Alert';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
 import {
   Card,
   CardContent,
@@ -5,142 +8,139 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/Card";
-import { Label } from "@/components/ui/Label";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/Textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
-import { useContractRead } from "wagmi";
-import { isNotEmpty, useForm } from "@mantine/form";
-import { Toast, ToasterToast, useToast } from "@/components/ui/use-toast";
-import { useEffect } from "react";
-import { SettingsFormValues } from "@/types/forms";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/Alert";
-import { AlertCircleIcon } from "lucide-react";
-import { getInitials } from "@/utils/helpers/common.helper";
-import Image from "next/image";
-import Web3Button from "@/components/Web3Button";
-import { URL_REGEX } from "@/utils/regexes";
-import router from "next/router";
-import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from "@/utils/VRC1";
+} from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { Textarea } from '@/components/ui/Textarea';
+import { Toast, ToasterToast, useToast } from '@/components/ui/use-toast';
+import { SettingsFormValues } from '@/types/forms';
+import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from '@/utils/VRC1';
+import { getInitials } from '@/utils/helpers/common.helper';
+import { URL_REGEX } from '@/utils/regexes';
+import { isNotEmpty, useForm } from '@mantine/form';
+import { AlertCircleIcon } from 'lucide-react';
+import Image from 'next/image';
+import router from 'next/router';
+import { useEffect } from 'react';
+import { useContractRead } from 'wagmi';
 
 type Props = {
-  title: string;
-  type: "user" | "dao";
   address: `0x${string}`;
+  isTransactionInProgress: boolean;
+  isTransactionSuccessful: boolean;
   onSubmit: (
     values: SettingsFormValues,
     toast: ({ ...props }: Toast) => {
-      id: string;
       dismiss: () => void;
+      id: string;
       update: (props: ToasterToast) => void;
-    }
+    },
   ) => void;
-  isTransactionInProgress: boolean;
-  isTransactionSuccessful: boolean;
+  title: string;
+  type: 'dao' | 'user';
 };
 
 const PROFILE_TEXT = {
-  user: {
-    cardName: "Your name",
-    cardNameDescription:
-      "Your name is how people will know you on the platform.",
-    cardNameLabel: "Name",
-    cardNamePlaceholder: "John Doe",
-    cardNameFooter: "Name is required.",
-    cardBio: "Your Bio",
-    cardBioDescription:
-      "Help people discover your profile by sharing a short bio.",
-    cardBioLabel: "Bio",
-    cardBioPlaceholder: "I'm a software engineer from San Francisco.",
-    cardBioFooter: "Think of this as your elevator pitch.",
-    cardAvatar: "Your Avatar",
-    cardAvatarDescription: "Upload a photo of yourself.",
-    cardAvatarLabel: "Avatar",
-    cardAvatarPlaceholder: "https://...",
-    cardAvatarFooter:
-      "For optimal results, we recommend using a square image that is at least 400px wide.",
-    cardLocation: "Your Location",
-    cardLocationDescription: "Where in the world are you?",
-    cardLocationLabel: "Location",
-    cardLocationPlaceholder: "San Francisco, CA",
-    cardLocationFooter:
-      "City, State, Country, whatever you are comfortable with.",
-    cardWebsite: "Your Website URL",
-    cardWebsiteDescription: "Do you have a website? Share it here.",
-    cardWebsiteLabel: "Website",
-    cardWebsitePlaceholder: "https://mywebsite.com",
-    cardWebsiteFooter:
-      "This could be a personal website, blog, or LinkedIn profile.",
-  },
   dao: {
-    cardName: "Your DAO's name",
-    cardNameDescription: "What your DAO should be called.",
-    cardNameLabel: "Name",
-    cardNamePlaceholder: "Vayua",
-    cardNameFooter: "Name is required.",
-    cardBio: "Your DAO's Bio",
-    cardBioDescription: "Help people discover your DAO by sharing a short bio.",
-    cardBioLabel: "Bio",
-    cardBioPlaceholder:
-      "We are a DAO that is focused on building a better future.",
-    cardBioFooter: "Think of this as your elevator pitch.",
     cardAvatar: "Your DAO's Avatar",
-    cardAvatarDescription: "Upload a photo of your DAO.",
-    cardAvatarLabel: "Avatar",
-    cardAvatarPlaceholder: "https://...",
+    cardAvatarDescription: 'Upload a photo of your DAO.',
     cardAvatarFooter:
-      "For optimal results, we recommend using a square image that is at least 400px wide.",
+      'For optimal results, we recommend using a square image that is at least 400px wide.',
+    cardAvatarLabel: 'Avatar',
+    cardAvatarPlaceholder: 'https://...',
+    cardBio: "Your DAO's Bio",
+    cardBioDescription: 'Help people discover your DAO by sharing a short bio.',
+    cardBioFooter: 'Think of this as your elevator pitch.',
+    cardBioLabel: 'Bio',
+    cardBioPlaceholder:
+      'We are a DAO that is focused on building a better future.',
     cardLocation: "Your DAO's Location",
-    cardLocationDescription: "Where in the world is your DAO?",
-    cardLocationLabel: "Location",
-    cardLocationPlaceholder: "Worldwide",
+    cardLocationDescription: 'Where in the world is your DAO?',
     cardLocationFooter:
-      "City, State, Country, whatever you are comfortable with.",
+      'City, State, Country, whatever you are comfortable with.',
+    cardLocationLabel: 'Location',
+    cardLocationPlaceholder: 'Worldwide',
+    cardName: "Your DAO's name",
+    cardNameDescription: 'What your DAO should be called.',
+    cardNameFooter: 'Name is required.',
+    cardNameLabel: 'Name',
+    cardNamePlaceholder: 'Vayua',
     cardWebsite: "Your DAO's Website URL",
-    cardWebsiteDescription: "Do you have a website? Share it here.",
-    cardWebsiteLabel: "Website",
-    cardWebsitePlaceholder: "https://mywebsite.com",
+    cardWebsiteDescription: 'Do you have a website? Share it here.',
     cardWebsiteFooter:
-      "For example, this could be a website, blog, or Twitter profile.",
+      'For example, this could be a website, blog, or Twitter profile.',
+    cardWebsiteLabel: 'Website',
+    cardWebsitePlaceholder: 'https://mywebsite.com',
+  },
+  user: {
+    cardAvatar: 'Your Avatar',
+    cardAvatarDescription: 'Upload a photo of yourself.',
+    cardAvatarFooter:
+      'For optimal results, we recommend using a square image that is at least 400px wide.',
+    cardAvatarLabel: 'Avatar',
+    cardAvatarPlaceholder: 'https://...',
+    cardBio: 'Your Bio',
+    cardBioDescription:
+      'Help people discover your profile by sharing a short bio.',
+    cardBioFooter: 'Think of this as your elevator pitch.',
+    cardBioLabel: 'Bio',
+    cardBioPlaceholder: "I'm a software engineer from San Francisco.",
+    cardLocation: 'Your Location',
+    cardLocationDescription: 'Where in the world are you?',
+    cardLocationFooter:
+      'City, State, Country, whatever you are comfortable with.',
+    cardLocationLabel: 'Location',
+    cardLocationPlaceholder: 'San Francisco, CA',
+    cardName: 'Your name',
+    cardNameDescription:
+      'Your name is how people will know you on the platform.',
+    cardNameFooter: 'Name is required.',
+    cardNameLabel: 'Name',
+    cardNamePlaceholder: 'John Doe',
+    cardWebsite: 'Your Website URL',
+    cardWebsiteDescription: 'Do you have a website? Share it here.',
+    cardWebsiteFooter:
+      'This could be a personal website, blog, or LinkedIn profile.',
+    cardWebsiteLabel: 'Website',
+    cardWebsitePlaceholder: 'https://mywebsite.com',
   },
 };
 
 export default function SharedProfile({
+  address,
+  isTransactionInProgress,
+  isTransactionSuccessful,
+  onSubmit,
   title,
   type,
-  address,
-  isTransactionSuccessful,
-  isTransactionInProgress,
-  onSubmit,
 }: Props) {
   const { toast } = useToast();
 
   const form = useForm<SettingsFormValues>({
-    validateInputOnBlur: true,
     initialValues: {
-      name: "",
-      bio: "",
-      avatar: "",
-      location: "",
-      website: "",
+      avatar: '',
+      bio: '',
+      location: '',
+      name: '',
+      website: '',
     },
     validate: {
-      name: isNotEmpty("Name is required"),
+      name: isNotEmpty('Name is required'),
       website: (value) =>
         !URL_REGEX.test(value)
           ? value.length === 0
             ? null
-            : "Please enter a valid URL"
+            : 'Please enter a valid URL'
           : null,
     },
+    validateInputOnBlur: true,
   });
 
   const contractRead = useContractRead({
-    address: VRC1_CONTRACT_ADDRESS,
     abi: VRC1_CONTRACT_ABI,
-    functionName: "profiles",
+    address: VRC1_CONTRACT_ADDRESS,
     args: [address],
+    functionName: 'profiles',
   });
 
   useEffect(() => {
@@ -148,10 +148,10 @@ export default function SharedProfile({
     //console.log("userProfileData", userProfileData);
     if (userProfileData) {
       form.setValues({
-        name: userProfileData[0],
-        bio: userProfileData[1],
         avatar: userProfileData[2],
+        bio: userProfileData[1],
         location: userProfileData[3],
+        name: userProfileData[0],
         website: userProfileData[4],
       });
       form.resetDirty();
@@ -162,15 +162,15 @@ export default function SharedProfile({
   // Refetching the data after the transaction is successful
   useEffect(() => {
     if (isTransactionSuccessful) {
-      if (type == "dao") {
+      if (type == 'dao') {
         toast({
           description:
-            "Success! The proposal for DAO profile update has been created.",
+            'Success! The proposal for DAO profile update has been created.',
         });
         router.push(`/organisations/${address}`);
       } else {
         toast({
-          description: "Success! Your profile has been successfully changed.",
+          description: 'Success! Your profile has been successfully changed.',
         });
       }
 
@@ -184,9 +184,9 @@ export default function SharedProfile({
     for (const key in errors) {
       if (errors[key]) {
         toast({
-          title: "Validation error",
           description: errors[key],
-          variant: "destructive",
+          title: 'Validation error',
+          variant: 'destructive',
         });
       }
     }
@@ -194,17 +194,17 @@ export default function SharedProfile({
 
   return (
     <div>
-      <div className="border-b flex items-stretch justify-start">
-        <div className="flex items-center my-8">
-          <h1 className="md:text-4xl text-3xl font-medium tracking-tight">
-            {title || "Profile"}
+      <div className="flex items-stretch justify-start border-b">
+        <div className="my-8 flex items-center">
+          <h1 className="text-3xl font-medium tracking-tight md:text-4xl">
+            {title || 'Profile'}
           </h1>
         </div>
       </div>
-      {type === "dao" && (
-        <div className="w-full mt-4">
+      {type === 'dao' && (
+        <div className="mt-4 w-full">
           <Alert variant="warning">
-            <AlertCircleIcon className="w-4 h-4" />
+            <AlertCircleIcon className="h-4 w-4" />
             <AlertTitle>Updating governance profile</AlertTitle>
             <AlertDescription>
               In order to update your governance profile, you will create a
@@ -215,13 +215,13 @@ export default function SharedProfile({
         </div>
       )}
       <form
-        className="max-w-5xl shadow-lg border mx-auto flex w-full rounded-md my-8"
         onSubmit={form.onSubmit(
           (values) => onSubmit(values, toast),
-          handleErrors
+          handleErrors,
         )}
+        className="mx-auto my-8 flex w-full max-w-5xl rounded-md border shadow-lg"
       >
-        <div className="flex items-stretch gap-6 justify-start w-full flex-col p-6">
+        <div className="flex w-full flex-col items-stretch justify-start gap-6 p-6">
           <div className="w-full">
             <Card>
               <CardHeader>
@@ -235,18 +235,18 @@ export default function SharedProfile({
               <CardContent>
                 <div>
                   <Label
-                    htmlFor={PROFILE_TEXT[type].cardNameLabel.toLowerCase()}
                     className="sr-only"
+                    htmlFor={PROFILE_TEXT[type].cardNameLabel.toLowerCase()}
                   >
                     {PROFILE_TEXT[type].cardNameLabel}
                   </Label>
                   <Input
+                    autoComplete="name"
                     id={PROFILE_TEXT[type].cardNameLabel.toLowerCase()}
                     name={PROFILE_TEXT[type].cardNameLabel.toLowerCase()}
-                    type="text"
-                    autoComplete="name"
                     placeholder={PROFILE_TEXT[type].cardNamePlaceholder}
-                    {...form.getInputProps("name")}
+                    type="text"
+                    {...form.getInputProps('name')}
                   />
                 </div>
               </CardContent>
@@ -270,8 +270,8 @@ export default function SharedProfile({
               <CardContent>
                 <div>
                   <Label
-                    htmlFor={PROFILE_TEXT[type].cardBioLabel.toLowerCase()}
                     className="sr-only"
+                    htmlFor={PROFILE_TEXT[type].cardBioLabel.toLowerCase()}
                   >
                     {PROFILE_TEXT[type].cardBioLabel}
                   </Label>
@@ -279,7 +279,7 @@ export default function SharedProfile({
                     id={PROFILE_TEXT[type].cardBioLabel.toLowerCase()}
                     name={PROFILE_TEXT[type].cardBioLabel.toLowerCase()}
                     placeholder={PROFILE_TEXT[type].cardBioPlaceholder}
-                    {...form.getInputProps("bio")}
+                    {...form.getInputProps('bio')}
                   />
                 </div>
               </CardContent>
@@ -302,25 +302,25 @@ export default function SharedProfile({
                   </CardDescription>
                 </div>
                 <div>
-                  <Avatar className="md:h-20 md:w-20 border">
+                  <Avatar className="border md:h-20 md:w-20">
                     <AvatarImage
                       className="object-top"
                       decoding="async"
                       loading="lazy"
+                      src={form.values.avatar || ''}
                       title={`Avatar for ${form.values.name}`}
-                      src={form.values.avatar || ""}
                     />
                     <AvatarFallback delayMs={300}>
                       <Image
                         src={`https://avatar.vercel.sh/${
-                          form.values.name || "no-name"
+                          form.values.name || 'no-name'
                         }.svg?text=${encodeURIComponent(
-                          getInitials(form.values.name)
+                          getInitials(form.values.name),
                         )}`}
                         alt={`Avatar for ${form.values.name}`}
+                        className="pointer-events-none select-none"
                         fill
                         sizes="80px"
-                        className="select-none pointer-events-none"
                       />
                     </AvatarFallback>
                   </Avatar>
@@ -329,18 +329,18 @@ export default function SharedProfile({
               <CardContent>
                 <div>
                   <Label
-                    htmlFor={PROFILE_TEXT[type].cardAvatarLabel.toLowerCase()}
                     className="sr-only"
+                    htmlFor={PROFILE_TEXT[type].cardAvatarLabel.toLowerCase()}
                   >
                     {PROFILE_TEXT[type].cardAvatarLabel}
                   </Label>
                   <Input
+                    autoComplete="url"
                     id={PROFILE_TEXT[type].cardAvatarLabel.toLowerCase()}
                     name={PROFILE_TEXT[type].cardAvatarLabel.toLowerCase()}
-                    type="text"
-                    autoComplete="url"
                     placeholder={PROFILE_TEXT[type].cardAvatarPlaceholder}
-                    {...form.getInputProps("avatar")}
+                    type="text"
+                    {...form.getInputProps('avatar')}
                   />
                 </div>
               </CardContent>
@@ -364,18 +364,18 @@ export default function SharedProfile({
               <CardContent>
                 <div>
                   <Label
-                    htmlFor={PROFILE_TEXT[type].cardLocationLabel.toLowerCase()}
                     className="sr-only"
+                    htmlFor={PROFILE_TEXT[type].cardLocationLabel.toLowerCase()}
                   >
                     {PROFILE_TEXT[type].cardLocationLabel}
                   </Label>
                   <Input
+                    autoComplete="country"
                     id={PROFILE_TEXT[type].cardLocationLabel.toLowerCase()}
                     name={PROFILE_TEXT[type].cardLocationLabel.toLowerCase()}
-                    type="text"
-                    autoComplete="country"
                     placeholder={PROFILE_TEXT[type].cardLocationPlaceholder}
-                    {...form.getInputProps("location")}
+                    type="text"
+                    {...form.getInputProps('location')}
                   />
                 </div>
               </CardContent>
@@ -399,21 +399,21 @@ export default function SharedProfile({
               <CardContent>
                 <div>
                   <Label
-                    htmlFor={PROFILE_TEXT[type].cardWebsiteLabel.toLowerCase()}
                     className="sr-only"
+                    htmlFor={PROFILE_TEXT[type].cardWebsiteLabel.toLowerCase()}
                   >
                     {PROFILE_TEXT[type].cardWebsiteLabel}
                   </Label>
                   <Input
+                    autoComplete="url"
                     id={PROFILE_TEXT[type].cardWebsiteLabel.toLowerCase()}
                     name={PROFILE_TEXT[type].cardWebsiteLabel.toLowerCase()}
-                    type="text"
-                    autoComplete="url"
                     placeholder={PROFILE_TEXT[type].cardWebsitePlaceholder}
-                    {...form.getInputProps("website")}
+                    type="text"
+                    {...form.getInputProps('website')}
                   />
                   {form.errors.website && (
-                    <p className="text-sm mt-1 text-destructive">
+                    <p className="mt-1 text-sm text-destructive">
                       {form.errors.website}
                     </p>
                   )}

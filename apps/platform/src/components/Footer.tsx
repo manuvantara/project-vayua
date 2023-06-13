@@ -1,19 +1,19 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="p-4 pt-8 mt-8 rounded-3xl md:mt-10 md:p-8 lg:p-10 bg-secondary border md:rounded-none">
+    <footer className="mt-8 rounded-3xl border bg-secondary p-4 pt-8 md:mt-10 md:rounded-none md:p-8 lg:p-10">
       <div className="mx-auto max-w-screen-xl text-center">
         <Link
+          className="flex items-center justify-center text-2xl font-semibold text-gray-900 dark:text-white"
           href="/"
-          className="flex justify-center items-center text-2xl font-semibold text-gray-900 dark:text-white"
         >
           <svg
             className="h-8 w-auto"
-            viewBox="0 0 357 87"
             fill="none"
+            viewBox="0 0 357 87"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
@@ -39,34 +39,34 @@ export default function Footer() {
             <path
               d="M63.5 61V36.9H85.7V52H71V44H79.5"
               stroke="#2F62F2"
-              strokeWidth="4"
-              strokeMiterlimit="10"
               strokeLinecap="round"
               strokeLinejoin="round"
+              strokeMiterlimit="10"
+              strokeWidth="4"
             />
             <path
               d="M51.7 61V36.9H29.5V52H44.2V44H35.7"
               stroke="#2F62F2"
-              strokeWidth="4"
-              strokeMiterlimit="10"
               strokeLinecap="round"
               strokeLinejoin="round"
+              strokeMiterlimit="10"
+              strokeWidth="4"
             />
             <path
               d="M86.8 25.3H28.5"
               stroke="#2F62F2"
-              strokeWidth="4"
-              strokeMiterlimit="10"
               strokeLinecap="round"
               strokeLinejoin="round"
+              strokeMiterlimit="10"
+              strokeWidth="4"
             />
             <path
               d="M95.3 15.8H19.9"
               stroke="#2F62F2"
-              strokeWidth="4"
-              strokeMiterlimit="10"
               strokeLinecap="round"
               strokeLinejoin="round"
+              strokeMiterlimit="10"
+              strokeWidth="4"
             />
           </svg>
         </Link>
@@ -74,45 +74,45 @@ export default function Footer() {
           A web3 innovation bridging DAOs into the metaverse, enhancing the
           Theta Network ecosystem.
         </p>
-        <ul className="flex flex-wrap justify-center items-center mb-6 text-gray-900 dark:text-white">
+        <ul className="mb-6 flex flex-wrap items-center justify-center text-gray-900 dark:text-white">
           <li>
-            <Link href="/docs" className="mr-4 hover:underline md:mr-6 ">
+            <Link className="mr-4 hover:underline md:mr-6 " href="/docs">
               Docs
             </Link>
           </li>
           <li>
-            <a href="#" className="mr-4 hover:underline md:mr-6">
+            <a className="mr-4 hover:underline md:mr-6" href="#">
               DevPost
             </a>
           </li>
           <li>
             <a
-              href="https://github.com/manuvantara/project-vayua"
               className="mr-4 hover:underline md:mr-6 "
+              href="https://github.com/manuvantara/project-vayua"
             >
               GitHub
             </a>
           </li>
           <li>
-            <a href="#" className="mr-4 hover:underline md:mr-6">
+            <a className="mr-4 hover:underline md:mr-6" href="#">
               Twitter
             </a>
           </li>
           <li>
             <a
-              href="mailto:denys.kravchuk@manuvantara.com"
               className="mr-4 hover:underline md:mr-6"
+              href="mailto:denys.kravchuk@manuvantara.com"
             >
               Contact
             </a>
           </li>
         </ul>
-        <span className="text-sm text-gray-500 sm:text-center dark:text-gray-400">
-          © {currentYear}{" "}
+        <span className="text-sm text-gray-500 dark:text-gray-400 sm:text-center">
+          © {currentYear}{' '}
           <a
+            className="hover:underline"
             href="https://github.com/manuvantara"
             target="_blank"
-            className="hover:underline"
           >
             Manuvantara Development
           </a>

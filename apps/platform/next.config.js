@@ -1,22 +1,38 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: false,
+  compiler: {
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "avatar.vercel.sh",
+        hostname: 'avatar.vercel.sh',
+        protocol: 'https',
       },
       {
-        protocol: "https",
-        hostname: "**",
+        hostname: '**',
+        protocol: 'https',
       },
     ],
   },
-  compiler: {
-    // eslint-disable-next-line turbo/no-undeclared-env-vars
-    removeConsole: process.env.NODE_ENV === "production",
+  reactStrictMode: false,
+  async rewrites() {
+    return [
+      {
+        destination: `/:path*`,
+        source: '/:path*',
+      },
+      {
+        destination: `${process.env.DOCS_URL}/docs`,
+        source: '/docs',
+      },
+      {
+        destination: `${process.env.DOCS_URL}/docs/:path*`,
+        source: '/docs/:path*',
+      },
+    ];
   },
   webpack: (config, { isServer }) => {
     // If client-side, don't polyfill `fs`
@@ -28,22 +44,6 @@ const nextConfig = {
 
     return config;
   },
-  async rewrites() {
-    return [
-      {
-        source: '/:path*',
-        destination: `/:path*`,
-      },
-      {
-        source: "/docs",
-        destination: `${process.env.DOCS_URL}/docs`
-      },
-      {
-        source: "/docs/:path*",
-        destination: `${process.env.DOCS_URL}/docs/:path*`
-      },
-    ]
-  }
 };
 
 module.exports = nextConfig;

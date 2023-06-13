@@ -1,13 +1,14 @@
-import { useContractWrite, useWaitForTransaction } from "wagmi";
-import type { GetServerSideProps } from "next";
-import SharedProfile from "@/components/SharedProfile";
-import type { SettingsFormValues } from "@/types/forms";
-import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { encodeFunctionData } from "viem";
-import type { Toast, ToasterToast } from "@/components/ui/use-toast";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from "@/utils/VRC1";
+import type { Toast, ToasterToast } from '@/components/ui/use-toast';
+import type { SettingsFormValues } from '@/types/forms';
+import type { GetServerSideProps } from 'next';
+
+import SharedProfile from '@/components/SharedProfile';
+import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from '@/utils/VRC1';
+import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { encodeFunctionData } from 'viem';
+import { useContractWrite, useWaitForTransaction } from 'wagmi';
 
 export default function GovernanceProfile({
   organisationAddress,
@@ -16,12 +17,12 @@ export default function GovernanceProfile({
 }) {
   const {
     data,
-    write,
     isLoading: isWriteLoading,
+    write,
   } = useContractWrite({
-    address: organisationAddress,
     abi: GOVERNOR_ABI,
-    functionName: "propose",
+    address: organisationAddress,
+    functionName: 'propose',
   });
 
   const { isLoading, isSuccess } = useWaitForTransaction({
@@ -31,25 +32,25 @@ export default function GovernanceProfile({
   const handleSubmit = async (
     values: SettingsFormValues,
     toast: ({ ...props }: Toast) => {
-      id: string;
       dismiss: () => void;
+      id: string;
       update: (props: ToasterToast) => void;
-    }
+    },
   ) => {
     if (!write) {
-      console.log("write is undefined");
+      console.log('write is undefined');
       toast({
+        description: 'Please try again.',
         title: "We couldn't save your profile.",
-        description: "Please try again.",
-        variant: "destructive",
+        variant: 'destructive',
       });
       return;
     }
 
     const calldata = encodeFunctionData({
-      functionName: "setProfile",
       abi: VRC1_CONTRACT_ABI,
       args: [values],
+      functionName: 'setProfile',
     });
 
     write({
@@ -68,16 +69,16 @@ export default function GovernanceProfile({
         className="inline-flex items-center text-muted-foreground"
         href={`/organisations/${organisationAddress}`}
       >
-        <ArrowLeft className="w-4 h-4 mr-1" />
+        <ArrowLeft className="mr-1 h-4 w-4" />
         Back
       </Link>
       <SharedProfile
-        title="Edit DAO Indentity"
-        type="dao"
         address={organisationAddress}
-        onSubmit={handleSubmit}
         isTransactionInProgress={isLoading || isWriteLoading}
         isTransactionSuccessful={isSuccess}
+        onSubmit={handleSubmit}
+        title="Edit DAO Indentity"
+        type="dao"
       />
     </div>
   );

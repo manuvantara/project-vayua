@@ -1,13 +1,12 @@
-"use client";
+'use client';
 
-import * as React from "react";
-
-import { cn } from "@/utils/helpers/class-merge.helper";
-import { Check, Copy } from "lucide-react";
+import { cn } from '@/utils/helpers/class-merge.helper';
+import { Check, Copy } from 'lucide-react';
+import * as React from 'react';
 
 interface CopyButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
-  value: string;
   src?: string;
+  value: string;
 }
 
 async function copyToClipboardWithMeta(value: string) {
@@ -15,9 +14,9 @@ async function copyToClipboardWithMeta(value: string) {
 }
 
 export function CopyButton({
-  value,
   className,
   src,
+  value,
   ...props
 }: CopyButtonProps) {
   const [hasCopied, setHasCopied] = React.useState(false);
@@ -31,8 +30,8 @@ export function CopyButton({
   return (
     <button
       className={cn(
-        "relative z-20 inline-flex h-6 w-6 items-center justify-center rounded-md border bg-background text-sm font-medium transition-all hover:bg-muted focus:outline-none",
-        className
+        'relative z-20 inline-flex h-6 w-6 items-center justify-center rounded-md border bg-background text-sm font-medium transition-all hover:bg-muted focus:outline-none',
+        className,
       )}
       onClick={() => {
         copyToClipboardWithMeta(value);

@@ -1,32 +1,33 @@
-import type { GetServerSideProps } from "next";
-import Proposals from "@/components/Proposals";
-import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { createPublicClient, http } from "viem";
-import { thetaTestnet } from "@/utils/chains/theta-chains";
-import React, { useState } from "react";
+import type { GetServerSideProps } from 'next';
+
+import ClientOnly from '@/components/ClientOnly';
+import DelegateModal from '@/components/DelegateModal';
+import Proposals from '@/components/Proposals';
+import { ProfileView } from '@/components/VRC1';
+import Web3Button from '@/components/Web3Button';
+import { Button } from '@/components/ui/Button';
+import { Card, CardFooter, CardHeader } from '@/components/ui/Card';
 import {
   type OrganisationProfile,
-  parseProfile,
-  parseUserStarringExtension,
   UserStarringExtension,
   VRC1_CONTRACT_ABI,
   VRC1_CONTRACT_ADDRESS,
-} from "@/utils/VRC1";
-import { ProfileView } from "@/components/VRC1";
-import { Card, CardFooter, CardHeader } from "@/components/ui/Card";
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { Plus, Settings, Star, StarOff } from "lucide-react";
-import ClientOnly from "@/components/ClientOnly";
-import DelegateModal from "@/components/DelegateModal";
+  parseProfile,
+  parseUserStarringExtension,
+} from '@/utils/VRC1';
+import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { thetaTestnet } from '@/utils/chains/theta-chains';
+import { Plus, Settings, Star, StarOff } from 'lucide-react';
+import Link from 'next/link';
+import React, { useState } from 'react';
+import { createPublicClient, http } from 'viem';
 import {
   useAccount,
   useContractEvent,
   useContractWrite,
   usePublicClient,
   useWaitForTransaction,
-} from "wagmi";
-import Web3Button from "@/components/Web3Button";
+} from 'wagmi';
 
 export default function OrganisationPage({
   organisationAddress,
@@ -41,24 +42,24 @@ export default function OrganisationPage({
 
   const [userProfileExtension, setUserProfileExtension] =
     useState<UserStarringExtension>({
-      standard: "VRC1",
-      target: "User",
-      version: "1.0.0",
       organisations: [],
+      standard: 'VRC1',
+      target: 'User',
+      version: '1.0.0',
     });
 
   const account = useAccount({
     async onConnect({ address }) {
       if (address) {
         const data = await publicClient.readContract({
-          address: VRC1_CONTRACT_ADDRESS,
           abi: VRC1_CONTRACT_ABI,
-          functionName: "profileExtensions",
+          address: VRC1_CONTRACT_ADDRESS,
           args: [address],
+          functionName: 'profileExtensions',
         });
 
         const userProfileExtension = parseUserStarringExtension(data);
-        console.log("userProfileExtension=", userProfileExtension);
+        console.log('userProfileExtension=', userProfileExtension);
 
         setUserProfileExtension(userProfileExtension);
       }
@@ -66,9 +67,9 @@ export default function OrganisationPage({
   });
 
   const setProfileExtensionWrite = useContractWrite({
-    address: VRC1_CONTRACT_ADDRESS,
     abi: VRC1_CONTRACT_ABI,
-    functionName: "setProfileExtension",
+    address: VRC1_CONTRACT_ADDRESS,
+    functionName: 'setProfileExtension',
   });
 
   const waitForSetUserProfileExtensionTransaction = useWaitForTransaction({
@@ -82,25 +83,25 @@ export default function OrganisationPage({
   });
 
   useContractEvent({
-    address: VRC1_CONTRACT_ADDRESS,
     abi: VRC1_CONTRACT_ABI,
-    eventName: "ProfileExtensionChanged",
+    address: VRC1_CONTRACT_ADDRESS,
+    eventName: 'ProfileExtensionChanged',
     listener: (logs) => {
       if (account.address) {
         const userLogs = logs.filter(
-          (log) => log.args.profileOwner === account.address
+          (log) => log.args.profileOwner === account.address,
         );
         const latestLog = userLogs[userLogs.length - 1];
 
         if (latestLog.args.extension) {
           const latestExtension = parseUserStarringExtension(
-            latestLog.args.extension
+            latestLog.args.extension,
           );
           setUserProfileExtension(latestExtension);
         }
       }
 
-      console.log("UserProfileExtensionChanged=", logs);
+      console.log('UserProfileExtensionChanged=', logs);
     },
   });
 
@@ -118,12 +119,12 @@ export default function OrganisationPage({
       temp = {
         ...extension,
         organisations: extension.organisations.filter(
-          (element) => element !== organisationAddress
+          (element) => element !== organisationAddress,
         ),
       };
     }
 
-    console.log("temp=", temp);
+    console.log('temp=', temp);
 
     setProfileExtensionWrite.write({
       args: [JSON.stringify(temp)],
@@ -131,7 +132,7 @@ export default function OrganisationPage({
   };
 
   return (
-    <div className="lg:grid lg:grid-cols-3 gap-5 pt-8">
+    <div className="gap-5 pt-8 lg:grid lg:grid-cols-3">
       <Card className="grid">
         <CardHeader>
           <div className="flex flex-col items-center">
@@ -142,7 +143,10 @@ export default function OrganisationPage({
           </div>
         </CardHeader>
         <CardFooter className="grid grid-cols-2 gap-4">
-          <Button asChild className="w-full text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300 bg-white hover:bg-white">
+          <Button
+            asChild
+            className="w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900"
+          >
             <Link href={`${organisationAddress}/settings`}>
               <Settings size={20} />
               <span className="ml-2">Settings</span>
@@ -152,25 +156,25 @@ export default function OrganisationPage({
           {/* ClientOnly => RenderUsingClientOnly */}
           <ClientOnly>
             <Button
-                className="w-full text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300 bg-white hover:bg-white"
-              onClick={toggleStarOrganisation}
-              disabled={!account.isConnected}
               loading={
                 setProfileExtensionWrite.isLoading ||
                 waitForSetUserProfileExtensionTransaction.isLoading
               }
               prefix={
                 userProfileExtension.organisations.includes(
-                  organisationAddress
+                  organisationAddress,
                 ) ? (
                   <StarOff size={20} />
                 ) : (
                   <Star size={20} />
                 )
               }
+              className="w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900"
+              disabled={!account.isConnected}
+              onClick={toggleStarOrganisation}
             >
               {userProfileExtension.organisations.includes(
-                organisationAddress
+                organisationAddress,
               ) ? (
                 <span>Unstar</span>
               ) : (
@@ -179,7 +183,10 @@ export default function OrganisationPage({
             </Button>
           </ClientOnly>
 
-          <Button className="w-full text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300 bg-white hover:bg-white" asChild>
+          <Button
+            asChild
+            className="w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900"
+          >
             <Link href={`${organisationAddress}/proposals/new`}>
               <Plus size={20} />
               <span className="ml-2">Propose</span>
@@ -207,15 +214,15 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   try {
     // If there is no token, the contract will throw an error, and we will redirect to the 404 page
     await publicClient.readContract({
-      address: organisationAddress,
       abi: GOVERNOR_ABI,
-      functionName: "token",
+      address: organisationAddress,
+      functionName: 'token',
     });
   } catch {
     const query = new URLSearchParams({
-      message: "Organisation not found",
       description:
-        "It looks like the address you entered is not a valid organisation address.",
+        'It looks like the address you entered is not a valid organisation address.',
+      message: 'Organisation not found',
     });
 
     return {
@@ -227,10 +234,10 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   }
 
   const organisationProfile = await publicClient.readContract({
-    address: VRC1_CONTRACT_ADDRESS,
     abi: VRC1_CONTRACT_ABI,
-    functionName: "profiles",
+    address: VRC1_CONTRACT_ADDRESS,
     args: [organisationAddress],
+    functionName: 'profiles',
   });
 
   return {

@@ -1,41 +1,41 @@
-import { useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
-import SharedProfile from "@/components/SharedProfile";
-import { SettingsFormValues } from "@/types/forms";
-import { Toast, ToasterToast } from "@/components/ui/use-toast";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from "@/utils/VRC1";
+import SharedProfile from '@/components/SharedProfile';
+import { Toast, ToasterToast } from '@/components/ui/use-toast';
+import { SettingsFormValues } from '@/types/forms';
+import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from '@/utils/VRC1';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi';
 
 export default function ProfileSettingsPage() {
   const { address } = useAccount();
 
   const {
     data,
-    write,
     isLoading: isWriteLoading,
+    write,
   } = useContractWrite({
-    address: VRC1_CONTRACT_ADDRESS,
     abi: VRC1_CONTRACT_ABI,
-    functionName: "setProfile",
+    address: VRC1_CONTRACT_ADDRESS,
+    functionName: 'setProfile',
   });
 
-  const { isLoading, isSuccess, error } = useWaitForTransaction({
+  const { error, isLoading, isSuccess } = useWaitForTransaction({
     hash: data?.hash,
   });
 
   const handleSubmit = async (
     values: SettingsFormValues,
     toast: ({ ...props }: Toast) => {
-      id: string;
       dismiss: () => void;
+      id: string;
       update: (props: ToasterToast) => void;
-    }
+    },
   ) => {
     if (!write) {
       toast({
+        description: 'Please try again.',
         title: "We couldn't save your profile.",
-        description: "Please try again.",
-        variant: "destructive",
+        variant: 'destructive',
       });
       return;
     }
@@ -51,16 +51,16 @@ export default function ProfileSettingsPage() {
         className="inline-flex items-center text-muted-foreground"
         href={`/`}
       >
-        <ArrowLeft className="w-4 h-4 mr-1" />
+        <ArrowLeft className="mr-1 h-4 w-4" />
         Back
       </Link>
       <SharedProfile
-        title="Edit Identity"
-        type="user"
         address={address as `0x${string}`}
-        onSubmit={handleSubmit}
         isTransactionInProgress={isWriteLoading || isLoading}
         isTransactionSuccessful={isSuccess}
+        onSubmit={handleSubmit}
+        title="Edit Identity"
+        type="user"
       />
     </div>
   );

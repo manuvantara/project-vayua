@@ -1,8 +1,4 @@
-import { Connector, useAccount, useConnect, useDisconnect } from "wagmi";
-import { Button } from "@/components/ui/Button";
-import { useEffect, useState } from "react";
-import { thetaTestnet } from "@/utils/chains/theta-chains";
-import { useToast } from "@/components/ui/use-toast";
+import { Button } from '@/components/ui/Button';
 import {
   Dialog,
   DialogContent,
@@ -10,15 +6,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/Dialog";
-import { shortenAddress } from "@/utils/helpers/shorten.helper";
-import Image from "next/image";
-import { Wallet } from "lucide-react";
+} from '@/components/ui/Dialog';
+import { useToast } from '@/components/ui/use-toast';
+import { thetaTestnet } from '@/utils/chains/theta-chains';
+import { shortenAddress } from '@/utils/helpers/shorten.helper';
+import { Wallet } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { Connector, useAccount, useConnect, useDisconnect } from 'wagmi';
 
 const connectorsIcons: { [key: string]: any } = {
-  MetaMask: "/icons/metamask.svg",
-  "Coinbase Wallet": "/icons/coinbase.svg",
-  WalletConnect: "/icons/walletconnect.svg",
+  'Coinbase Wallet': '/icons/coinbase.svg',
+  MetaMask: '/icons/metamask.svg',
+  WalletConnect: '/icons/walletconnect.svg',
 };
 
 export default function WalletConnect() {
@@ -40,7 +40,7 @@ export default function WalletConnect() {
     if (error) {
       toast({
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     }
   }, [error]);
@@ -53,8 +53,8 @@ export default function WalletConnect() {
   const handleConnect = (connector: Connector) => {
     if (!connector.ready) {
       toast({
-        description: "This connector is not ready yet.",
-        variant: "destructive",
+        description: 'This connector is not ready yet.',
+        variant: 'destructive',
       });
       return;
     }
@@ -64,9 +64,9 @@ export default function WalletConnect() {
 
   if (account.isConnected && account.address) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog onOpenChange={setOpen} open={open}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="border-0" prefix={<Wallet />}>
+          <Button className="border-0" prefix={<Wallet />} variant="outline">
             {shortenAddress(account.address, 4, 4)}
           </Button>
         </DialogTrigger>
@@ -77,7 +77,7 @@ export default function WalletConnect() {
               Do you want to disconnect your wallet?
             </DialogDescription>
           </DialogHeader>
-          <Button variant="default" onClick={handleDisconnect}>
+          <Button onClick={handleDisconnect} variant="default">
             Disconnect
           </Button>
         </DialogContent>
@@ -86,9 +86,9 @@ export default function WalletConnect() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button variant="default" prefix={<Wallet />}>
+        <Button prefix={<Wallet />} variant="default">
           Connect
         </Button>
       </DialogTrigger>
@@ -105,18 +105,18 @@ export default function WalletConnect() {
 
             return (
               <Button
-                variant="outline"
-                loading={isLoading && connector.id === pendingConnector?.id}
-                key={connector.id}
-                onClick={() => handleConnect(connector)}
                 prefix={
                   <Image
+                    alt={connector.name}
+                    height={24}
                     src={iconPath}
                     width={24}
-                    height={24}
-                    alt={connector.name}
                   />
                 }
+                key={connector.id}
+                loading={isLoading && connector.id === pendingConnector?.id}
+                onClick={() => handleConnect(connector)}
+                variant="outline"
               >
                 <span className="flex items-center space-x-2">
                   <span>{connector.name}</span>

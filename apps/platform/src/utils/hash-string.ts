@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers } from 'ethers';
 
 export function getStringHash(input: string): `0x${string}` {
   const inputBytes = ethers.utils.toUtf8Bytes(input);

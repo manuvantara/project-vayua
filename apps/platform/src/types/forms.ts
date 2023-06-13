@@ -3,25 +3,27 @@ export type DelegateVoteFormValues = {
 };
 
 export type SettingsFormValues = {
-  name: string;
-  bio: string;
   avatar: string;
+  bio: string;
   location: string;
+  name: string;
   website: string;
 };
 
 export type TokenFormValues = {
-  tokenType: "erc20" | "erc721";
-  tokenName: string;
-  tokenSymbol: string;
-  mintNewTokens: boolean;
-  premintAmount: number | string;
   // Only for ERC721
   baseURI: string;
+  mintNewTokens: boolean;
+  premintAmount: number | string;
+  tokenName: string;
+  tokenSymbol: string;
+  tokenType: 'erc20' | 'erc721';
 };
 
 export type GovernanceFormValues = {
   name: string;
+  proposalThreshold: string;
+  quorum: number;
   votingDelay: {
     number: number;
     timeInterval: string;
@@ -30,13 +32,11 @@ export type GovernanceFormValues = {
     number: number;
     timeInterval: string;
   };
-  proposalThreshold: string;
-  quorum: number;
 };
 
 export type CreateDAOFormValues = {
-  name: string;
   desc: string;
+  name: string;
 };
 
 export type SearchDAOFormValues = {

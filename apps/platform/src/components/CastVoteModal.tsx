@@ -4,14 +4,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/Dialog";
+} from '@/components/ui/Dialog';
+import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { useEffect, useState } from 'react';
+import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi';
 
-import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
-import Web3Button from "./Web3Button";
-import { useEffect, useState } from "react";
-import { useToast } from "./ui/use-toast";
-import { Button } from "./ui/Button";
+import Web3Button from './Web3Button';
+import { Button } from './ui/Button';
+import { useToast } from './ui/use-toast';
 
 type CastVoteModalProps = {
   organisationAddress: `0x${string}`;
@@ -27,9 +27,9 @@ export default function CastVoteModal({
   const [isDialogOpened, setIsDialogOpened] = useState(true);
 
   const castVoteWrite = useContractWrite({
-    address: organisationAddress,
     abi: GOVERNOR_ABI,
-    functionName: "castVote",
+    address: organisationAddress,
+    functionName: 'castVote',
   });
 
   const {
@@ -51,7 +51,7 @@ export default function CastVoteModal({
     if (isTransactionSuccessful) {
       setIsDialogOpened(false);
       toast({
-        description: "Your vote has been successfully casted.",
+        description: 'Your vote has been successfully casted.',
       });
     }
   }, [isTransactionSuccessful]);
@@ -60,8 +60,8 @@ export default function CastVoteModal({
     <Dialog>
       <DialogTrigger asChild>
         <Web3Button
-          loading={isTransactionLoading || castVoteWrite.isLoading}
           className="w-full md:w-24"
+          loading={isTransactionLoading || castVoteWrite.isLoading}
         >
           Vote
         </Web3Button>
@@ -73,37 +73,37 @@ export default function CastVoteModal({
           </DialogHeader>
           <div className="flex gap-2">
             <Button
-              disabled={!castVoteWrite.write || !isConnected}
-              className="flex-1 bg-success hover:bg-success-light"
               onClick={() => {
                 castVoteWrite.write({
                   args: [BigInt(proposalId), 1],
                 });
               }}
+              className="flex-1 bg-success hover:bg-success-light"
+              disabled={!castVoteWrite.write || !isConnected}
             >
               For
             </Button>
             <Button
-              disabled={!castVoteWrite.write || !isConnected}
-              className="flex-1 bg-destructive hover:bg-destructive/90"
               onClick={() => {
                 castVoteWrite.write({
                   args: [BigInt(proposalId), 0],
                 });
               }}
+              className="flex-1 bg-destructive hover:bg-destructive/90"
+              disabled={!castVoteWrite.write || !isConnected}
             >
               Against
             </Button>
           </div>
 
           <Button
-            variant="outline"
-            disabled={!castVoteWrite.write || !isConnected}
             onClick={() => {
               castVoteWrite.write({
                 args: [BigInt(proposalId), 2],
               });
             }}
+            disabled={!castVoteWrite.write || !isConnected}
+            variant="outline"
           >
             Abstain
           </Button>

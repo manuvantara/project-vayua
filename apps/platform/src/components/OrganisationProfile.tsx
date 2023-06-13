@@ -1,8 +1,10 @@
 // TODO: implement toast notifications
 
-import { shortenAddress } from "@/utils/helpers/shorten.helper";
-import Link from "next/link";
-import { Button } from "./ui/Button";
+import {
+  VRC1_CONTRACT_ABI,
+  VRC1_CONTRACT_ADDRESS,
+} from '@/utils/abi/VRC1-contract';
+import { shortenAddress } from '@/utils/helpers/shorten.helper';
 import {
   LinkIcon,
   MapPin,
@@ -11,8 +13,8 @@ import {
   Settings,
   Star,
   StarOff,
-} from "lucide-react";
-import DelegateModal from "./DelegateModal";
+} from 'lucide-react';
+import Link from 'next/link';
 import {
   useAccount,
   useContractEvent,
@@ -20,46 +22,43 @@ import {
   useContractWrite,
   usePublicClient,
   useWaitForTransaction,
-} from "wagmi";
+} from 'wagmi';
 
-import {
-  VRC1_CONTRACT_ABI,
-  VRC1_CONTRACT_ADDRESS,
-} from "@/utils/abi/VRC1-contract"; // TODO: change path to @/utils/VRC1 or @/utils/VRC1-contract or @/utils/contracts/VRC1
-import { useEffect, useState } from "react";
-
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar";
-import Image from "next/image";
-import { getInitials } from "@/utils/helpers/common.helper";
+import DelegateModal from './DelegateModal';
+import { Button } from './ui/Button'; // TODO: change path to @/utils/VRC1 or @/utils/VRC1-contract or @/utils/contracts/VRC1
+import { getInitials } from '@/utils/helpers/common.helper';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 // TODO: rename to <RenderUsingClientOnly>{children}</RenderUsingClientOnly>
-import ClientOnly from "./ClientOnly";
+import ClientOnly from './ClientOnly';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/Avatar';
 
 /// Utils section starts here
 
 type Profile = {
-  name?: string;
-  bio?: string;
   avatar?: string;
+  bio?: string;
   location?: string;
+  name?: string;
   website?: string;
 };
 
 type ProfileExtension = {
-  standard: "VRC1";
+  standard: 'VRC1';
 };
 
 type UserProfileExtension = ProfileExtension & {
-  target: "User";
-  version: "1.0.0";
   organisations: `0x${string}`[];
+  target: 'User';
+  version: '1.0.0';
 };
 
 // type UserProfile = Profile & { extension: UserProfileExtension };
 type OrganisationProfile = Profile;
 
 function parseOrganisationProfile(
-  data: readonly [string, string, string, string, string]
+  data: readonly [string, string, string, string, string],
 ): Profile {
   // if (!isProfilish(data)) {
   //   throw new Error("Data is not profilish");
@@ -99,16 +98,16 @@ function parseUserProfileExtension(data: string) {
 
   if (data.length === 0) {
     userProfileExtension = {
-      standard: "VRC1",
-      target: "User",
-      version: "1.0.0",
       organisations: [],
+      standard: 'VRC1',
+      target: 'User',
+      version: '1.0.0',
     };
   } else {
     try {
       userProfileExtension = JSON.parse(data);
     } catch (error) {
-      throw new Error("Unknown profile extension");
+      throw new Error('Unknown profile extension');
     }
   }
 
@@ -127,10 +126,10 @@ export default function OrganisationProfile({
 
   const [userProfileExtension, setUserProfileExtension] =
     useState<UserProfileExtension>({
-      standard: "VRC1",
-      target: "User",
-      version: "1.0.0",
       organisations: [],
+      standard: 'VRC1',
+      target: 'User',
+      version: '1.0.0',
     });
 
   const publicClient = usePublicClient();
@@ -140,14 +139,14 @@ export default function OrganisationProfile({
     async onConnect({ address }) {
       if (address) {
         const data = await publicClient.readContract({
-          address: VRC1_CONTRACT_ADDRESS,
           abi: VRC1_CONTRACT_ABI,
-          functionName: "profileExtensions",
+          address: VRC1_CONTRACT_ADDRESS,
           args: [address],
+          functionName: 'profileExtensions',
         });
 
         const userProfileExtension = parseUserProfileExtension(data);
-        console.log("userProfileExtension=", userProfileExtension);
+        console.log('userProfileExtension=', userProfileExtension);
 
         setUserProfileExtension(userProfileExtension);
       }
@@ -155,9 +154,9 @@ export default function OrganisationProfile({
   });
 
   const setProfileExtensionWrite = useContractWrite({
-    address: VRC1_CONTRACT_ADDRESS,
     abi: VRC1_CONTRACT_ABI,
-    functionName: "setProfileExtension",
+    address: VRC1_CONTRACT_ADDRESS,
+    functionName: 'setProfileExtension',
   });
 
   const waitForSetUserProfileExtensionTransaction = useWaitForTransaction({
@@ -171,43 +170,43 @@ export default function OrganisationProfile({
   });
 
   useContractEvent({
-    address: VRC1_CONTRACT_ADDRESS,
     abi: VRC1_CONTRACT_ABI,
-    eventName: "ProfileExtensionChanged",
+    address: VRC1_CONTRACT_ADDRESS,
+    eventName: 'ProfileExtensionChanged',
     listener: (logs) => {
       if (account.address) {
         const userLogs = logs.filter(
-          (log) => log.args.profileOwner === account.address
+          (log) => log.args.profileOwner === account.address,
         );
         const latestLog = userLogs[userLogs.length - 1];
 
         if (latestLog.args.extension) {
           const latestExtension = parseUserProfileExtension(
-            latestLog.args.extension
+            latestLog.args.extension,
           );
           setUserProfileExtension(latestExtension);
         }
       }
 
-      console.log("UserProfileExtensionChanged=", logs);
+      console.log('UserProfileExtensionChanged=', logs);
     },
   });
 
   /// TODO: Check whether watch will update the organisation profile automatically and useContractEvent can be omitted
   const organisationProfileRead = useContractRead({
-    address: VRC1_CONTRACT_ADDRESS,
     abi: VRC1_CONTRACT_ABI,
-    functionName: "profiles",
+    address: VRC1_CONTRACT_ADDRESS,
     args: [organisationAddress],
+    functionName: 'profiles',
     // watch: true,
   });
 
   useEffect(() => {
     if (organisationProfileRead.data) {
       const organisationProfile = parseOrganisationProfile(
-        organisationProfileRead.data
+        organisationProfileRead.data,
       );
-      console.log("organisationProfile=", organisationProfile);
+      console.log('organisationProfile=', organisationProfile);
 
       setOrganisationProfile(organisationProfile);
     }
@@ -215,12 +214,12 @@ export default function OrganisationProfile({
 
   /// TODO: remove if 'watch' works
   useContractEvent({
-    address: VRC1_CONTRACT_ADDRESS,
     abi: VRC1_CONTRACT_ABI,
-    eventName: "ProfileChanged",
+    address: VRC1_CONTRACT_ADDRESS,
+    eventName: 'ProfileChanged',
     listener: (logs) => {
       const organisationLogs = logs.filter(
-        (log) => log.args.profileOwner === organisationAddress
+        (log) => log.args.profileOwner === organisationAddress,
       );
       const latestLog = organisationLogs[organisationLogs.length - 1];
 
@@ -236,7 +235,7 @@ export default function OrganisationProfile({
         setOrganisationProfile(latestProfile);
       }
 
-      console.log("OrganisationProfileChanged=", logs);
+      console.log('OrganisationProfileChanged=', logs);
     },
   });
 
@@ -254,12 +253,12 @@ export default function OrganisationProfile({
       temp = {
         ...extension,
         organisations: extension.organisations.filter(
-          (element) => element !== organisationAddress
+          (element) => element !== organisationAddress,
         ),
       };
     }
 
-    console.log("temp=", temp);
+    console.log('temp=', temp);
 
     setProfileExtensionWrite.write({
       args: [JSON.stringify(temp)],
@@ -268,7 +267,7 @@ export default function OrganisationProfile({
 
   const avatarFallbackUrl = (
     organisationName: string | undefined,
-    organisationAddress: `0x${string}`
+    organisationAddress: `0x${string}`,
   ) => {
     // https://avatar.vercel.sh/${organisationAddress
     // }.svg?text=${encodeURIComponent(
@@ -285,37 +284,37 @@ export default function OrganisationProfile({
   };
 
   return (
-    <div className="col-span-1 bg-white border border-black-500 rounded-lg p-5 mt-5">
-      <div className="flex flex-row items-center gap-5 mb-5">
+    <div className="border-black-500 col-span-1 mt-5 rounded-lg border bg-white p-5">
+      <div className="mb-5 flex flex-row items-center gap-5">
         <Avatar className="h-16 w-16">
           <AvatarImage
             className="object-top"
             decoding="async"
             loading="lazy"
-            title={`Avatar for ${organisationProfile.name}`}
             src={organisationProfile.avatar}
+            title={`Avatar for ${organisationProfile.name}`}
           />
           <AvatarFallback delayMs={300}>
             <Image
-              src={avatarFallbackUrl(
-                organisationProfile.name,
-                organisationAddress
-              )}
-              width="80"
-              height="80"
               alt={`Avatar for ${
                 organisationProfile.name || organisationAddress
               }`}
-              className="select-none pointer-events-none rounded-full"
+              src={avatarFallbackUrl(
+                organisationProfile.name,
+                organisationAddress,
+              )}
+              className="pointer-events-none select-none rounded-full"
+              height="80"
+              width="80"
             />
           </AvatarFallback>
         </Avatar>
         <h1 className="text-3xl font-bold">
-          {organisationProfile.name || "..."}
+          {organisationProfile.name || '...'}
         </h1>
       </div>
-      <div className="gap-2 grid grid-cols-2">
-        <Button variant="outline" asChild>
+      <div className="grid grid-cols-2 gap-2">
+        <Button asChild variant="outline">
           <Link href={`${organisationAddress}/settings`}>
             <Settings size={20} />
             <span className="ml-2">Settings</span>
@@ -325,25 +324,25 @@ export default function OrganisationProfile({
         {/* ClientOnly => RenderUsingClientOnly */}
         <ClientOnly>
           <Button
-            variant="outline"
-            onClick={toggleStarOrganisation}
-            disabled={!account.isConnected}
             loading={
               setProfileExtensionWrite.isLoading ||
               waitForSetUserProfileExtensionTransaction.isLoading
             }
             prefix={
               userProfileExtension.organisations.includes(
-                organisationAddress
+                organisationAddress,
               ) ? (
                 <StarOff size={20} />
               ) : (
                 <Star size={20} />
               )
             }
+            disabled={!account.isConnected}
+            onClick={toggleStarOrganisation}
+            variant="outline"
           >
             {userProfileExtension.organisations.includes(
-              organisationAddress
+              organisationAddress,
             ) ? (
               <span>Unstar</span>
             ) : (
@@ -352,7 +351,7 @@ export default function OrganisationProfile({
           </Button>
         </ClientOnly>
 
-        <Button variant="outline" asChild>
+        <Button asChild variant="outline">
           <Link href={`${organisationAddress}/proposals/new`}>
             <Plus size={20} />
             <span className="ml-2">Propose</span>
@@ -363,7 +362,7 @@ export default function OrganisationProfile({
       {organisationProfile.bio && (
         <div className="mt-5 max-w-3xl">{organisationProfile.bio}</div>
       )}
-      <div className="mt-5 flex flex-col mt-3 gap-1">
+      <div className="mt-3 mt-5 flex flex-col gap-1">
         {organisationProfile.location && (
           <div className="flex flex-row items-center gap-2">
             <MapPin size={20} />
@@ -384,9 +383,9 @@ export default function OrganisationProfile({
           <ScrollText size={20} />
           <div>
             <Link
-              target="_blank"
+              className="border-b border-dashed border-[#999]"
               href={`https://testnet-explorer.thetatoken.org/account/${organisationAddress}`}
-              className="border-b border-[#999] border-dashed"
+              target="_blank"
             >
               {organisationAddress ? shortenAddress(organisationAddress) : null}
             </Link>

@@ -1,80 +1,78 @@
-import { useEffect, useState } from "react";
-import { showNotification } from "@mantine/notifications";
-import { Box, Loader, Overlay, Text, Title } from "@mantine/core";
-
-import {
-  baseURLBin,
-  compile,
-  CompilerAbstract,
-  pathToURL,
-} from "@remix-project/remix-solidity";
-import { SOLIDITY_COMPILER_VERSION } from "@/utils/compiler/compiler";
 import {
   deployedGovernorAddressAtom,
   deployedTokenAddressAtom,
   governanceContractAtom,
   stepsAtom,
   tokenContractAtom,
-} from "@/atoms";
-import { handleNpmImport } from "@/utils/compiler/import-handler";
-
-import { waitForTransaction } from "@wagmi/core";
-import { useAccount, useWalletClient } from "wagmi";
-import { thetaTestnet } from "@/utils/chains/theta-chains";
-import { useAtomValue, useSetAtom } from "jotai";
-import { Button } from "@/components/ui/Button";
+} from '@/atoms';
+import { Button } from '@/components/ui/Button';
+import { thetaTestnet } from '@/utils/chains/theta-chains';
+import { SOLIDITY_COMPILER_VERSION } from '@/utils/compiler/compiler';
+import { handleNpmImport } from '@/utils/compiler/import-handler';
+import { Box, Loader, Overlay, Text, Title } from '@mantine/core';
+import { showNotification } from '@mantine/notifications';
+import {
+  CompilerAbstract,
+  baseURLBin,
+  compile,
+  pathToURL,
+} from '@remix-project/remix-solidity';
+import { waitForTransaction } from '@wagmi/core';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useState } from 'react';
+import { useAccount, useWalletClient } from 'wagmi';
 
 const DEPLOYMENT_STAGES = [
-  "Compiling token contract",
-  "Deploying token contract",
-  "Compiling governance contract",
-  "Deploying governance contract",
+  'Compiling token contract',
+  'Deploying token contract',
+  'Compiling governance contract',
+  'Deploying governance contract',
 ];
 
 function showErrorNotification(error: any, title: string) {
   showNotification({
-    title: title || "Error",
-    color: "red",
-    message: error,
     autoClose: 5000,
+    color: 'red',
+    message: error,
+    title: title || 'Error',
   });
 }
 
 function showSuccessNotification(tokenType: string, phase: string) {
-  let contractTypeMessage = "";
-  if (tokenType === "governanceContract") {
-    contractTypeMessage = "governance";
-  } else if (tokenType === "tokenContract") {
-    contractTypeMessage = "token";
+  let contractTypeMessage = '';
+  if (tokenType === 'governanceContract') {
+    contractTypeMessage = 'governance';
+  } else if (tokenType === 'tokenContract') {
+    contractTypeMessage = 'token';
   }
 
-  let successMessage = "";
+  let successMessage = '';
   switch (phase) {
-    case "compilation":
+    case 'compilation':
       successMessage = `Your ${contractTypeMessage} contract has been compiled successfully!`;
       break;
-    case "deployment":
+    case 'deployment':
       successMessage = `Your ${contractTypeMessage} contract has been deployed successfully!`;
       break;
     default:
-      successMessage = "The action was successful!";
+      successMessage = 'The action was successful!';
   }
 
   showNotification({
-    title: "Success",
-    color: "teal",
-    message: successMessage,
     autoClose: 5000,
+    color: 'teal',
+    message: successMessage,
+    title: 'Success',
   });
 }
 
 (function initSupportedSolcVersion() {
-  (pathToURL as any)["soljson-v0.8.11+commit.d7f03943.js"] = baseURLBin;
+  (pathToURL as any)['soljson-v0.8.11+commit.d7f03943.js'] = baseURLBin;
 })();
 
 function CompilerDeployer() {
   const [currentStage, setCurrentStage] = useState<string>(
-    DEPLOYMENT_STAGES[0]
+    DEPLOYMENT_STAGES[0],
   );
   const [deploymentQueue, setDeploymentQueue] = useState<string[]>([
     ...DEPLOYMENT_STAGES,
@@ -97,17 +95,17 @@ function CompilerDeployer() {
   const account = useAccount();
   const contractMap: {
     [key: string]: {
-      source: string;
       contractName: string;
+      source: string;
     };
   } = {
-    tokenContract: {
-      source: tokenContract.source,
-      contractName: tokenContract.name,
-    },
     governanceContract: {
-      source: governanceContract.source,
       contractName: governanceContract.name,
+      source: governanceContract.source,
+    },
+    tokenContract: {
+      contractName: tokenContract.name,
+      source: tokenContract.source,
     },
   };
 
@@ -124,29 +122,29 @@ function CompilerDeployer() {
   const handleDeployment = async () => {
     setDeployment(true);
     try {
-      const tokenCompileResponse = await handleCompile("tokenContract");
+      const tokenCompileResponse = await handleCompile('tokenContract');
       // TODO: Make more readable
       const tokenContractAddress = tokenCompileResponse
-        ? await handleDeploy("tokenContract", tokenCompileResponse, "")
+        ? await handleDeploy('tokenContract', tokenCompileResponse, '')
         : null;
       // TODO: Temporary fix for token contract address type
       setDeployedTokenAddress(tokenContractAddress as `0x${string}`);
       if (tokenContractAddress) {
         const governanceCompileResponse = await handleCompile(
-          "governanceContract"
+          'governanceContract',
         );
         const governanceContractAddress = governanceCompileResponse
           ? await handleDeploy(
-              "governanceContract",
+              'governanceContract',
               governanceCompileResponse,
-              tokenContractAddress
+              tokenContractAddress,
             )
           : null;
         // TODO: Temporary fix for governance contract address type
         setDeployedGovernorAddress(governanceContractAddress as `0x${string}`);
       }
     } catch (error: any) {
-      showErrorNotification(error.message, "Unexpected error");
+      showErrorNotification(error.message, 'Unexpected error');
       return;
     } finally {
       // TODO: Think of a better way to handle this logic
@@ -158,12 +156,12 @@ function CompilerDeployer() {
   };
 
   const handleCompile = async (contractType: string) => {
-    const { source, contractName } = contractMap[contractType] || {};
+    const { contractName, source } = contractMap[contractType] || {};
 
     if (!source || !contractName) {
       showErrorNotification(
-        "Contract error",
-        "Invalid contract type, name or source"
+        'Contract error',
+        'Invalid contract type, name or source',
       );
       return null;
     }
@@ -176,24 +174,24 @@ function CompilerDeployer() {
           },
         },
         {
-          version: SOLIDITY_COMPILER_VERSION,
           optimize: true,
+          version: SOLIDITY_COMPILER_VERSION,
         },
-        handleNpmImport
+        handleNpmImport,
       )) as CompilerAbstract;
 
       if (response.data.errors) {
         showErrorNotification(
           response.data.errors[0].formattedMessage,
-          "Compilation error"
+          'Compilation error',
         );
         return null;
       }
-      showSuccessNotification(contractType, "compilation");
+      showSuccessNotification(contractType, 'compilation');
       processNextStage();
       return response;
     } catch (error: any) {
-      showErrorNotification(error.message, "Compilation error");
+      showErrorNotification(error.message, 'Compilation error');
       return null;
     }
   };
@@ -201,16 +199,16 @@ function CompilerDeployer() {
   const handleDeploy = async (
     contractType: string,
     response: CompilerAbstract,
-    tokenContractAddress: string
+    tokenContractAddress: string,
   ) => {
     const { contractName } = contractMap[contractType] || {};
     const contractArgs =
-      contractType === "governanceContract" ? [tokenContractAddress] : [];
+      contractType === 'governanceContract' ? [tokenContractAddress] : [];
 
     if (!contractName) {
       showErrorNotification(
-        "Contract error",
-        "Invalid contract type, name or source"
+        'Contract error',
+        'Invalid contract type, name or source',
       );
       return null;
     }
@@ -226,8 +224,8 @@ function CompilerDeployer() {
         !compiledContract
       ) {
         showErrorNotification(
-          "Contract error",
-          "Could not find compiled contract"
+          'Contract error',
+          'Could not find compiled contract',
         );
         return null;
       }
@@ -242,18 +240,18 @@ function CompilerDeployer() {
             bytecode: contractBinary,
           });
         } catch (error: any) {
-          showErrorNotification(error.message, "Transaction failed");
+          showErrorNotification(error.message, 'Transaction failed');
           return null;
         }
       }
       if (tx) {
         const data = await waitForTransaction({ hash: tx });
-        showSuccessNotification(contractType, "deployment");
+        showSuccessNotification(contractType, 'deployment');
         processNextStage();
         return data.contractAddress;
       }
     } catch (error: any) {
-      showErrorNotification(error.message, "Deployment error");
+      showErrorNotification(error.message, 'Deployment error');
       return null;
     }
   };
@@ -262,24 +260,24 @@ function CompilerDeployer() {
     <>
       <Box pos="relative">
         {deployment && (
-          <Overlay blur={8} center opacity={0.4} fixed>
-            <div className="flex gap-5 items-end">
+          <Overlay blur={8} center fixed opacity={0.4}>
+            <div className="flex items-end gap-5">
               <Loader />
-              <Title order={3} size="h4" className="mb-2" color="white">
+              <Title className="mb-2" color="white" order={3} size="h4">
                 {currentStage}
               </Title>
             </div>
           </Overlay>
         )}
-        <div className="py-8 md:py-14 md:px-8 lg:py-20">
+        <div className="py-8 md:px-8 md:py-14 lg:py-20">
           <div className="flex flex-col items-center">
-            <Title order={2} size="h2" className="mb-2 tracking-tight">
+            <Title className="mb-2 tracking-tight" order={2} size="h2">
               Now it is high time to deploy constructed contracts
             </Title>
             <Text
-              size="md"
+              className="max-w-2xl text-gray-500 sm:text-center"
               component="p"
-              className="text-gray-500 max-w-2xl sm:text-center"
+              size="md"
             >
               Let&apos;s begin by compiling the token contract. Once that is
               done, we can proceed to deploy the compiled token contract.
@@ -287,11 +285,11 @@ function CompilerDeployer() {
               Finally, we&apos;ll deploy the compiled governance contract.
             </Text>
 
-            <div className="flex flex-col items-center gap-7 mt-7 md:flex-row">
+            <div className="mt-7 flex flex-col items-center gap-7 md:flex-row">
               <Button
-                variant="default"
-                onClick={handleDeployment}
                 disabled={!isConnected}
+                onClick={handleDeployment}
+                variant="default"
               >
                 Deploy contracts
               </Button>

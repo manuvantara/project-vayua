@@ -1,6 +1,6 @@
-import { FC } from "react";
-import Link from "next/link";
-
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
+import { Profile, UserStarringExtension, mockupProfile } from '@/utils/VRC1';
+import { shortenAddress } from '@/utils/helpers/shorten.helper';
 // TODO: refactor, separate utils, <Profile /> & <UserStarringExtension>
 import {
   ChevronRightIcon,
@@ -8,12 +8,10 @@ import {
   LinkIcon,
   MapPinIcon,
   PencilIcon,
-} from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
-import Image from "next/image";
-
-import { shortenAddress } from "@/utils/helpers/shorten.helper";
-import { mockupProfile, Profile, UserStarringExtension } from "@/utils/VRC1";
+} from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { FC } from 'react';
 
 // type Profile = {
 //   name?: string;
@@ -112,29 +110,29 @@ export const ProfileView: FC<ProfileViewProps> = ({
     <div className="flex flex-col items-center gap-6">
       <Avatar className="h-60 w-60 border">
         <AvatarImage
-          width={240}
-          height={240}
           className="object-top"
           decoding="async"
+          height={240}
           loading="lazy"
-          title={`Avatar for ${accountAddress}}`}
           src={profile.avatar}
+          title={`Avatar for ${accountAddress}}`}
+          width={240}
         />
         <AvatarFallback delayMs={300}>
           <Image
-            width={240}
-            height={240}
             alt={`Avatar for ${accountAddress}}`}
-            className="select-none pointer-events-none rounded-full"
+            className="pointer-events-none select-none rounded-full"
+            height={240}
             src={avatar}
+            width={240}
           />
         </AvatarFallback>
       </Avatar>
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col items-center">
-          <div className="text-xl md:text-2xl font-semibold leading-none tracking-tight flex gap-2 items-center">
-            <Fingerprint size={24} />{" "}
+          <div className="flex items-center gap-2 text-xl font-semibold leading-none tracking-tight md:text-2xl">
+            <Fingerprint size={24} />{' '}
             {/* TODO: modify shortenText so it could be applied to short names that are longer than it is expected */}
             {/* { (profile.name) ? shortenText(profile.name, 20) : shortenText(name, 0)} */}
             {profile.name || name}
@@ -148,19 +146,19 @@ export const ProfileView: FC<ProfileViewProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-center flex-wrap gap-2 text-center">
+        <div className="flex flex-wrap justify-center gap-2 text-center">
           <div className="text-gray-500">
-            <PencilIcon size={16} className="inline-block align-text-top" />{" "}
+            <PencilIcon className="inline-block align-text-top" size={16} />{' '}
             {profile.bio || bio}
           </div>
 
           <div className="text-gray-500">
-            <MapPinIcon size={16} className="inline-block align-text-top" />{" "}
+            <MapPinIcon className="inline-block align-text-top" size={16} />{' '}
             {profile.location || location}
           </div>
 
           <div className="text-gray-500">
-            <LinkIcon size={16} className="inline-block align-text-top" />{" "}
+            <LinkIcon className="inline-block align-text-top" size={16} />{' '}
             <Link href={profile.website || website}>
               {profile.website || website}
             </Link>
@@ -180,8 +178,8 @@ export const UserStarringExtensionView: FC<UserStarringExtensionView> = ({
     {extension.organisations.map((organisationAddress) => (
       <li key={organisationAddress}>
         <Link
+          className="flex items-center justify-between py-4"
           href={`/organisations/${organisationAddress}`}
-          className="py-4 flex justify-between items-center"
         >
           <span>{shortenAddress(organisationAddress)}</span>
           <ChevronRightIcon height={16} />

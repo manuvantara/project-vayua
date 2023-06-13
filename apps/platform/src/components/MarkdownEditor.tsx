@@ -1,39 +1,39 @@
-import dynamic from "next/dynamic";
-import "easymde/dist/easymde.min.css";
-import { Options } from "easymde";
-import { useAtom } from "jotai";
-import { markdownEditorValueAtom } from "@/atoms";
+import { markdownEditorValueAtom } from '@/atoms';
+import { Options } from 'easymde';
+import 'easymde/dist/easymde.min.css';
+import { useAtom } from 'jotai';
+import dynamic from 'next/dynamic';
 
-const SimpleMDEditor = dynamic(() => import("react-simplemde-editor"), {
+const SimpleMDEditor = dynamic(() => import('react-simplemde-editor'), {
   ssr: false,
 });
 
 const options: Options = {
   autofocus: true,
+  placeholder: 'Please Enter Markdown Text',
   spellChecker: false,
-  placeholder: "Please Enter Markdown Text",
   toolbar: [
-    "bold",
-    "italic",
-    "strikethrough",
-    "heading-1",
-    "heading-2",
-    "heading-3",
-    "heading-smaller",
-    "heading-bigger",
-    "|",
-    "code",
-    "|",
-    "quote",
-    "unordered-list",
-    "ordered-list",
-    "|",
-    "link",
-    "image",
-    "table",
-    "horizontal-rule",
-    "|",
-    "guide",
+    'bold',
+    'italic',
+    'strikethrough',
+    'heading-1',
+    'heading-2',
+    'heading-3',
+    'heading-smaller',
+    'heading-bigger',
+    '|',
+    'code',
+    '|',
+    'quote',
+    'unordered-list',
+    'ordered-list',
+    '|',
+    'link',
+    'image',
+    'table',
+    'horizontal-rule',
+    '|',
+    'guide',
   ],
 };
 
@@ -46,10 +46,10 @@ export default function MarkdownEditor() {
 
   return (
     <SimpleMDEditor
-      options={options}
       id="editor"
-      value={editorValue}
       onChange={handleEditorValue}
+      options={options}
+      value={editorValue}
     />
   );
 }

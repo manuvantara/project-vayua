@@ -1,4 +1,4 @@
-import { atom } from "jotai";
+import { atom } from 'jotai';
 
 type DeployedAddress = `0x${string}`;
 

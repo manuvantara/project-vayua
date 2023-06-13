@@ -1,3 +1,3 @@
-import { atom } from "jotai";
+import { atom } from 'jotai';
 
-export const markdownEditorValueAtom = atom<string>("");
+export const markdownEditorValueAtom = atom<string>('');

@@ -1,8 +1,8 @@
-import ClientOnly from "@/components/ClientOnly";
-import WalletConnect from "@/components/WalletConnect";
-import Link from "next/link";
-import useScroll from "@/hooks/use-scroll";
-import { cn } from "@/utils/helpers/class-merge.helper";
+import ClientOnly from '@/components/ClientOnly';
+import WalletConnect from '@/components/WalletConnect';
+import useScroll from '@/hooks/use-scroll';
+import { cn } from '@/utils/helpers/class-merge.helper';
+import Link from 'next/link';
 
 export default function Header() {
   const scrolled = useScroll(0);
@@ -10,20 +10,20 @@ export default function Header() {
   return (
     <div
       className={cn(
-        "sticky top-0 bg-transparent flex justify-center transition-all duration-300 w-full max-w-full z-50 before:absolute before:opacity-0 before:w-full before:h-full before:backdrop-blur-sm before:backdrop-saturate-150 before:-z-[1] before:transition-all before:duration-300 before:ease-in-out before:-top-[1px]",
+        'sticky top-0 z-50 flex w-full max-w-full justify-center bg-transparent transition-all duration-300 before:absolute before:-top-[1px] before:-z-[1] before:h-full before:w-full before:opacity-0 before:backdrop-blur-sm before:backdrop-saturate-150 before:transition-all before:duration-300 before:ease-in-out',
         {
-          "bg-white sm:bg-white/80 shadow-[inset_0_-1px_0_rgba(0,0,0,0.1)] before:opacity-100":
+          'bg-white shadow-[inset_0_-1px_0_rgba(0,0,0,0.1)] before:opacity-100 sm:bg-white/80':
             scrolled,
-        }
+        },
       )}
     >
-      <header className="flex items-center justify-between container w-full py-4 min-h-16">
-        <div className="flex items-center h-full justify-between">
+      <header className="min-h-16 container flex w-full items-center justify-between py-4">
+        <div className="flex h-full items-center justify-between">
           <Link href="/">
             <svg
               className="h-8 w-auto"
-              viewBox="0 0 357 87"
               fill="none"
+              viewBox="0 0 357 87"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
@@ -49,34 +49,34 @@ export default function Header() {
               <path
                 d="M63.5 61V36.9H85.7V52H71V44H79.5"
                 stroke="#2F62F2"
-                strokeWidth="4"
-                strokeMiterlimit="10"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                strokeMiterlimit="10"
+                strokeWidth="4"
               />
               <path
                 d="M51.7 61V36.9H29.5V52H44.2V44H35.7"
                 stroke="#2F62F2"
-                strokeWidth="4"
-                strokeMiterlimit="10"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                strokeMiterlimit="10"
+                strokeWidth="4"
               />
               <path
                 d="M86.8 25.3H28.5"
                 stroke="#2F62F2"
-                strokeWidth="4"
-                strokeMiterlimit="10"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                strokeMiterlimit="10"
+                strokeWidth="4"
               />
               <path
                 d="M95.3 15.8H19.9"
                 stroke="#2F62F2"
-                strokeWidth="4"
-                strokeMiterlimit="10"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                strokeMiterlimit="10"
+                strokeWidth="4"
               />
             </svg>
           </Link>

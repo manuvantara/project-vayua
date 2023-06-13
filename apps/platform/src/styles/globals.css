@@ -52,13 +52,15 @@
     @apply border-border;
   }
 
-  html, body, #__next {
+  html,
+  body,
+  #__next {
     @apply h-full;
   }
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 
   ::selection {

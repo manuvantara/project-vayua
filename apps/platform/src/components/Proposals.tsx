@@ -1,30 +1,30 @@
-import { useEffect, useState } from "react";
+import { MarkdownFrontmatter } from '@/types/proposals';
+import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { parseMarkdownWithYamlFrontmatter } from '@/utils/helpers/proposal.helper';
+import { ColumnDef } from '@tanstack/react-table';
+import { ethers } from 'ethers';
+import { useEffect, useState } from 'react';
+import { Block, parseAbiItem } from 'viem';
+import { useContractEvent, usePublicClient } from 'wagmi';
 
-import { ethers } from "ethers";
-import { useContractEvent, usePublicClient } from "wagmi";
-import { Block, parseAbiItem } from "viem";
-import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { parseMarkdownWithYamlFrontmatter } from "@/utils/helpers/proposal.helper";
-import { MarkdownFrontmatter } from "@/types/proposals";
-import { ColumnDef } from "@tanstack/react-table";
-import { DataTable } from "./ProposalsTable";
+import { DataTable } from './ProposalsTable';
 
 export const columns: ColumnDef<Proposal>[] = [
   {
-    header: "Proposals",
+    header: 'Proposals',
   },
 ];
 
 export type Proposal = {
+  calldatas: `0x${string}` | `0x${string}`[];
+  description: string;
   proposalId: `0x${string}`;
   proposer: `0x${string}`;
+  signatures: string | string[];
   targets: `0x${string}` | `0x${string}`[];
   values: string | string[];
-  signatures: string | string[];
-  calldatas: `0x${string}` | `0x${string}`[];
-  voteStart: string;
   voteEnd: string;
-  description: string;
+  voteStart: string;
 };
 
 const MIN_BLOCK_NUMBER = 21041027n;
@@ -34,15 +34,15 @@ const parseEvents = (logs: any) => {
     const { args } = log;
 
     const proposalObject = {
+      calldatas: args.calldatas,
+      description: args.description.toString(),
       proposalId: args.proposalId.toString(),
       proposer: args.proposer.toString(),
+      signatures: args.signatures,
       targets: args.targets,
       values: args.values.map((value: ethers.BigNumber) => value.toString()),
-      signatures: args.signatures,
-      calldatas: args.calldatas,
-      voteStart: args.startBlock.toString(),
       voteEnd: args.endBlock.toString(),
-      description: args.description.toString(),
+      voteStart: args.startBlock.toString(),
     };
 
     return proposalObject;
@@ -56,15 +56,15 @@ const parseLogs = (logsPerCycle: any) => {
     const { args } = log;
     // transform args array into an object
     const proposalObject = {
+      calldatas: args[5],
+      description: args[8].toString(),
       proposalId: args[0].toString(),
       proposer: args[1].toString(),
+      signatures: args[4],
       targets: args[2],
       values: args[3].map((value: ethers.BigNumber) => value.toString()),
-      signatures: args[4],
-      calldatas: args[5],
-      voteStart: args[6].toString(),
       voteEnd: args[7].toString(),
-      description: args[8].toString(),
+      voteStart: args[6].toString(),
     };
 
     return proposalObject;
@@ -81,15 +81,15 @@ export function getProposalTitle(rawDescription: string) {
 
   if (title) {
     title =
-      title.length > MAX_LENGTH ? title.slice(0, MAX_LENGTH) + "..." : title;
+      title.length > MAX_LENGTH ? title.slice(0, MAX_LENGTH) + '...' : title;
   } else {
     title =
       rawDescription.length > MAX_LENGTH
-        ? rawDescription.slice(0, MAX_LENGTH) + "..."
+        ? rawDescription.slice(0, MAX_LENGTH) + '...'
         : rawDescription;
   }
 
-  return title || "";
+  return title || '';
 }
 
 export default function Proposals({
@@ -109,17 +109,17 @@ export default function Proposals({
     return BigInt(
       JSON.parse(
         window.localStorage.getItem(
-          `${organisationAddress}initialBlockNumber`
-        ) || currentBlockNumber.toString()
-      )
+          `${organisationAddress}initialBlockNumber`,
+        ) || currentBlockNumber.toString(),
+      ),
     );
   }
 
   function getToBlockFromLocalStorage() {
     return BigInt(
       JSON.parse(
-        window.localStorage.getItem(`${organisationAddress}toBlock`) || "0"
-      )
+        window.localStorage.getItem(`${organisationAddress}toBlock`) || '0',
+      ),
     );
   }
 
@@ -128,7 +128,7 @@ export default function Proposals({
       const logsPerCycle = await publicClient.getLogs({
         address: organisationAddress,
         event: parseAbiItem(
-          "event ProposalCreated(uint256, address, address[], uint256[], string[], bytes[], uint256, uint256, string)"
+          'event ProposalCreated(uint256, address, address[], uint256[], string[], bytes[], uint256, uint256, string)',
         ),
         fromBlock: fromBlock,
         toBlock: toBlock,
@@ -165,7 +165,7 @@ export default function Proposals({
 
       window.localStorage.setItem(
         `${organisationAddress}toBlock`,
-        JSON.stringify(toBlock.toString())
+        JSON.stringify(toBlock.toString()),
       );
     }
   };
@@ -182,7 +182,7 @@ export default function Proposals({
     if (toBlockStored == 0n) {
       window.localStorage.setItem(
         `${organisationAddress}initialBlockNumber`,
-        JSON.stringify(currentBlock.toString())
+        JSON.stringify(currentBlock.toString()),
       );
     }
 
@@ -202,7 +202,7 @@ export default function Proposals({
 
       window.localStorage.setItem(
         `${organisationAddress}initialBlockNumber`,
-        JSON.stringify(toBlock.toString())
+        JSON.stringify(toBlock.toString()),
       );
     }
   };
@@ -221,7 +221,7 @@ export default function Proposals({
 
   useEffect(() => {
     const storedProposals = window.localStorage.getItem(
-      `${organisationAddress}proposals`
+      `${organisationAddress}proposals`,
     );
     if (storedProposals) {
       setProposals(JSON.parse(storedProposals));
@@ -231,15 +231,15 @@ export default function Proposals({
   useEffect(() => {
     window.localStorage.setItem(
       `${organisationAddress}proposals`,
-      JSON.stringify(proposals)
+      JSON.stringify(proposals),
     );
   }, [proposals]);
 
   // listen to proposal created event and updated proposals list real time
   useContractEvent({
-    address: organisationAddress,
     abi: GOVERNOR_ABI,
-    eventName: "ProposalCreated",
+    address: organisationAddress,
+    eventName: 'ProposalCreated',
     listener(logs) {
       if (logs) {
         const parsedLogs = parseEvents(logs);
@@ -247,7 +247,7 @@ export default function Proposals({
         if (logs[0].blockNumber) {
           window.localStorage.setItem(
             `${organisationAddress}initialBlockNumber`,
-            JSON.stringify(logs[0].blockNumber.toString())
+            JSON.stringify(logs[0].blockNumber.toString()),
           );
         }
       }
@@ -259,9 +259,9 @@ export default function Proposals({
       <DataTable
         columns={columns}
         data={proposals}
-        toScanBlocksCounter={toScanBlocksCounter}
-        scannedBlocksCounter={scannedBlocksCounter}
         organisationAddress={organisationAddress}
+        scannedBlocksCounter={scannedBlocksCounter}
+        toScanBlocksCounter={toScanBlocksCounter}
       />
     </div>
   );

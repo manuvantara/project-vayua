@@ -1,28 +1,29 @@
-import type { GetServerSideProps } from "next";
-import { Input } from "@/components/ui/Input";
-import { useEffect, useState } from "react";
-import { Label } from "@/components/ui/Label";
+import type { GetServerSideProps } from 'next';
+
+import { markdownEditorValueAtom, proposalActionsAtom } from '@/atoms';
+import MarkdownEditor from '@/components/MarkdownEditor';
+import NewProposalActions from '@/components/NewProposalActions';
+import Web3Button from '@/components/Web3Button';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { useToast } from '@/components/ui/use-toast';
+import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { parseProposalActionInput } from '@/utils/helpers/proposal.helper';
+import { useAtomValue } from 'jotai';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { encodeFunctionData } from 'viem';
 import {
   erc20ABI,
   useAccount,
   useContractWrite,
   useWaitForTransaction,
-} from "wagmi";
-import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { ArrowLeft } from "lucide-react";
-import { useRouter } from "next/router";
-import { useToast } from "@/components/ui/use-toast";
-import { encodeFunctionData } from "viem";
-import { useAtomValue } from "jotai";
-import { markdownEditorValueAtom, proposalActionsAtom } from "@/atoms";
-import { parseProposalActionInput } from "@/utils/helpers/proposal.helper";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import Link from "next/link";
-import Web3Button from "@/components/Web3Button";
-import MarkdownEditor from "@/components/MarkdownEditor";
-import NewProposalActions from "@/components/NewProposalActions";
+} from 'wagmi';
 
 export default function NewProposalPage({
   organisationAddress,
@@ -33,19 +34,19 @@ export default function NewProposalPage({
   const { address } = useAccount();
   const { toast } = useToast();
 
-  const [proposalName, setProposalName] = useState("");
+  const [proposalName, setProposalName] = useState('');
   const markdownEditorValue = useAtomValue(markdownEditorValueAtom);
 
   const actions = useAtomValue(proposalActionsAtom);
 
   const {
-    write,
     data,
     isLoading: isWriteLoading,
+    write,
   } = useContractWrite({
-    address: organisationAddress,
     abi: GOVERNOR_ABI,
-    functionName: "propose",
+    address: organisationAddress,
+    functionName: 'propose',
   });
 
   const { isLoading: isTransactionLoading, isSuccess } = useWaitForTransaction({
@@ -63,34 +64,34 @@ export default function NewProposalPage({
 
     // const executableCode: `0x${string}`[] = [];
     const proposalActions: {
+      executableCode: `0x${string}`[];
       targetContractAddress: `0x${string}`[];
       value: bigint[];
-      executableCode: `0x${string}`[];
     }[] = [];
 
     if (actions.length === 0) {
       const executableCode = encodeFunctionData({
         abi: erc20ABI,
-        functionName: "transfer",
         args: [address as `0x${string}`, 0n],
+        functionName: 'transfer',
       });
 
       proposalActions.push({
-        targetContractAddress: ["0x0000000000000000000000000000000000000000"],
+        executableCode: ['0x00'],
+        targetContractAddress: ['0x0000000000000000000000000000000000000000'],
         value: [0n],
-        executableCode: ["0x00"],
       });
     } else {
       for (const action of actions) {
         const {
           targetContractABI,
-          targetFunctionId,
-          targetFunctionArguments,
           targetContractAddress,
+          targetFunctionArguments,
+          targetFunctionId,
         } = action.action;
 
         const targetContractFunctions = targetContractABI.filter(
-          (item) => item.type === "function" && item.stateMutability !== "view"
+          (item) => item.type === 'function' && item.stateMutability !== 'view',
         );
 
         if (!targetContractFunctions) {
@@ -101,26 +102,26 @@ export default function NewProposalPage({
 
         try {
           const args = Object.values(targetFunctionArguments || {}).map((arg) =>
-            parseProposalActionInput(arg)
+            parseProposalActionInput(arg),
           );
 
           const executableCode = encodeFunctionData({
             abi: targetContractABI,
+            args,
             // For some reason the type is wrong here
             functionName: targetFunction.name as any,
-            args,
           });
 
           proposalActions.push({
+            executableCode: [executableCode],
             targetContractAddress: [targetContractAddress as `0x${string}`],
             value: [0n],
-            executableCode: [executableCode],
           });
         } catch (e: any) {
           toast({
-            title: "Error",
             description: e.message,
-            variant: "destructive",
+            title: 'Error',
+            variant: 'destructive',
           });
           return;
         }
@@ -140,25 +141,25 @@ export default function NewProposalPage({
   useEffect(() => {
     if (isSuccess) {
       toast({
-        title: "Proposal created",
-        description: "Your proposal has been created successfully",
+        description: 'Your proposal has been created successfully',
+        title: 'Proposal created',
       });
       router.push(`/organisations/${organisationAddress}`);
     }
   }, [isSuccess]);
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="flex w-full flex-col">
       <Link
         className="inline-flex items-center text-muted-foreground"
         href={`/organisations/${organisationAddress}`}
       >
-        <ArrowLeft className="w-4 h-4 mr-1" />
+        <ArrowLeft className="mr-1 h-4 w-4" />
         Back
       </Link>
-      <div className="border-b flex items-stretch justify-start">
-        <div className="flex items-center mb-8 mt-4">
-          <h1 className="md:text-4xl text-3xl font-medium tracking-tight">
+      <div className="flex items-stretch justify-start border-b">
+        <div className="mb-8 mt-4 flex items-center">
+          <h1 className="text-3xl font-medium tracking-tight md:text-4xl">
             New proposal
           </h1>
         </div>
@@ -167,13 +168,13 @@ export default function NewProposalPage({
         <div className="mt-8">
           <Label htmlFor="proposal-name">Proposal name</Label>
           <Input
-            id="proposal-name"
             className="mt-2"
-            type="text"
-            placeholder="Enter proposal name"
-            value={proposalName}
+            id="proposal-name"
             onChange={handleProposalNameChange}
+            placeholder="Enter proposal name"
             required
+            type="text"
+            value={proposalName}
           />
         </div>
 
@@ -181,13 +182,13 @@ export default function NewProposalPage({
           <Tabs defaultValue="edit">
             <TabsList className="rounded-md bg-muted p-1 text-muted-foreground">
               <TabsTrigger
-                className="inline-flex border-none items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm border-none px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 value="edit"
               >
                 Edit in markdown
               </TabsTrigger>
               <TabsTrigger
-                className="inline-flex border-none items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm border-none px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                 value="preview"
               >
                 Preview
@@ -197,8 +198,8 @@ export default function NewProposalPage({
               <MarkdownEditor />
             </TabsContent>
             <TabsContent value="preview">
-              <div className="border rounded-md p-4 shadow min-h-[400px] w-full">
-                <div className="prose-sm sm:prose !max-w-full">
+              <div className="min-h-[400px] w-full rounded-md border p-4 shadow">
+                <div className="prose-sm !max-w-full sm:prose">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {markdownEditorValue}
                   </ReactMarkdown>
@@ -214,9 +215,9 @@ export default function NewProposalPage({
 
         <div className="flex justify-end">
           <Web3Button
-            type="submit"
             disabled={!write}
             loading={isTransactionLoading || isWriteLoading}
+            type="submit"
           >
             Create proposal
           </Web3Button>
