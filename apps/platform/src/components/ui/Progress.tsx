@@ -9,7 +9,7 @@ import * as React from 'react';
 type ProgressProps = React.ComponentPropsWithoutRef<
   typeof ProgressPrimitive.Root
 > & {
-  indicatorClassName?: HTMLAttributes<
+  indicatorclassname?: HTMLAttributes<
     typeof ProgressPrimitive.Indicator
   >['className'];
 };
@@ -31,7 +31,7 @@ const Progress = React.forwardRef<
       <ProgressPrimitive.Indicator
         className={cn(
           'h-full w-full flex-1 bg-primary transition-all',
-          props.indicatorClassName,
+          props.indicatorclassname,
         )}
         style={{
           transform: `translateX(-${100 - ((value as number) / max) * 100}%)`,
