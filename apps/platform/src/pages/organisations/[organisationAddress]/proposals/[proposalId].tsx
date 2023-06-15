@@ -12,7 +12,7 @@ import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { getStringHash } from '@/utils/hash-string';
 import {
   parseMarkdownWithYamlFrontmatter,
-  proposalTimestampToDate,
+  proposalTimestampToDate as timestampToDate,
 } from '@/utils/helpers/proposal.helper';
 import { shortenAddress, shortenText } from '@/utils/helpers/shorten.helper';
 import { badgeVariantMap, proposalStateMap } from '@/utils/proposal-states';
@@ -32,6 +32,7 @@ import { useCallback, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   useAccount,
+  useBlockNumber,
   useContractEvent,
   useContractRead,
   useContractWrite,
@@ -41,13 +42,7 @@ import {
 } from 'wagmi';
 
 const ONE_BLOCK_IN_SECONDS = 12;
-
-type ProposalStatusProps = {
-  proposalSnapshotDate: string;
-  proposalState: string;
-  proposalVoteEndDate: string;
-  proposalVoteStartDate: string;
-};
+const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 function setExecuteWriteArgs(
   targets: `0x${string}` | `0x${string}`[],
@@ -55,19 +50,19 @@ function setExecuteWriteArgs(
   calldatas: `0x${string}` | `0x${string}`[],
   description: string,
 ) {
-  const properDescription = getStringHash(description) as `0x${string}`;
+  const executeDescription = getStringHash(description) as `0x${string}`;
 
-  const properTargets = Array.isArray(targets) ? targets : [targets];
-  const properValues = Array.isArray(values)
+  const executeTargets = Array.isArray(targets) ? targets : [targets];
+  const executeValues = Array.isArray(values)
     ? values.map((val) => BigInt(val))
     : [BigInt(values)];
-  const properCalldatas = Array.isArray(calldatas) ? calldatas : [calldatas];
+  const executeCalldatas = Array.isArray(calldatas) ? calldatas : [calldatas];
 
   return [
-    properTargets,
-    properValues,
-    properCalldatas,
-    properDescription,
+    executeTargets,
+    executeValues,
+    executeCalldatas,
+    executeDescription,
   ] as const;
 }
 
@@ -75,7 +70,7 @@ type ProposalPageProps = {
   calldatas: `0x${string}` | `0x${string}`[];
   description: string;
   organisationAddress: `0x${string}`;
-  proposalId: `0x${string}`;
+  proposalId: string;
   proposer: `0x${string}`;
   targets: `0x${string}` | `0x${string}`[];
   values: string | string[];
@@ -102,12 +97,17 @@ export default function ProposalPage({
   voteStart,
 }: ProposalPageProps) {
   const { isConnected } = useAccount();
+
+  const { proposalDescription, title } =
+    parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
+
   const publicClient = usePublicClient();
 
   const [proposalState, setProposalState] = useState('Unknown State');
   const [proposalVoteStartDate, setProposalVoteStartDate] = useState('');
   const [proposalVoteEndDate, setProposalVoteEndDate] = useState('');
   const [proposalSnapshotDate, setProposalSnapshotDate] = useState('');
+
   const [votes, setVotes] = useState<Votes>({
     abstain: 0,
     against: 0,
@@ -116,38 +116,18 @@ export default function ProposalPage({
   });
 
   // get token decimals
-  const [tokenAddress, setTokenAddress] = useState<`0x${string}`>('0x00');
-  const [tokenDecimals, setTokenDecimals] = useState(0);
-  const [fetchTokenDecimals, setFetchTokenDecimals] = useState(false);
-
-  useContractRead({
+  const { data: tokenAddress, isSuccess: readDecimals } = useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
     functionName: 'token',
-    onSuccess(data) {
-      setTokenAddress(data);
-      setFetchTokenDecimals(true);
-    },
   });
 
-  const tokenDecimalsRead = useContractRead({
+  const { data: tokenDecimals } = useContractRead({
     abi: TOKEN_ABI,
     address: tokenAddress,
-    enabled: fetchTokenDecimals,
+    enabled: readDecimals,
     functionName: 'decimals',
-    onSuccess(data) {
-      setTokenDecimals(data);
-    },
   });
-
-  const votingPeriodRead = useContractRead({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    functionName: 'votingPeriod',
-  });
-
-  const { proposalDescription, title } =
-    parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
 
   // get votes
   const votesContractRead = useContractRead({
@@ -156,7 +136,7 @@ export default function ProposalPage({
     args: [BigInt(proposalId)],
     functionName: 'proposalVotes',
     onSuccess(data) {
-      const decimals = tokenDecimals ? tokenDecimals : 18;
+      const decimals = tokenDecimals || 18;
       const votes: Votes = {
         abstain: Number(data[2]) / 10 ** decimals,
         against: Number(data[0]) / 10 ** decimals,
@@ -168,6 +148,7 @@ export default function ProposalPage({
     },
   });
 
+  // get proposal state
   const proposalStateRead = useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
@@ -175,103 +156,84 @@ export default function ProposalPage({
     functionName: 'state',
     onSuccess(data) {
       setProposalState(proposalStateMap[data ? data : -1] || 'Unknown State');
+      // TODO: refactor proposal state if watch works
     },
   });
 
-  const isTargetsString = typeof targets === 'string';
+  // auxiliary functions
+  async function blockNumberToTimestamp(blockNumber: bigint) {
+    try {
+      const block = await publicClient.getBlock({
+        blockNumber: blockNumber,
+      });
 
-  // listen to cast vote event and read votes again if event was emitted
-  useContractEvent({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    eventName: 'VoteCast',
-    listener(logs) {
-      if (logs) {
-        logs.map((log: any) => {
-          const { args } = log;
-          if (args.proposalId.toString() == proposalId) {
-            votesContractRead.refetch();
-          }
-        });
+      return block.timestamp.toString();
+    } catch (error) {
+      console.log('Error while trying to get timestamp for block', error);
+      return '';
+    }
+  }
+
+  async function blockNumberToDate(blockNumber: bigint) {
+    const timestamp = await blockNumberToTimestamp(blockNumber);
+    const date = timestamp ? timestampToDate(timestamp, true) : 'Invalid date';
+    return date;
+  }
+
+  async function getApproximateFutureDate(start: string, interval: string) {
+    const startTimestamp = await blockNumberToTimestamp(BigInt(start));
+    if (!startTimestamp) {
+      return 'Invalid date';
+    }
+
+    const intervalTimestamp = ONE_BLOCK_IN_SECONDS * Number(interval);
+    const endTimestamp = (
+      Number(startTimestamp) + intervalTimestamp
+    ).toString();
+
+    return timestampToDate(endTimestamp, true);
+  }
+
+  // get voting period and set vote end
+  useBlockNumber({
+    onSuccess: async (data) => {
+      if (BigInt(voteEnd) > data) {
+        votingPeriodRead.refetch();
+      } else {
+        const date = await blockNumberToDate(BigInt(voteEnd));
+        setProposalVoteEndDate(date);
       }
     },
   });
 
-  // get vote start, end and snapshot in format of date
-  const { data: snapshot } = useContractRead({
+  const votingPeriodRead = useContractRead({
+    abi: GOVERNOR_ABI,
+    address: organisationAddress,
+    enabled: false,
+    functionName: 'votingPeriod',
+    onSuccess: async (data) => {
+      const date = await getApproximateFutureDate(voteStart, data.toString());
+      setProposalVoteEndDate(date);
+    },
+  });
+
+  // set vote start
+  useEffect(() => {
+    blockNumberToDate(BigInt(voteStart)).then((date) =>
+      setProposalVoteStartDate(date),
+    );
+  }, [voteStart]);
+
+  // get and set snapshot
+  useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
     args: [BigInt(proposalId)],
     functionName: 'proposalSnapshot',
+    onSuccess(data) {
+      blockNumberToDate(data).then((date) => setProposalSnapshotDate(date));
+    },
   });
-
-  async function blockNumberToTimestamp(stringifiedBlockNumber: string) {
-    // convert stringified blockNumber to bigint
-    const blockNumber = BigInt(stringifiedBlockNumber);
-
-    // get the block
-    const block = await publicClient.getBlock({
-      blockNumber: blockNumber,
-    });
-
-    // return stringified timestamp
-    return block.timestamp.toString();
-  }
-
-  async function getDate(blockNumber: string) {
-    try {
-      const timestamp = await blockNumberToTimestamp(blockNumber);
-      return proposalTimestampToDate(timestamp, true);
-    } catch (error) {
-      console.log(error);
-      return 'Unknown Date';
-    }
-  }
-
-  async function getApproximateFutureDate(
-    voteStartBlockNumber: string,
-    votingPeriod: string,
-  ) {
-    try {
-      const voteStartTimestamp = await blockNumberToTimestamp(
-        voteStartBlockNumber,
-      );
-
-      const approximateVoteEndTimestamp = (
-        (Number(voteStartTimestamp) +
-          ONE_BLOCK_IN_SECONDS * Number(votingPeriod)) |
-        0
-      ).toString();
-
-      return proposalTimestampToDate(approximateVoteEndTimestamp, true);
-    } catch (error) {
-      console.log(error);
-      return 'Unknown Date';
-    }
-  }
-
-  useEffect(() => {
-    getDate(voteStart).then((date) => setProposalVoteStartDate(date));
-  }, []);
-
-  useEffect(() => {
-    if (votingPeriodRead.data) {
-      // since we don't know the exact timestamp for the
-      // future blocks we approximately calculate it
-      getApproximateFutureDate(
-        voteStart,
-        votingPeriodRead.data.toString(),
-      ).then((date) => setProposalVoteEndDate(date));
-    }
-  }, [votingPeriodRead.data]);
-
-  useEffect(() => {
-    if (snapshot) {
-      getDate(snapshot.toString()).then((date) =>
-        setProposalSnapshotDate(date),
-      );
-    }
-  }, [snapshot]);
 
   // execute write to contract
   const { config: executeWriteConfig } = usePrepareContractWrite({
@@ -279,30 +241,25 @@ export default function ProposalPage({
     address: organisationAddress,
     args: setExecuteWriteArgs(targets, values, calldatas, description),
     functionName: 'execute',
-    value: isTargetsString
-      ? BigInt(values as string)
-      : (values as string[])
+    value: Array.isArray(values)
+      ? values
           .map((val) => BigInt(val))
-          .reduce((acc, curr) => acc + curr, BigInt(0)),
+          .reduce((acc, curr) => acc + curr, BigInt(0))
+      : BigInt(values),
   });
-
   const executeWrite = useContractWrite(executeWriteConfig);
 
-  const {
-    isLoading: isTransactionLoading,
-    isSuccess: isTransactionSuccessful,
-  } = useWaitForTransaction({
+  // transaction processing (loading and success)
+  const { isLoading: isTransactionLoading } = useWaitForTransaction({
     hash: executeWrite.data?.hash,
-  });
-
-  useEffect(() => {
-    if (isTransactionSuccessful) {
+    onSuccess() {
       toast({
         description: 'Execute action successfully applied.',
       });
-    }
-  }, [isTransactionSuccessful]);
+    },
+  });
 
+  // listen to ProposalExecuted event and update state
   useContractEvent({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
@@ -315,6 +272,18 @@ export default function ProposalPage({
             proposalStateRead.refetch();
           }
         });
+      }
+    },
+  });
+
+  // listen to cast vote event and read votes again if such an event was emitted
+  useContractEvent({
+    abi: GOVERNOR_ABI,
+    address: organisationAddress,
+    eventName: 'VoteCast',
+    listener: (logs) => {
+      if (logs.some((log) => log.args.proposalId?.toString() === proposalId)) {
+        votesContractRead.refetch();
       }
     },
   });
@@ -336,10 +305,9 @@ export default function ProposalPage({
           />
         );
       case 'Succeeded':
-        if (targets != '0x0000000000000000000000000000000000000000') {
+        if (targets != NULL_ADDRESS) {
           return (
             <Button
-              className="mt-5"
               disabled={!executeWrite || !isConnected}
               loading={isTransactionLoading || executeWrite.isLoading}
               onClick={executeWrite.write}
@@ -354,9 +322,10 @@ export default function ProposalPage({
     voteStart,
     organisationAddress,
     proposalId,
-    isTransactionLoading,
+    targets,
     executeWrite,
     isConnected,
+    isTransactionLoading,
   ]);
 
   return (
@@ -367,19 +336,17 @@ export default function ProposalPage({
         fill
         src="/gradient-2.jpg"
       />
-      <div>
-        <Link
-          className="inline-flex items-center text-muted-foreground"
-          href={`/organisations/${organisationAddress}`}
-        >
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          {`organisations/${shortenAddress(organisationAddress)}`}
-        </Link>
-      </div>
+      <Link
+        className="inline-flex items-center text-muted-foreground"
+        href={`/organisations/${organisationAddress}`}
+      >
+        <ArrowLeft className="mr-1 h-4 w-4" />
+        {`organisations/${shortenAddress(organisationAddress)}`}
+      </Link>
       <div className="mt-5 grid items-start gap-5 md:grid-cols-3">
-        <div className="grid gap-5 md:grid-cols-1">
-          <div className="relative flex flex-col rounded-md border bg-white p-6">
-            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center md:gap-0">
+        <div className="rounded-md border border-border bg-white p-6 md:col-start-1">
+          <div className="space-y-5">
+            <div className="flex flex-col gap-5 md:flex-row md:justify-between">
               <div>
                 {proposalState == 'Unknown State' ? (
                   <Skeleton className="h-[22px] w-[75px] rounded-full" />
@@ -394,163 +361,139 @@ export default function ProposalPage({
               </div>
               {renderProposalState()}
             </div>
-
-            <div className="flex-2 mt-5 w-full">
-              <div className="space-x-1 text-sm">
-                <span>by</span>
-                <Link
-                  className="border-b border-dashed border-[#999]"
-                  href={`https://testnet-explorer.thetatoken.org/account/${proposer}`}
-                  target="_blank"
-                >
-                  {shortenAddress(proposer)}
-                </Link>
-              </div>
+            <div className="space-x-1 text-sm">
+              <span>by</span>
+              <Link
+                className="border-b border-dashed border-[#999]"
+                href={`https://testnet-explorer.thetatoken.org/account/${proposer}`}
+                target="_blank"
+              >
+                {shortenAddress(proposer)}
+              </Link>
             </div>
-          </div>
-          <div className="flex flex-col rounded-md border border-border bg-white p-6">
-            <h3 className="mb-2 text-xl font-semibold">Votes</h3>
-            <div className="flex flex-col gap-4">
-              <div>
-                <span>
-                  {/*https://stackoverflow.com/questions/10599933/convert-long-number-into-abbreviated-string-in-javascript-with-a-special-shortn*/}
-                  {Intl.NumberFormat('en-US', {
-                    compactDisplay: 'short',
-                    maximumFractionDigits: 1,
-                    notation: 'compact',
-                  }).format(votes.for)}
-                </span>
-                <Progress
-                  indicatorClassName="bg-success"
-                  max={votes.total}
-                  value={votes.for}
-                />
-              </div>
-              <div>
-                <span>
-                  {/*https://stackoverflow.com/questions/10599933/convert-long-number-into-abbreviated-string-in-javascript-with-a-special-shortn*/}
-                  {Intl.NumberFormat('en-US', {
-                    compactDisplay: 'short',
-                    maximumFractionDigits: 1,
-                    notation: 'compact',
-                  }).format(votes.against)}
-                </span>
-                <Progress
-                  indicatorClassName="bg-destructive"
-                  max={votes.total}
-                  value={votes.against}
-                />
-              </div>
-              <div>
-                <span>
-                  {/*https://stackoverflow.com/questions/10599933/convert-long-number-into-abbreviated-string-in-javascript-with-a-special-shortn*/}
-                  {Intl.NumberFormat('en-US', {
-                    compactDisplay: 'short',
-                    maximumFractionDigits: 1,
-                    notation: 'compact',
-                  }).format(votes.abstain)}
-                </span>
-                <Progress max={votes.total} value={votes.abstain} />
-              </div>
-            </div>
-          </div>
-          <div className="hidden md:block">
-            <ProposalStatus
-              proposalSnapshotDate={proposalSnapshotDate}
-              proposalState={proposalState}
-              proposalVoteEndDate={proposalVoteEndDate}
-              proposalVoteStartDate={proposalVoteStartDate}
-            />
           </div>
         </div>
-        <div className="grid gap-5 md:col-span-2 md:grid-cols-1">
-          <div className="flex flex-col rounded-md border border-border bg-white p-6">
-            <h3 className="mb-2 text-xl font-semibold">Details</h3>
-            <Tabs defaultValue="description">
-              <TabsList>
-                <TabsTrigger value="description">Description</TabsTrigger>
-                <TabsTrigger value="code">Executable code</TabsTrigger>
-              </TabsList>
-              <TabsContent value="description">
-                <article className="prose-sm p-5 sm:prose">
-                  <ReactMarkdown>{proposalDescription}</ReactMarkdown>
-                </article>
-              </TabsContent>
-              <TabsContent value="code">
-                {isTargetsString ? (
-                  targets == '0x0000000000000000000000000000000000000000' ? (
-                    <div className="p-5"></div>
-                  ) : (
-                    <div>
-                      <h3 className="mb-2">Function 1:</h3>
+        <div className="rounded-md border border-border bg-white p-6 md:col-start-1">
+          <h3 className="mb-2 text-xl font-semibold">Votes</h3>
+          <div className="space-y-5">
+            <div>
+              <span>
+                {Intl.NumberFormat('en-US', {
+                  compactDisplay: 'short',
+                  maximumFractionDigits: 1,
+                  notation: 'compact',
+                }).format(votes.for)}
+              </span>
+              <Progress
+                indicatorclassname="bg-success"
+                max={votes.total}
+                value={votes.for}
+              />
+            </div>
+            <div>
+              <span>
+                {Intl.NumberFormat('en-US', {
+                  compactDisplay: 'short',
+                  maximumFractionDigits: 1,
+                  notation: 'compact',
+                }).format(votes.against)}
+              </span>
+              <Progress
+                indicatorclassname="bg-destructive"
+                max={votes.total}
+                value={votes.against}
+              />
+            </div>
+            <div>
+              <span>
+                {Intl.NumberFormat('en-US', {
+                  compactDisplay: 'short',
+                  maximumFractionDigits: 1,
+                  notation: 'compact',
+                }).format(votes.abstain)}
+              </span>
+              <Progress max={votes.total} value={votes.abstain} />
+            </div>
+          </div>
+        </div>
+        <div className="rounded-md border border-border bg-white p-6 md:col-span-2 md:col-start-2 md:row-start-1">
+          <h3 className="mb-2 text-xl font-semibold">Details</h3>
+          <Tabs defaultValue="description">
+            <TabsList>
+              <TabsTrigger value="description">Description</TabsTrigger>
+              <TabsTrigger value="code">Executable code</TabsTrigger>
+            </TabsList>
+            <TabsContent value="description">
+              <article className="prose-sm py-5 sm:prose">
+                <ReactMarkdown>{proposalDescription}</ReactMarkdown>
+              </article>
+            </TabsContent>
+            <TabsContent value="code">
+              <div className="space-y-5 py-5">
+                {Array.isArray(targets) &&
+                  targets.map((target, index) => (
+                    <div key={index}>
+                      <h3 className="mb-2">Function {index + 1}:</h3>
                       <div className="border border-border p-5">
                         <div>
                           Calldatas: <br />
-                          {calldatas ? shortenText(calldatas as string) : null}
+                          {calldatas[index]
+                            ? shortenText(calldatas[index] as string)
+                            : null}
                         </div>
                         <div className="mt-2">
                           Target: <br />
                           <Link
                             className="border-b border-dashed border-[#999]"
-                            href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
+                            href={`https://testnet-explorer.thetatoken.org/account/${target}`}
                             target="_blank"
                           >
-                            {targets ? shortenAddress(targets) : null}
+                            {target ? shortenAddress(target) : null}
                           </Link>
                         </div>
                         <div className="mt-2">
                           Value: <br />
-                          {values}
+                          {values[index]}
                         </div>
                       </div>
                     </div>
-                  )
-                ) : (
-                  Array.isArray(targets) &&
-                  targets.length !== 0 && (
-                    <div>
-                      {targets.map((target, index) => (
-                        <div className="p-5" key={index}>
-                          <h3 className="mb-2">Function {index + 1}:</h3>
-                          <div className="border border-border p-5">
-                            <div>
-                              Calldatas: <br />
-                              {calldatas[index]
-                                ? shortenText(calldatas[index] as string)
-                                : null}
-                            </div>
-                            <div className="mt-2">
-                              Target: <br />
-                              <Link
-                                className="border-b border-dashed border-[#999]"
-                                href={`https://testnet-explorer.thetatoken.org/account/${target}`}
-                                target="_blank"
-                              >
-                                {target ? shortenAddress(target) : null}
-                              </Link>
-                            </div>
-                            <div className="mt-2">
-                              Value: <br />
-                              {values[index]}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                  ))}
+                {!Array.isArray(targets) && targets !== NULL_ADDRESS && (
+                  <div>
+                    <h3 className="mb-2">Function 1:</h3>
+                    <div className="border border-border p-5">
+                      <div>
+                        Calldatas: <br />
+                        {calldatas ? shortenText(calldatas as string) : null}
+                      </div>
+                      <div className="mt-2">
+                        Target: <br />
+                        <Link
+                          className="border-b border-dashed border-[#999]"
+                          href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
+                          target="_blank"
+                        >
+                          {targets ? shortenAddress(targets) : null}
+                        </Link>
+                      </div>
+                      <div className="mt-2">
+                        Value: <br />
+                        {values}
+                      </div>
                     </div>
-                  )
+                  </div>
                 )}
-              </TabsContent>
-            </Tabs>
-          </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
-        <div className="md:hidden">
-          <ProposalStatus
-            proposalSnapshotDate={proposalSnapshotDate}
-            proposalState={proposalState}
-            proposalVoteEndDate={proposalVoteEndDate}
-            proposalVoteStartDate={proposalVoteStartDate}
-          />
-        </div>
+
+        <ProposalStatus
+          proposalSnapshotDate={proposalSnapshotDate}
+          proposalState={proposalState}
+          proposalVoteEndDate={proposalVoteEndDate}
+          proposalVoteStartDate={proposalVoteStartDate}
+        />
       </div>
     </div>
   );
@@ -561,27 +504,19 @@ export const getServerSideProps: GetServerSideProps = async ({
   params,
   query,
 }) => {
-  // Better than useRouter hook because on the client side we will always have the address
+  // Better than useRouter hook because on the client side
+  // we will always have needed params
   const organisationAddress = params?.organisationAddress as `0x${string}`;
-  const proposalId = (params?.proposalId as string) || '';
+  const proposalId = params?.proposalId as string;
 
-  const targets = query?.targets
-    ? (query?.targets as `0x${string}` | `0x${string}`[])
-    : [];
+  const targets = query?.targets as `0x${string}` | `0x${string}`[];
+  const values = query?.values as string | string[];
+  const calldatas = query?.calldatas as `0x${string}` | `0x${string}`[];
+  const description = query?.description as string;
 
-  const values = query?.values ? (query?.values as string | string[]) : [];
-
-  const calldatas = query?.calldatas
-    ? (query?.calldatas as `0x${string}` | `0x${string}`[])
-    : [];
-
-  const description = (query?.description as string) || '';
-
-  const proposer = (query?.proposer as `0x${string}`) || '';
-
-  const voteStart = (query?.voteStart as string) || '';
-
-  const voteEnd = (query?.voteEnd as string) || '';
+  const proposer = query?.proposer as `0x${string}`;
+  const voteStart = query?.voteStart as string;
+  const voteEnd = query?.voteEnd as string;
 
   return {
     props: {
@@ -603,9 +538,14 @@ function ProposalStatus({
   proposalState,
   proposalVoteEndDate,
   proposalVoteStartDate,
-}: ProposalStatusProps) {
+}: {
+  proposalSnapshotDate: string;
+  proposalState: string;
+  proposalVoteEndDate: string;
+  proposalVoteStartDate: string;
+}) {
   return (
-    <div className="flex flex-col rounded-md border border-border bg-white p-6">
+    <div className="col-start-1 rounded-md border border-border bg-white p-6">
       <h3 className="mb-2 text-xl font-semibold">Status</h3>
       <div className="flex gap-4">
         <div className="flex w-min flex-col">
