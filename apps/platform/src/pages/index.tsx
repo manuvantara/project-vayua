@@ -171,6 +171,7 @@ export default function Home() {
           Be open to new experiences.
         </p>
       </div>
+
       <Card className="flex w-full flex-col justify-between">
         <CardFooter className="flex flex-col justify-between gap-4 md:flex-row">
           <Input
@@ -203,9 +204,10 @@ export default function Home() {
           </Button>
         </CardFooter>
       </Card>
-      <div className="grid grid-cols-1 gap-4 md:grid-flow-col md:grid-rows-2">
-        {/* <ProfileCard> */}
-        {account.address && (
+      {account.address && (
+        <div className="grid grid-cols-1 gap-4 md:grid-flow-col md:grid-rows-2">
+          {/* <ProfileCard> */}
+
           <Card className="min-w-xs row-span-2 w-full md:max-w-sm">
             <CardHeader>
               <ClientOnly>
@@ -218,51 +220,55 @@ export default function Home() {
               </ClientOnly>
             </CardHeader>
             <CardFooter>
-              <Web3Button className="w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900">
+              <Web3Button
+                asChild
+                className="w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900"
+              >
                 <Link href="/settings">Settings</Link>
               </Web3Button>
             </CardFooter>
           </Card>
-        )}
-        {/* </ProfileCard> */}
 
-        {/* WizardCard */}
-        <Card className="flex h-fit w-full flex-col justify-between md:max-w-sm">
-          <CardHeader className="rounded-t-lg">
-            <Wand2Icon size={32} />
-            <CardTitle>Vayua Wizard</CardTitle>
-            <CardDescription>
-              Vayua Wizard is a powerful tool that allows you to effortlessly
-              set up a new Decentralized Autonomous Organization (DAO) in just a
-              few minutes.
-            </CardDescription>
-          </CardHeader>
-          <CardFooter>
-            <Web3Button asChild className="w-full">
-              <Link href="/wizard">Create a new DAO</Link>
-            </Web3Button>
-          </CardFooter>
-        </Card>
-        {/* </WizardCard> */}
+          {/* </ProfileCard> */}
 
-        {/* <UserStarringExtensionViewCard> */}
-        <Card className="min-w-xs h-full w-full flex-col justify-between md:max-w-sm">
-          <CardHeader className="h-full rounded-t-lg">
-            <SparklesIcon size={32} />
-            <CardTitle className="text-xl md:text-2xl">
-              User Starring Extension
-            </CardTitle>
-            <CardDescription>
-              A tool that enables users to bookmark or highlight organizations
-              they want to remember.
-            </CardDescription>
-            {userProfile.extension.organisations.length > 0 && (
-              <UserStarringExtensionView extension={userProfile.extension} />
-            )}
-          </CardHeader>
-        </Card>
-        {/* </UserStarringExtensionViewCard> */}
-      </div>
+          {/* WizardCard */}
+          <Card className="flex h-fit w-full flex-col justify-between md:max-w-sm">
+            <CardHeader className="rounded-t-lg">
+              <Wand2Icon size={32} />
+              <CardTitle>Vayua Wizard</CardTitle>
+              <CardDescription>
+                Vayua Wizard is a powerful tool that allows you to effortlessly
+                set up a new Decentralized Autonomous Organization (DAO) in just
+                a few minutes.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Web3Button asChild className="w-full">
+                <Link href="/wizard">Create a new DAO</Link>
+              </Web3Button>
+            </CardFooter>
+          </Card>
+          {/* </WizardCard> */}
+
+          {/* <UserStarringExtensionViewCard> */}
+          <Card className="min-w-xs h-full w-full flex-col justify-between md:max-w-sm">
+            <CardHeader className="h-full rounded-t-lg">
+              <SparklesIcon size={32} />
+              <CardTitle className="text-xl md:text-2xl">
+                User Starring Extension
+              </CardTitle>
+              <CardDescription>
+                A tool that enables users to bookmark or highlight organizations
+                they want to remember.
+              </CardDescription>
+              {userProfile.extension.organisations.length > 0 && (
+                <UserStarringExtensionView extension={userProfile.extension} />
+              )}
+            </CardHeader>
+          </Card>
+          {/* </UserStarringExtensionViewCard> */}
+        </div>
+      )}
     </main>
   );
 }
