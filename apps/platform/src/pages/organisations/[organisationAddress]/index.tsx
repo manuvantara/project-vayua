@@ -131,7 +131,7 @@ export default function OrganisationPage({
   };
 
   return (
-    <div className="gap-5 pt-8 lg:grid lg:grid-cols-3">
+    <div className="space-y-5 pt-8 lg:grid lg:grid-cols-3 lg:space-x-5 lg:space-y-0">
       <Card className="grid">
         <CardHeader>
           <div className="flex flex-col items-center">
