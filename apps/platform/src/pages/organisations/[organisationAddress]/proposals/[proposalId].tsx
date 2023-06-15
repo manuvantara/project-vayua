@@ -305,24 +305,21 @@ export default function ProposalPage({
           />
         );
       case 'Succeeded':
-        if (targets != NULL_ADDRESS) {
-          return (
-            <Button
-              disabled={!executeWrite || !isConnected}
-              loading={isTransactionLoading || executeWrite.isLoading}
-              onClick={executeWrite.write}
-            >
-              Execute
-            </Button>
-          );
-        }
+        return (
+          <Button
+            disabled={!executeWrite || !isConnected}
+            loading={isTransactionLoading || executeWrite.isLoading}
+            onClick={executeWrite.write}
+          >
+            Execute
+          </Button>
+        );
     }
   }, [
     proposalState,
     voteStart,
     organisationAddress,
     proposalId,
-    targets,
     executeWrite,
     isConnected,
     isTransactionLoading,
@@ -437,9 +434,7 @@ export default function ProposalPage({
                       <div className="border border-border p-5">
                         <div>
                           Calldatas: <br />
-                          {calldatas[index]
-                            ? shortenText(calldatas[index] as string)
-                            : null}
+                          {shortenText(calldatas[index])}
                         </div>
                         <div className="mt-2">
                           Target: <br />
@@ -448,7 +443,7 @@ export default function ProposalPage({
                             href={`https://testnet-explorer.thetatoken.org/account/${target}`}
                             target="_blank"
                           >
-                            {target ? shortenAddress(target) : null}
+                            {shortenAddress(target)}
                           </Link>
                         </div>
                         <div className="mt-2">
@@ -458,13 +453,21 @@ export default function ProposalPage({
                       </div>
                     </div>
                   ))}
-                {!Array.isArray(targets) && targets !== NULL_ADDRESS && (
+                {!Array.isArray(targets) && (
                   <div>
-                    <h3 className="mb-2">Function 1:</h3>
+                    {targets === NULL_ADDRESS ? (
+                      <div className="mb-2 flex items-center gap-2">
+                        <h3>Function 1:</h3>
+                        <Badge variant="warning">empty</Badge>
+                      </div>
+                    ) : (
+                      <h3 className="mb-2">Function 1:</h3>
+                    )}
+
                     <div className="border border-border p-5">
                       <div>
                         Calldatas: <br />
-                        {calldatas ? shortenText(calldatas as string) : null}
+                        {shortenText(calldatas as string)}
                       </div>
                       <div className="mt-2">
                         Target: <br />
@@ -473,7 +476,7 @@ export default function ProposalPage({
                           href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
                           target="_blank"
                         >
-                          {targets ? shortenAddress(targets) : null}
+                          {shortenAddress(targets)}
                         </Link>
                       </div>
                       <div className="mt-2">
