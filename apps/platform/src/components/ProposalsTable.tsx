@@ -223,7 +223,7 @@ function Proposal({
   }, [snapshot]);
 
   return (
-    <div className="items-center md:flex md:justify-between">
+    <div className="flex items-center justify-between">
       <div>
         <h3 className="text-base font-semibold">
           {getProposalTitle(proposal.description)}
