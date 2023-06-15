@@ -23,12 +23,15 @@ import {
 import { ETH_ADDRESS_REGEX } from '@/utils/regexes';
 // import UserProfile from "@/components/UserProfile";
 import { useForm } from '@mantine/form';
-import { SparklesIcon, Wand2Icon } from 'lucide-react';
+import { Router, SparklesIcon, Wand2Icon } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useAccount, useContractEvent, usePublicClient } from 'wagmi';
 
 export default function Home() {
+  const router = useRouter();
+
   const [userProfile, setUserProfile] = useState<UserProfile>({
     // name: "Illia Malovanyi",
     // bio: "Designer from San Francisco.",
@@ -177,6 +180,12 @@ export default function Home() {
             placeholder="Search DAO by address"
             type="text"
             {...form.getInputProps('address')}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                router.push(`/organisations/${form.values.address}`);
+              }
+            }}
           />
           {form.errors.address && (
             <p className="mt-1 text-sm text-destructive">
