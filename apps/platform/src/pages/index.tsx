@@ -23,7 +23,7 @@ import {
 import { ETH_ADDRESS_REGEX } from '@/utils/regexes';
 // import UserProfile from "@/components/UserProfile";
 import { useForm } from '@mantine/form';
-import { Router, SparklesIcon, Wand2Icon } from 'lucide-react';
+import { SparklesIcon, Wand2Icon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
@@ -183,7 +183,9 @@ export default function Home() {
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault();
-                router.push(`/organisations/${form.values.address}`);
+                if (!form.errors.address) {
+                  router.push(`/organisations/${form.values.address}`);
+                }
               }
             }}
           />
