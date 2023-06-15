@@ -417,7 +417,7 @@ export default function ProposalPage({
             </div>
           </div>
         </div>
-        <div className="rounded-md border border-border bg-white p-6 md:col-span-2 md:col-start-2 md:row-start-1">
+        <div className="rounded-md border border-border bg-white p-6 md:col-span-2 md:col-start-2 md:row-span-3 md:row-start-1">
           <h3 className="mb-2 text-xl font-semibold">Details</h3>
           <Tabs defaultValue="description">
             <TabsList>
