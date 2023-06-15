@@ -156,6 +156,9 @@ export default function ProposalPage({
     functionName: 'state',
     onSuccess(data) {
       setProposalState(proposalStateMap[data ? data : -1] || 'Unknown State');
+      if (data !== 7) {
+        executeWritePrepare.refetch();
+      }
       // TODO: refactor proposal state if watch works
     },
   });
@@ -236,10 +239,11 @@ export default function ProposalPage({
   });
 
   // execute write to contract
-  const { config: executeWriteConfig } = usePrepareContractWrite({
+  const executeWritePrepare = usePrepareContractWrite({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
     args: setExecuteWriteArgs(targets, values, calldatas, description),
+    enabled: false,
     functionName: 'execute',
     value: Array.isArray(values)
       ? values
@@ -247,7 +251,7 @@ export default function ProposalPage({
           .reduce((acc, curr) => acc + curr, BigInt(0))
       : BigInt(values),
   });
-  const executeWrite = useContractWrite(executeWriteConfig);
+  const executeWrite = useContractWrite(executeWritePrepare.config);
 
   // transaction processing (loading and success)
   const { isLoading: isTransactionLoading } = useWaitForTransaction({
