@@ -1,50 +1,14 @@
-import type { Toast, ToasterToast } from '@/hooks/use-toast';
-import type { SettingsFormValues } from '@/types/forms';
-
 import SharedProfile from '@/components/SharedProfile';
-import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from '@/utils/VRC1';
+import useUserSettings from '@/hooks/use-user-settings';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 export default function ProfileSettingsPage() {
   const { address } = useAccount();
 
-  const {
-    data,
-    isLoading: isWriteLoading,
-    write,
-  } = useContractWrite({
-    abi: VRC1_CONTRACT_ABI,
-    address: VRC1_CONTRACT_ADDRESS,
-    functionName: 'setProfile',
-  });
-
-  const { error, isLoading, isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
-  });
-
-  const handleSubmit = async (
-    values: SettingsFormValues,
-    toast: ({ ...props }: Toast) => {
-      dismiss: () => void;
-      id: string;
-      update: (props: ToasterToast) => void;
-    },
-  ) => {
-    if (!write) {
-      toast({
-        description: 'Please try again.',
-        title: "We couldn't save your profile.",
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    write({
-      args: [values],
-    });
-  };
+  const { handleWrite, isLoading, isSuccess, isWriteLoading } =
+    useUserSettings();
 
   return (
     <div>
@@ -59,7 +23,7 @@ export default function ProfileSettingsPage() {
         address={address as `0x${string}`}
         isTransactionInProgress={isWriteLoading || isLoading}
         isTransactionSuccessful={isSuccess}
-        onSubmit={handleSubmit}
+        onSubmit={handleWrite}
         title="Edit Identity"
         type="user"
       />

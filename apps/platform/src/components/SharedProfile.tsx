@@ -14,33 +14,22 @@ import {
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Textarea } from '@/components/ui/Textarea';
-import {
-  type Toast,
-  type ToasterToast,
-  useToast,
-} from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from '@/utils/VRC1';
 import { getInitials } from '@/utils/helpers/common.helper';
 import { URL_REGEX } from '@/utils/regexes';
 import { isNotEmpty, useForm } from '@mantine/form';
 import { AlertCircleIcon } from 'lucide-react';
 import Image from 'next/image';
-import router from 'next/router';
+import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useContractRead } from 'wagmi';
 
 type Props = {
-  address: `0x${string}`;
+  address: `0x${string}` | undefined;
   isTransactionInProgress: boolean;
   isTransactionSuccessful: boolean;
-  onSubmit: (
-    values: SettingsFormValues,
-    toast: ({ ...props }: Toast) => {
-      dismiss: () => void;
-      id: string;
-      update: (props: ToasterToast) => void;
-    },
-  ) => void;
+  onSubmit: (values: SettingsFormValues) => void;
   title: string;
   type: 'dao' | 'user';
 };
@@ -120,6 +109,7 @@ export default function SharedProfile({
   type,
 }: Props) {
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<SettingsFormValues>({
     initialValues: {
@@ -144,7 +134,8 @@ export default function SharedProfile({
   const contractRead = useContractRead({
     abi: VRC1_CONTRACT_ABI,
     address: VRC1_CONTRACT_ADDRESS,
-    args: [address],
+    args: [address!],
+    enabled: !!address,
     functionName: 'profiles',
   });
 
@@ -221,7 +212,7 @@ export default function SharedProfile({
       )}
       <form
         onSubmit={form.onSubmit(
-          (values) => onSubmit(values, toast),
+          (values) => onSubmit(values),
           handleErrors,
         )}
         className="mx-auto my-8 flex w-full max-w-5xl rounded-md border shadow-lg"
