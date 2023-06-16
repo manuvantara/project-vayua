@@ -1,7 +1,9 @@
 import type { FC } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/Avatar';
-import { type Profile, type UserStarringExtension, mockupProfile } from '@/utils/VRC1';
+import { Skeleton } from '@/components/ui/Skeleton';
+import useMockupProfile from '@/hooks/use-mockup-profile';
+import { type Profile, type UserStarringExtension } from '@/utils/VRC1';
 import { shortenAddress } from '@/utils/helpers/shorten.helper';
 // TODO: refactor, separate utils, <Profile /> & <UserStarringExtension>
 import {
@@ -14,98 +16,21 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 
-// type Profile = {
-//   name?: string;
-//   bio?: string;
-//   avatar?: string;
-//   location?: string;
-//   website?: string;
-// };
-
-// type ProfileExtension = {
-//   standard: "VRC1";
-//   target: "User";
-//   version: "1.0.0";
-// };
-
-// type UserProfileExtension = ProfileExtension & {
-//   organisations: `0x${string}`[];
-// };
-
-// type UserProfile = Profile & { extension: UserProfileExtension };
-
-// function parseProfile(
-//   data: readonly [string, string, string, string, string]
-// ): Profile {
-//   const profile: Profile = {};
-
-//   if (data[0].length > 0) {
-//     profile.name = data[0];
-//   }
-
-//   if (data[1].length > 0) {
-//     profile.bio = data[1];
-//   }
-
-//   if (data[2].length > 0) {
-//     profile.avatar = data[2];
-//   }
-
-//   if (data[3].length > 0) {
-//     profile.location = data[3];
-//   }
-
-//   if (data[4].length > 0) {
-//     profile.website = data[4];
-//   }
-
-//   return profile;
-// }
-
-// function parseUserProfileExtension(data: string) {
-//   let userProfileExtension: UserProfileExtension;
-
-//   if (data.length === 0) {
-//     userProfileExtension = {
-//       standard: "VRC1",
-//       target: "User",
-//       version: "1.0.0",
-//       organisations: [],
-//     };
-//   } else {
-//     try {
-//       userProfileExtension = JSON.parse(data);
-//     } catch (error) {
-//       throw new Error("Unknown profile extension");
-//     }
-//   }
-
-//   return userProfileExtension;
-// }
-
-// export default function UserProfile() {
-
-//   return (
-//     <ClientOnly>
-//       <div className="flex flex-col items-center">
-//         {account.address && (
-//           <Profile accountAddress={account.address} profile={userProfile} />
-//         )}
-//         {userProfile.extension.organisations.length > 0 && (
-//           <UserStarringExtension extension={userProfile.extension} />
-//         )}
-//       </div>
-//     </ClientOnly>
-//   );
-// }
-
-type ProfileViewProps = { accountAddress: `0x${string}`; profile: Profile };
+type ProfileViewProps = {
+  accountAddress: `0x${string}` | undefined;
+  profile?: Profile | null;
+};
 
 export const ProfileView: FC<ProfileViewProps> = ({
   accountAddress,
   profile,
 }) => {
-  const [name, bio, avatar, location, website] = mockupProfile();
+  const { isLoading, mockupProfile } = useMockupProfile();
+
+  // Just for now
+  if (isLoading || !accountAddress || !profile) {
+    return <ProfileSkeleton />;
+  }
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -115,8 +40,8 @@ export const ProfileView: FC<ProfileViewProps> = ({
           decoding="async"
           height={240}
           loading="lazy"
-          src={profile.avatar}
-          title={`Avatar for ${accountAddress}}`}
+          src={profile?.avatar}
+          title={`Avatar for ${accountAddress}`}
           width={240}
         />
         <AvatarFallback delayMs={300}>
@@ -124,7 +49,7 @@ export const ProfileView: FC<ProfileViewProps> = ({
             alt={`Avatar for ${accountAddress}}`}
             className="pointer-events-none select-none rounded-full"
             height={240}
-            src={avatar}
+            src={mockupProfile?.avatar!}
             width={240}
           />
         </AvatarFallback>
@@ -135,8 +60,8 @@ export const ProfileView: FC<ProfileViewProps> = ({
           <div className="flex items-center gap-2 text-xl font-semibold leading-none tracking-tight md:text-2xl">
             <Fingerprint size={24} />{' '}
             {/* TODO: modify shortenText so it could be applied to short names that are longer than it is expected */}
-            {/* { (profile.name) ? shortenText(profile.name, 20) : shortenText(name, 0)} */}
-            {profile.name || name}
+            {/* { (profile?.name) ? shortenText(profile?.name, 20) : shortenText(name, 0)} */}
+            {profile?.name || mockupProfile?.name}
           </div>
           <div className="text-gray-500">
             <Link
@@ -150,18 +75,18 @@ export const ProfileView: FC<ProfileViewProps> = ({
         <div className="flex flex-wrap justify-center gap-2 text-center">
           <div className="text-gray-500">
             <PencilIcon className="inline-block align-text-top" size={16} />{' '}
-            {profile.bio || bio}
+            {profile?.bio || mockupProfile?.bio}
           </div>
 
           <div className="text-gray-500">
             <MapPinIcon className="inline-block align-text-top" size={16} />{' '}
-            {profile.location || location}
+            {profile?.location || mockupProfile?.location}
           </div>
 
           <div className="text-gray-500">
             <LinkIcon className="inline-block align-text-top" size={16} />{' '}
-            <Link href={profile.website || website}>
-              {profile.website || website}
+            <Link href={profile?.website || mockupProfile?.website!}>
+              {profile?.website || mockupProfile?.website}
             </Link>
           </div>
         </div>
@@ -169,6 +94,29 @@ export const ProfileView: FC<ProfileViewProps> = ({
     </div>
   );
 };
+
+const ProfileSkeleton: FC = () => (
+  <div className="flex flex-col items-center gap-6">
+    <Skeleton className="h-60 w-60 rounded-full border" />
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col items-center">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-8 w-10 rounded-full" />
+          <Skeleton className="h-8 w-24 rounded-full" />
+        </div>
+        <div className="mt-4">
+          <Skeleton className="h-6 w-24 rounded-full" />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap justify-center gap-2 text-center">
+        <Skeleton className="h-6 w-32 rounded-full" />
+        <Skeleton className="h-6 w-32 rounded-full" />
+        <Skeleton className="h-6 w-32 rounded-full" />
+      </div>
+    </div>
+  </div>
+);
 
 type UserStarringExtensionView = { extension: UserStarringExtension };
 
