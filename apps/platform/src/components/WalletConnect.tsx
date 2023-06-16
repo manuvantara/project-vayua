@@ -8,12 +8,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/Dialog';
 import { useToast } from '@/hooks/use-toast';
-import { thetaTestnet } from '@/utils/chains/theta-chains';
 import { shortenAddress } from '@/utils/helpers/shorten.helper';
 import { Wallet } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Connector, useAccount, useConnect, useDisconnect } from 'wagmi';
+import { fantomTestnet } from 'wagmi/chains';
 
 const connectorsIcons: { [key: string]: any } = {
   'Coinbase Wallet': '/icons/coinbase.svg',
@@ -29,7 +29,7 @@ export default function WalletConnect() {
   const account = useAccount();
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect({
-      chainId: thetaTestnet.id,
+      chainId: fantomTestnet.id,
       onSuccess: () => {
         setOpen(false);
       },

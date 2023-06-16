@@ -6,7 +6,6 @@ import {
   tokenContractAtom,
 } from '@/atoms';
 import { Button } from '@/components/ui/Button';
-import { thetaTestnet } from '@/utils/chains/theta-chains';
 import { SOLIDITY_COMPILER_VERSION } from '@/utils/compiler/compiler';
 import { handleNpmImport } from '@/utils/compiler/import-handler';
 import { Box, Loader, Overlay, Text, Title } from '@mantine/core';
@@ -21,6 +20,7 @@ import { waitForTransaction } from '@wagmi/core';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
+import { fantomTestnet } from 'wagmi/chains';
 
 const DEPLOYMENT_STAGES = [
   'Compiling token contract',
@@ -90,7 +90,7 @@ function CompilerDeployer() {
   const governanceContract = useAtomValue(governanceContractAtom);
 
   const { data: walletClient } = useWalletClient({
-    chainId: thetaTestnet.id,
+    chainId: fantomTestnet.id,
   });
   const account = useAccount();
   const contractMap: {

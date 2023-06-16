@@ -4,7 +4,6 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import Toaster from '@/components/ui/Toaster';
 import '@/styles/globals.css';
-import { thetaMainnet, thetaTestnet } from '@/utils/chains/theta-chains';
 import SEO from '@/utils/next-seo.config';
 import ProgressBar from '@badrap/bar-of-progress';
 import { Inter } from 'next/font/google';
@@ -35,7 +34,7 @@ const inter = Inter({
 });
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [thetaTestnet, thetaMainnet, fantom, fantomTestnet],
+  [fantom, fantomTestnet],
   [publicProvider()],
 );
 
@@ -48,7 +47,7 @@ const config = createConfig({
       chains,
       options: {
         appName: 'Vayua',
-        chainId: thetaTestnet.id,
+        chainId: fantomTestnet.id,
       },
     }),
     new WalletConnectConnector({

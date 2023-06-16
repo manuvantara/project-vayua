@@ -15,7 +15,6 @@ import {
   parseUserStarringExtension,
 } from '@/utils/VRC1';
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
-import { thetaTestnet } from '@/utils/chains/theta-chains';
 import { Plus, Settings, Star, StarOff } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -27,6 +26,7 @@ import {
   usePublicClient,
   useWaitForTransaction,
 } from 'wagmi';
+import { fantomTestnet } from 'wagmi/chains';
 
 export default function OrganisationPage({
   organisationAddress,
@@ -152,7 +152,6 @@ export default function OrganisationPage({
             </Link>
           </Button>
 
-          {/* ClientOnly => RenderUsingClientOnly */}
           <ClientOnly>
             <Button
               loading={
@@ -206,7 +205,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const organisationAddress = params?.organisationAddress as `0x${string}`;
 
   const publicClient = createPublicClient({
-    chain: thetaTestnet,
+    chain: fantomTestnet,
     transport: http(),
   });
 
