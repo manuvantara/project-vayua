@@ -5,11 +5,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/Dialog';
+import { useToast } from '@/hooks/use-toast';
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { useEffect, useState } from 'react';
 import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi';
 
-import { useToast } from '../hooks/use-toast';
 import Web3Button from './Web3Button';
 import { Button } from './ui/Button';
 
@@ -60,25 +60,25 @@ export default function CastVoteModal({
     <Dialog>
       <DialogTrigger asChild>
         <Web3Button
-          className="w-full md:w-24"
+          className='w-full md:w-24'
           loading={isTransactionLoading || castVoteWrite.isLoading}
         >
           Vote
         </Web3Button>
       </DialogTrigger>
       {isDialogOpened && (
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className='sm:max-w-[425px]'>
           <DialogHeader>
             <DialogTitle>Cast your vote</DialogTitle>
           </DialogHeader>
-          <div className="flex gap-2">
+          <div className='flex gap-2'>
             <Button
               onClick={() => {
                 castVoteWrite.write({
                   args: [BigInt(proposalId), 1],
                 });
               }}
-              className="flex-1 bg-success hover:bg-success-light"
+              className='flex-1 bg-success hover:bg-success-light'
               disabled={!castVoteWrite.write || !isConnected}
             >
               For
@@ -89,7 +89,7 @@ export default function CastVoteModal({
                   args: [BigInt(proposalId), 0],
                 });
               }}
-              className="flex-1 bg-destructive hover:bg-destructive/90"
+              className='flex-1 bg-destructive hover:bg-destructive/90'
               disabled={!castVoteWrite.write || !isConnected}
             >
               Against
@@ -103,7 +103,7 @@ export default function CastVoteModal({
               });
             }}
             disabled={!castVoteWrite.write || !isConnected}
-            variant="outline"
+            variant='outline'
           >
             Abstain
           </Button>

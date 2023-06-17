@@ -131,24 +131,24 @@ export default function OrganisationPage({
   };
 
   return (
-    <div className="space-y-5 pt-8 lg:grid lg:grid-cols-3 lg:space-x-5 lg:space-y-0">
-      <Card className="grid">
+    <div className='space-y-5 pt-8 lg:grid lg:grid-cols-3 lg:space-x-5 lg:space-y-0'>
+      <Card className='grid'>
         <CardHeader>
-          <div className="flex flex-col items-center">
+          <div className='flex flex-col items-center'>
             <ProfileView
               accountAddress={organisationAddress}
               profile={organisationProfile}
             />
           </div>
         </CardHeader>
-        <CardFooter className="grid grid-cols-2 gap-4">
+        <CardFooter className='grid grid-cols-2 gap-4'>
           <Button
             asChild
-            className="w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900"
+            className='w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900'
           >
             <Link href={`${organisationAddress}/settings`}>
               <Settings size={20} />
-              <span className="ml-2">Settings</span>
+              <span className='ml-2'>Settings</span>
             </Link>
           </Button>
 
@@ -167,7 +167,7 @@ export default function OrganisationPage({
                   <Star size={20} />
                 )
               }
-              className="w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900"
+              className='w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900'
               disabled={!account.isConnected}
               onClick={toggleStarOrganisation}
             >
@@ -183,11 +183,11 @@ export default function OrganisationPage({
 
           <Button
             asChild
-            className="w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900"
+            className='w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900'
           >
             <Link href={`${organisationAddress}/proposals/new`}>
               <Plus size={20} />
-              <span className="ml-2">Propose</span>
+              <span className='ml-2'>Propose</span>
             </Link>
           </Button>
           <DelegateModal />

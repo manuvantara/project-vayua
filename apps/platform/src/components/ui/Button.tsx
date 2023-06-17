@@ -74,10 +74,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             ref={ref}
             {...props}
           >
-            {loading && <Spinner className="mr-2 h-4 w-4" color="#666" />}
-            {prefix && !loading && <span className="mr-2">{prefix}</span>}
+            {loading && <Spinner className='mr-2 h-4 w-4' color='#666' />}
+            {prefix && !loading && <span className='mr-2'>{prefix}</span>}
             {props.children}
-            {suffix && <span className="ml-2">{suffix}</span>}
+            {suffix && <span className='ml-2'>{suffix}</span>}
           </Comp>
         )}
       </>

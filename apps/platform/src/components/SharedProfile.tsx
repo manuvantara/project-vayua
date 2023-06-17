@@ -190,17 +190,17 @@ export default function SharedProfile({
 
   return (
     <div>
-      <div className="flex items-stretch justify-start border-b">
-        <div className="my-8 flex items-center">
-          <h1 className="text-3xl font-medium tracking-tight md:text-4xl">
+      <div className='flex items-stretch justify-start border-b'>
+        <div className='my-8 flex items-center'>
+          <h1 className='text-3xl font-medium tracking-tight md:text-4xl'>
             {title || 'Profile'}
           </h1>
         </div>
       </div>
       {type === 'dao' && (
-        <div className="mt-4 w-full">
-          <Alert variant="warning">
-            <AlertCircleIcon className="h-4 w-4" />
+        <div className='mt-4 w-full'>
+          <Alert variant='warning'>
+            <AlertCircleIcon className='h-4 w-4' />
             <AlertTitle>Updating governance profile</AlertTitle>
             <AlertDescription>
               In order to update your governance profile, you will create a
@@ -211,17 +211,14 @@ export default function SharedProfile({
         </div>
       )}
       <form
-        onSubmit={form.onSubmit(
-          (values) => onSubmit(values),
-          handleErrors,
-        )}
-        className="mx-auto my-8 flex w-full max-w-5xl rounded-md border shadow-lg"
+        className='mx-auto my-8 flex w-full max-w-5xl rounded-md border shadow-lg'
+        onSubmit={form.onSubmit((values) => onSubmit(values), handleErrors)}
       >
-        <div className="flex w-full flex-col items-stretch justify-start gap-6 p-6">
-          <div className="w-full">
+        <div className='flex w-full flex-col items-stretch justify-start gap-6 p-6'>
+          <div className='w-full'>
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg md:text-xl">
+                <CardTitle className='text-lg md:text-xl'>
                   {PROFILE_TEXT[type].cardName}
                 </CardTitle>
                 <CardDescription>
@@ -231,32 +228,32 @@ export default function SharedProfile({
               <CardContent>
                 <div>
                   <Label
-                    className="sr-only"
+                    className='sr-only'
                     htmlFor={PROFILE_TEXT[type].cardNameLabel.toLowerCase()}
                   >
                     {PROFILE_TEXT[type].cardNameLabel}
                   </Label>
                   <Input
-                    autoComplete="name"
+                    autoComplete='name'
                     id={PROFILE_TEXT[type].cardNameLabel.toLowerCase()}
                     name={PROFILE_TEXT[type].cardNameLabel.toLowerCase()}
                     placeholder={PROFILE_TEXT[type].cardNamePlaceholder}
-                    type="text"
+                    type='text'
                     {...form.getInputProps('name')}
                   />
                 </div>
               </CardContent>
               <CardFooter>
-                <p className="text-sm text-destructive">
+                <p className='text-sm text-destructive'>
                   {PROFILE_TEXT[type].cardNameFooter}
                 </p>
               </CardFooter>
             </Card>
           </div>
-          <div className="w-full">
+          <div className='w-full'>
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg md:text-xl">
+                <CardTitle className='text-lg md:text-xl'>
                   {PROFILE_TEXT[type].cardBio}
                 </CardTitle>
                 <CardDescription>
@@ -266,7 +263,7 @@ export default function SharedProfile({
               <CardContent>
                 <div>
                   <Label
-                    className="sr-only"
+                    className='sr-only'
                     htmlFor={PROFILE_TEXT[type].cardBioLabel.toLowerCase()}
                   >
                     {PROFILE_TEXT[type].cardBioLabel}
@@ -280,17 +277,17 @@ export default function SharedProfile({
                 </div>
               </CardContent>
               <CardFooter>
-                <p className="text-sm text-muted-foreground">
+                <p className='text-sm text-muted-foreground'>
                   {PROFILE_TEXT[type].cardBioFooter}
                 </p>
               </CardFooter>
             </Card>
           </div>
-          <div className="w-full">
+          <div className='w-full'>
             <Card>
-              <CardHeader className="flex-row justify-between">
+              <CardHeader className='flex-row justify-between'>
                 <div>
-                  <CardTitle className="text-lg md:text-xl">
+                  <CardTitle className='text-lg md:text-xl'>
                     {PROFILE_TEXT[type].cardAvatar}
                   </CardTitle>
                   <CardDescription>
@@ -298,11 +295,11 @@ export default function SharedProfile({
                   </CardDescription>
                 </div>
                 <div>
-                  <Avatar className="border md:h-20 md:w-20">
+                  <Avatar className='border md:h-20 md:w-20'>
                     <AvatarImage
-                      className="object-top"
-                      decoding="async"
-                      loading="lazy"
+                      className='object-top'
+                      decoding='async'
+                      loading='lazy'
                       src={form.values.avatar || ''}
                       title={`Avatar for ${form.values.name}`}
                     />
@@ -314,9 +311,9 @@ export default function SharedProfile({
                           getInitials(form.values.name),
                         )}`}
                         alt={`Avatar for ${form.values.name}`}
-                        className="pointer-events-none select-none"
+                        className='pointer-events-none select-none'
                         fill
-                        sizes="80px"
+                        sizes='80px'
                       />
                     </AvatarFallback>
                   </Avatar>
@@ -325,32 +322,32 @@ export default function SharedProfile({
               <CardContent>
                 <div>
                   <Label
-                    className="sr-only"
+                    className='sr-only'
                     htmlFor={PROFILE_TEXT[type].cardAvatarLabel.toLowerCase()}
                   >
                     {PROFILE_TEXT[type].cardAvatarLabel}
                   </Label>
                   <Input
-                    autoComplete="url"
+                    autoComplete='url'
                     id={PROFILE_TEXT[type].cardAvatarLabel.toLowerCase()}
                     name={PROFILE_TEXT[type].cardAvatarLabel.toLowerCase()}
                     placeholder={PROFILE_TEXT[type].cardAvatarPlaceholder}
-                    type="text"
+                    type='text'
                     {...form.getInputProps('avatar')}
                   />
                 </div>
               </CardContent>
               <CardFooter>
-                <p className="text-sm text-muted-foreground">
+                <p className='text-sm text-muted-foreground'>
                   {PROFILE_TEXT[type].cardAvatarFooter}
                 </p>
               </CardFooter>
             </Card>
           </div>
-          <div className="w-full">
+          <div className='w-full'>
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg md:text-xl">
+                <CardTitle className='text-lg md:text-xl'>
                   {PROFILE_TEXT[type].cardLocation}
                 </CardTitle>
                 <CardDescription>
@@ -360,32 +357,32 @@ export default function SharedProfile({
               <CardContent>
                 <div>
                   <Label
-                    className="sr-only"
+                    className='sr-only'
                     htmlFor={PROFILE_TEXT[type].cardLocationLabel.toLowerCase()}
                   >
                     {PROFILE_TEXT[type].cardLocationLabel}
                   </Label>
                   <Input
-                    autoComplete="country"
+                    autoComplete='country'
                     id={PROFILE_TEXT[type].cardLocationLabel.toLowerCase()}
                     name={PROFILE_TEXT[type].cardLocationLabel.toLowerCase()}
                     placeholder={PROFILE_TEXT[type].cardLocationPlaceholder}
-                    type="text"
+                    type='text'
                     {...form.getInputProps('location')}
                   />
                 </div>
               </CardContent>
               <CardFooter>
-                <p className="text-sm text-muted-foreground">
+                <p className='text-sm text-muted-foreground'>
                   {PROFILE_TEXT[type].cardLocationFooter}
                 </p>
               </CardFooter>
             </Card>
           </div>
-          <div className="w-full">
+          <div className='w-full'>
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg md:text-xl">
+                <CardTitle className='text-lg md:text-xl'>
                   {PROFILE_TEXT[type].cardWebsite}
                 </CardTitle>
                 <CardDescription>
@@ -395,35 +392,35 @@ export default function SharedProfile({
               <CardContent>
                 <div>
                   <Label
-                    className="sr-only"
+                    className='sr-only'
                     htmlFor={PROFILE_TEXT[type].cardWebsiteLabel.toLowerCase()}
                   >
                     {PROFILE_TEXT[type].cardWebsiteLabel}
                   </Label>
                   <Input
-                    autoComplete="url"
+                    autoComplete='url'
                     id={PROFILE_TEXT[type].cardWebsiteLabel.toLowerCase()}
                     name={PROFILE_TEXT[type].cardWebsiteLabel.toLowerCase()}
                     placeholder={PROFILE_TEXT[type].cardWebsitePlaceholder}
-                    type="text"
+                    type='text'
                     {...form.getInputProps('website')}
                   />
                   {form.errors.website && (
-                    <p className="mt-1 text-sm text-destructive">
+                    <p className='mt-1 text-sm text-destructive'>
                       {form.errors.website}
                     </p>
                   )}
                 </div>
               </CardContent>
               <CardFooter>
-                <p className="text-sm text-muted-foreground">
+                <p className='text-sm text-muted-foreground'>
                   {PROFILE_TEXT[type].cardWebsiteFooter}
                 </p>
               </CardFooter>
             </Card>
           </div>
-          <div className="flex items-center justify-end">
-            <Web3Button loading={isTransactionInProgress} type="submit">
+          <div className='flex items-center justify-end'>
+            <Web3Button loading={isTransactionInProgress} type='submit'>
               Save
             </Web3Button>
           </div>

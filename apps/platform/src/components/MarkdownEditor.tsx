@@ -47,7 +47,7 @@ export default function MarkdownEditor() {
 
   return (
     <SimpleMDEditor
-      id="editor"
+      id='editor'
       onChange={handleEditorValue}
       options={options}
       value={editorValue}

@@ -87,15 +87,15 @@ export default function Token() {
   }, [setTokenType, tokenContractForm.values.tokenType]);
 
   return (
-    <div className="grid max-w-2xl grid-cols-6 gap-6">
-      <div className="col-span-4">
+    <div className='grid max-w-2xl grid-cols-6 gap-6'>
+      <div className='col-span-4'>
         <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="token-type"
+          className='block text-sm font-medium text-gray-700'
+          htmlFor='token-type'
         >
           Select your token type
         </label>
-        <div className="mt-2">
+        <div className='mt-2'>
           <Select
             data={[
               { label: 'NFT', value: 'erc721' },
@@ -106,99 +106,99 @@ export default function Token() {
               timingFunction: 'ease',
               transition: 'pop-top-left',
             }}
-            className="w-fit"
-            id="token-type"
-            placeholder="Token type"
+            className='w-fit'
+            id='token-type'
+            placeholder='Token type'
             {...tokenContractForm.getInputProps('tokenType')}
           />
         </div>
       </div>
-      <div className="col-span-full">
+      <div className='col-span-full'>
         <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="token-name"
+          className='block text-sm font-medium text-gray-700'
+          htmlFor='token-name'
         >
           How you want to name your token?
         </label>
-        <div className="mt-2">
+        <div className='mt-2'>
           <TextInput
-            id="token-name"
-            placeholder="Vayua Metaverse Token"
+            id='token-name'
+            placeholder='Vayua Metaverse Token'
             {...tokenContractForm.getInputProps('tokenName')}
           />
         </div>
       </div>
-      <div className="col-span-full">
+      <div className='col-span-full'>
         <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="token-name-symbol"
+          className='block text-sm font-medium text-gray-700'
+          htmlFor='token-name-symbol'
         >
           What is the symbol of your token?
         </label>
-        <div className="mt-2">
+        <div className='mt-2'>
           <TextInput
-            id="token-name-symbol"
-            placeholder="VAYUA"
+            id='token-name-symbol'
+            placeholder='VAYUA'
             {...tokenContractForm.getInputProps('tokenSymbol')}
           />
         </div>
       </div>
       {tokenContractForm.values.tokenType === 'erc20' ? (
-        <div className="col-span-full">
+        <div className='col-span-full'>
           <label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="amount-of-tokens-to-mint"
+            className='block text-sm font-medium text-gray-700'
+            htmlFor='amount-of-tokens-to-mint'
           >
             Amount of tokens to premint
           </label>
-          <div className="mt-2">
+          <div className='mt-2'>
             <NumberInput
-              id="amount-of-tokens-to-mint"
+              id='amount-of-tokens-to-mint'
               min={0}
-              placeholder="0"
+              placeholder='0'
               {...tokenContractForm.getInputProps('premintAmount')}
             />
           </div>
         </div>
       ) : (
-        <div className="col-span-full">
+        <div className='col-span-full'>
           <label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="base-uri"
+            className='block text-sm font-medium text-gray-700'
+            htmlFor='base-uri'
           >
             Base URI for your NFTs
           </label>
-          <div className="mt-2">
+          <div className='mt-2'>
             <TextInput
-              id="base-uri"
-              placeholder="https://my-nft-collection.com/"
+              id='base-uri'
+              placeholder='https://my-nft-collection.com/'
               {...tokenContractForm.getInputProps('baseURI')}
             />
           </div>
         </div>
       )}
-      <div className="col-span-4">
+      <div className='col-span-4'>
         <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="mint-tokens"
+          className='block text-sm font-medium text-gray-700'
+          htmlFor='mint-tokens'
         >
           Do you want to mint new tokens?
         </label>
-        <div className="mt-2">
+        <div className='mt-2'>
           <Switch
-            id="mint-tokens"
+            id='mint-tokens'
             {...tokenContractForm.getInputProps('mintNewTokens', {
               type: 'checkbox',
             })}
           />
         </div>
       </div>
-      <div className="col-span-full">
-        <Accordion variant="contained">
-          <Accordion.Item value="code">
+      <div className='col-span-full'>
+        <Accordion variant='contained'>
+          <Accordion.Item value='code'>
             <Accordion.Control>Show contract code</Accordion.Control>
             <Accordion.Panel>
-              <Prism language="jsx">{tokenContract.source}</Prism>
+              <Prism language='jsx'>{tokenContract.source}</Prism>
             </Accordion.Panel>
           </Accordion.Item>
         </Accordion>

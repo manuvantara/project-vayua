@@ -258,26 +258,26 @@ function CompilerDeployer() {
 
   return (
     <>
-      <Box pos="relative">
+      <Box pos='relative'>
         {deployment && (
           <Overlay blur={8} center fixed opacity={0.4}>
-            <div className="flex items-end gap-5">
+            <div className='flex items-end gap-5'>
               <Loader />
-              <Title className="mb-2" color="white" order={3} size="h4">
+              <Title className='mb-2' color='white' order={3} size='h4'>
                 {currentStage}
               </Title>
             </div>
           </Overlay>
         )}
-        <div className="py-8 md:px-8 md:py-14 lg:py-20">
-          <div className="flex flex-col items-center">
-            <Title className="mb-2 tracking-tight" order={2} size="h2">
+        <div className='py-8 md:px-8 md:py-14 lg:py-20'>
+          <div className='flex flex-col items-center'>
+            <Title className='mb-2 tracking-tight' order={2} size='h2'>
               Now it is high time to deploy constructed contracts
             </Title>
             <Text
-              className="max-w-2xl text-gray-500 sm:text-center"
-              component="p"
-              size="md"
+              className='max-w-2xl text-gray-500 sm:text-center'
+              component='p'
+              size='md'
             >
               Let&apos;s begin by compiling the token contract. Once that is
               done, we can proceed to deploy the compiled token contract.
@@ -285,11 +285,11 @@ function CompilerDeployer() {
               Finally, we&apos;ll deploy the compiled governance contract.
             </Text>
 
-            <div className="mt-7 flex flex-col items-center gap-7 md:flex-row">
+            <div className='mt-7 flex flex-col items-center gap-7 md:flex-row'>
               <Button
                 disabled={!isConnected}
                 onClick={handleDeployment}
-                variant="default"
+                variant='default'
               >
                 Deploy contracts
               </Button>

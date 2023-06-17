@@ -256,7 +256,7 @@ export default function Proposals({
   });
 
   return (
-    <div className="col-span-2 bg-white">
+    <div className='col-span-2 bg-white'>
       <DataTable
         columns={columns}
         data={proposals}

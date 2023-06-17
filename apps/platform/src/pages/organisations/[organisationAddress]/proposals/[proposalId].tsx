@@ -297,7 +297,7 @@ export default function ProposalPage({
       case 'Pending':
         return (
           <>
-            <ClockIcon className="mr-2 h-4 w-4" />
+            <ClockIcon className='mr-2 h-4 w-4' />
             Voting starts at {voteStart} block
           </>
         );
@@ -330,53 +330,53 @@ export default function ProposalPage({
   ]);
 
   return (
-    <div className="relative">
+    <div className='relative'>
       <Image
-        alt="gradient"
-        className="absolute left-1/2 top-0 z-[-1] h-auto w-[160%] max-w-none -translate-y-1/4 translate-x-[-30%] opacity-20 blur-[100px] filter"
+        alt='gradient'
+        className='absolute left-1/2 top-0 z-[-1] h-auto w-[160%] max-w-none -translate-y-1/4 translate-x-[-30%] opacity-20 blur-[100px] filter'
         fill
-        src="/gradient-2.jpg"
+        src='/gradient-2.jpg'
       />
       <Link
-        className="inline-flex items-center text-muted-foreground"
+        className='inline-flex items-center text-muted-foreground'
         href={`/organisations/${organisationAddress}`}
       >
-        <ArrowLeft className="mr-1 h-4 w-4" />
+        <ArrowLeft className='mr-1 h-4 w-4' />
         {`organisations/${shortenAddress(organisationAddress)}`}
       </Link>
-      <div className="mt-5 grid items-start gap-5 md:grid-cols-3">
-        <div className="rounded-md border border-border bg-white p-6 md:col-start-1">
-          <div className="space-y-5">
-            <div className="flex flex-col gap-5 md:flex-row md:justify-between">
+      <div className='mt-5 grid items-start gap-5 md:grid-cols-3'>
+        <div className='rounded-md border border-border bg-white p-6 md:col-start-1'>
+          <div className='space-y-5'>
+            <div className='flex flex-col gap-5 md:flex-row md:justify-between'>
               <div>
                 {proposalState == 'Unknown State' ? (
-                  <Skeleton className="h-[22px] w-[75px] rounded-full" />
+                  <Skeleton className='h-[22px] w-[75px] rounded-full' />
                 ) : (
                   <Badge variant={badgeVariantMap[proposalState]}>
                     {proposalState}
                   </Badge>
                 )}
-                <h1 className="mt-3 text-xl font-semibold">
+                <h1 className='mt-3 text-xl font-semibold'>
                   {title || `Proposal #${shortenText(proposalId)}`}
                 </h1>
               </div>
               {renderProposalState()}
             </div>
-            <div className="space-x-1 text-sm">
+            <div className='space-x-1 text-sm'>
               <span>by</span>
               <Link
-                className="border-b border-dashed border-[#999]"
+                className='border-b border-dashed border-[#999]'
                 href={`https://testnet-explorer.thetatoken.org/account/${proposer}`}
-                target="_blank"
+                target='_blank'
               >
                 {shortenAddress(proposer)}
               </Link>
             </div>
           </div>
         </div>
-        <div className="rounded-md border border-border bg-white p-6 md:col-start-1">
-          <h3 className="mb-2 text-xl font-semibold">Votes</h3>
-          <div className="space-y-5">
+        <div className='rounded-md border border-border bg-white p-6 md:col-start-1'>
+          <h3 className='mb-2 text-xl font-semibold'>Votes</h3>
+          <div className='space-y-5'>
             <div>
               <span>
                 {Intl.NumberFormat('en-US', {
@@ -386,7 +386,7 @@ export default function ProposalPage({
                 }).format(votes.for)}
               </span>
               <Progress
-                indicatorclassname="bg-success"
+                indicatorclassname='bg-success'
                 max={votes.total}
                 value={votes.for}
               />
@@ -400,7 +400,7 @@ export default function ProposalPage({
                 }).format(votes.against)}
               </span>
               <Progress
-                indicatorclassname="bg-destructive"
+                indicatorclassname='bg-destructive'
                 max={votes.total}
                 value={votes.against}
               />
@@ -417,40 +417,40 @@ export default function ProposalPage({
             </div>
           </div>
         </div>
-        <div className="rounded-md border border-border bg-white p-6 md:col-span-2 md:col-start-2 md:row-span-3 md:row-start-1">
-          <h3 className="mb-2 text-xl font-semibold">Details</h3>
-          <Tabs defaultValue="description">
+        <div className='rounded-md border border-border bg-white p-6 md:col-span-2 md:col-start-2 md:row-span-3 md:row-start-1'>
+          <h3 className='mb-2 text-xl font-semibold'>Details</h3>
+          <Tabs defaultValue='description'>
             <TabsList>
-              <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="code">Executable code</TabsTrigger>
+              <TabsTrigger value='description'>Description</TabsTrigger>
+              <TabsTrigger value='code'>Executable code</TabsTrigger>
             </TabsList>
-            <TabsContent value="description">
-              <article className="prose-sm py-5 sm:prose">
+            <TabsContent value='description'>
+              <article className='prose-sm py-5 sm:prose'>
                 <ReactMarkdown>{proposalDescription}</ReactMarkdown>
               </article>
             </TabsContent>
-            <TabsContent value="code">
-              <div className="space-y-5 py-5">
+            <TabsContent value='code'>
+              <div className='space-y-5 py-5'>
                 {Array.isArray(targets) &&
                   targets.map((target, index) => (
                     <div key={index}>
-                      <h3 className="mb-2">Function {index + 1}:</h3>
-                      <div className="border border-border p-5">
+                      <h3 className='mb-2'>Function {index + 1}:</h3>
+                      <div className='border border-border p-5'>
                         <div>
                           Calldatas: <br />
                           {shortenText(calldatas[index])}
                         </div>
-                        <div className="mt-2">
+                        <div className='mt-2'>
                           Target: <br />
                           <Link
-                            className="border-b border-dashed border-[#999]"
+                            className='border-b border-dashed border-[#999]'
                             href={`https://testnet-explorer.thetatoken.org/account/${target}`}
-                            target="_blank"
+                            target='_blank'
                           >
                             {shortenAddress(target)}
                           </Link>
                         </div>
-                        <div className="mt-2">
+                        <div className='mt-2'>
                           Value: <br />
                           {values[index]}
                         </div>
@@ -460,30 +460,30 @@ export default function ProposalPage({
                 {!Array.isArray(targets) && (
                   <div>
                     {targets === NULL_ADDRESS ? (
-                      <div className="mb-2 flex items-center gap-2">
+                      <div className='mb-2 flex items-center gap-2'>
                         <h3>Function 1:</h3>
-                        <Badge variant="warning">empty</Badge>
+                        <Badge variant='warning'>empty</Badge>
                       </div>
                     ) : (
-                      <h3 className="mb-2">Function 1:</h3>
+                      <h3 className='mb-2'>Function 1:</h3>
                     )}
 
-                    <div className="border border-border p-5">
+                    <div className='border border-border p-5'>
                       <div>
                         Calldatas: <br />
                         {shortenText(calldatas as string)}
                       </div>
-                      <div className="mt-2">
+                      <div className='mt-2'>
                         Target: <br />
                         <Link
-                          className="border-b border-dashed border-[#999]"
+                          className='border-b border-dashed border-[#999]'
                           href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
-                          target="_blank"
+                          target='_blank'
                         >
                           {shortenAddress(targets)}
                         </Link>
                       </div>
-                      <div className="mt-2">
+                      <div className='mt-2'>
                         Value: <br />
                         {values}
                       </div>
@@ -552,90 +552,90 @@ function ProposalStatus({
   proposalVoteStartDate: string;
 }) {
   return (
-    <div className="col-start-1 rounded-md border border-border bg-white p-6">
-      <h3 className="mb-2 text-xl font-semibold">Status</h3>
-      <div className="flex gap-4">
-        <div className="flex w-min flex-col">
-          <span className="my-1 h-3 w-3 rounded-full border border-black"></span>
-          <span className="w-[1px] flex-1 self-center border-r border-dashed border-black"></span>
+    <div className='col-start-1 rounded-md border border-border bg-white p-6'>
+      <h3 className='mb-2 text-xl font-semibold'>Status</h3>
+      <div className='flex gap-4'>
+        <div className='flex w-min flex-col'>
+          <span className='my-1 h-3 w-3 rounded-full border border-black'></span>
+          <span className='w-[1px] flex-1 self-center border-r border-dashed border-black'></span>
         </div>
         <div>
           <PlusCircle size={20} />
-          <p className="font-medium">Proposed on</p>
+          <p className='font-medium'>Proposed on</p>
           {proposalSnapshotDate === '' ? (
-            <Skeleton className="h-[20px] w-[150px]" />
+            <Skeleton className='h-[20px] w-[150px]' />
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className='text-sm text-muted-foreground'>
               {proposalSnapshotDate}
             </p>
           )}
         </div>
       </div>
-      <div className="flex gap-4">
-        <div className="flex w-min flex-col">
-          <span className="my-1 h-3 w-3 rounded-full border border-black"></span>
-          <span className="w-[1px] flex-1 self-center border-r border-dashed border-black"></span>
+      <div className='flex gap-4'>
+        <div className='flex w-min flex-col'>
+          <span className='my-1 h-3 w-3 rounded-full border border-black'></span>
+          <span className='w-[1px] flex-1 self-center border-r border-dashed border-black'></span>
         </div>
-        <div className="mt-4">
+        <div className='mt-4'>
           <Vote size={22} />
-          <p className="font-medium">Vote start</p>
+          <p className='font-medium'>Vote start</p>
           {proposalVoteStartDate === '' ? (
-            <Skeleton className="h-[20px] w-[150px]" />
+            <Skeleton className='h-[20px] w-[150px]' />
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className='text-sm text-muted-foreground'>
               {proposalVoteStartDate}
             </p>
           )}
         </div>
       </div>
-      <div className="flex gap-4">
-        <div className="flex w-min flex-col">
-          <span className="my-1 h-3 w-3 rounded-full border border-black"></span>
+      <div className='flex gap-4'>
+        <div className='flex w-min flex-col'>
+          <span className='my-1 h-3 w-3 rounded-full border border-black'></span>
           {proposalState === 'Active' ? null : (
-            <span className="w-[1px] flex-1 self-center border-r border-dashed border-black"></span>
+            <span className='w-[1px] flex-1 self-center border-r border-dashed border-black'></span>
           )}
         </div>
-        <div className="mt-4">
+        <div className='mt-4'>
           <CalendarOff size={20} />
-          <p className="font-medium">Vote end ~</p>
+          <p className='font-medium'>Vote end ~</p>
           {proposalVoteEndDate === '' ? (
-            <Skeleton className="h-[20px] w-[150px]" />
+            <Skeleton className='h-[20px] w-[150px]' />
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className='text-sm text-muted-foreground'>
               {proposalVoteEndDate}
             </p>
           )}
         </div>
       </div>
       {proposalState === 'Unknown State' ? (
-        <div className="flex gap-4">
-          <div className="mt-4 flex w-min items-center gap-2">
-            <Skeleton className="h-[20px] w-[20px] rounded-full" />
-            <Skeleton className="h-[24px] w-[75px]" />
+        <div className='flex gap-4'>
+          <div className='mt-4 flex w-min items-center gap-2'>
+            <Skeleton className='h-[20px] w-[20px] rounded-full' />
+            <Skeleton className='h-[24px] w-[75px]' />
           </div>
         </div>
       ) : null}
       {proposalState === 'Defeated' ? (
-        <div className="flex gap-4">
-          <div className="mt-4 flex w-min items-center gap-2">
+        <div className='flex gap-4'>
+          <div className='mt-4 flex w-min items-center gap-2'>
             <XCircle size={20} />
-            <p className="font-medium">Defeated</p>
+            <p className='font-medium'>Defeated</p>
           </div>
         </div>
       ) : null}
       {proposalState === 'Succeeded' || proposalState === 'Executed' ? (
-        <div className="flex gap-4">
-          <div className="mt-4 flex w-min items-center gap-2">
+        <div className='flex gap-4'>
+          <div className='mt-4 flex w-min items-center gap-2'>
             <CheckCircle2 size={20} />
-            <p className="font-medium">Succeeded</p>
+            <p className='font-medium'>Succeeded</p>
           </div>
         </div>
       ) : null}
       {proposalState === 'Executed' ? (
-        <div className="flex gap-4">
-          <div className="mt-4 flex w-min items-center gap-2">
+        <div className='flex gap-4'>
+          <div className='mt-4 flex w-min items-center gap-2'>
             <ListChecks size={20} />
-            <p className="font-medium">Executed</p>
+            <p className='font-medium'>Executed</p>
           </div>
         </div>
       ) : null}

@@ -48,24 +48,24 @@ export default function NewProposalActions() {
   );
 
   return (
-    <div className="flex flex-col space-y-4">
-      <h3 className="text-2xl font-semibold tracking-tight">
+    <div className='flex flex-col space-y-4'>
+      <h3 className='text-2xl font-semibold tracking-tight'>
         Actions{' '}
-        <span className="text-base font-normal text-muted-foreground">
+        <span className='text-base font-normal text-muted-foreground'>
           (optional)
         </span>
       </h3>
-      <p className="max-w-prose text-sm text-muted-foreground">
+      <p className='max-w-prose text-sm text-muted-foreground'>
         If you choose to skip this step, a transfer of 0 ETH to you (the
         proposer) will be added, as Governor requires one executable action for
         the proposal to be submitted on-chain.
       </p>
       {actions.length === 0 && (
         <Button
-          className="w-max"
+          className='w-max'
           onClick={addAction}
-          type="button"
-          variant="outline"
+          type='button'
+          variant='outline'
         >
           Add an action
         </Button>

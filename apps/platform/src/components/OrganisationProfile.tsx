@@ -284,13 +284,13 @@ export default function OrganisationProfile({
   };
 
   return (
-    <div className="border-black-500 col-span-1 mt-5 rounded-lg border bg-white p-5">
-      <div className="mb-5 flex flex-row items-center gap-5">
-        <Avatar className="h-16 w-16">
+    <div className='border-black-500 col-span-1 mt-5 rounded-lg border bg-white p-5'>
+      <div className='mb-5 flex flex-row items-center gap-5'>
+        <Avatar className='h-16 w-16'>
           <AvatarImage
-            className="object-top"
-            decoding="async"
-            loading="lazy"
+            className='object-top'
+            decoding='async'
+            loading='lazy'
             src={organisationProfile.avatar}
             title={`Avatar for ${organisationProfile.name}`}
           />
@@ -303,21 +303,21 @@ export default function OrganisationProfile({
                 organisationProfile.name,
                 organisationAddress,
               )}
-              className="pointer-events-none select-none rounded-full"
-              height="80"
-              width="80"
+              className='pointer-events-none select-none rounded-full'
+              height='80'
+              width='80'
             />
           </AvatarFallback>
         </Avatar>
-        <h1 className="text-3xl font-bold">
+        <h1 className='text-3xl font-bold'>
           {organisationProfile.name || '...'}
         </h1>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <Button asChild variant="outline">
+      <div className='grid grid-cols-2 gap-2'>
+        <Button asChild variant='outline'>
           <Link href={`${organisationAddress}/settings`}>
             <Settings size={20} />
-            <span className="ml-2">Settings</span>
+            <span className='ml-2'>Settings</span>
           </Link>
         </Button>
 
@@ -339,7 +339,7 @@ export default function OrganisationProfile({
             }
             disabled={!account.isConnected}
             onClick={toggleStarOrganisation}
-            variant="outline"
+            variant='outline'
           >
             {userProfileExtension.organisations.includes(
               organisationAddress,
@@ -351,26 +351,26 @@ export default function OrganisationProfile({
           </Button>
         </ClientOnly>
 
-        <Button asChild variant="outline">
+        <Button asChild variant='outline'>
           <Link href={`${organisationAddress}/proposals/new`}>
             <Plus size={20} />
-            <span className="ml-2">Propose</span>
+            <span className='ml-2'>Propose</span>
           </Link>
         </Button>
         <DelegateModal />
       </div>
       {organisationProfile.bio && (
-        <div className="mt-5 max-w-3xl">{organisationProfile.bio}</div>
+        <div className='mt-5 max-w-3xl'>{organisationProfile.bio}</div>
       )}
-      <div className="mt-3 mt-5 flex flex-col gap-1">
+      <div className='mt-3 mt-5 flex flex-col gap-1'>
         {organisationProfile.location && (
-          <div className="flex flex-row items-center gap-2">
+          <div className='flex flex-row items-center gap-2'>
             <MapPin size={20} />
             <div>{organisationProfile.location}</div>
           </div>
         )}
         {organisationProfile.website && (
-          <div className="flex flex-row items-center gap-2">
+          <div className='flex flex-row items-center gap-2'>
             <LinkIcon size={20} />
             <div>
               <Link href={organisationProfile.website as string}>
@@ -379,13 +379,13 @@ export default function OrganisationProfile({
             </div>
           </div>
         )}
-        <div className="flex flex-row items-center gap-2">
+        <div className='flex flex-row items-center gap-2'>
           <ScrollText size={20} />
           <div>
             <Link
-              className="border-b border-dashed border-[#999]"
+              className='border-b border-dashed border-[#999]'
               href={`https://testnet-explorer.thetatoken.org/account/${organisationAddress}`}
-              target="_blank"
+              target='_blank'
             >
               {organisationAddress ? shortenAddress(organisationAddress) : null}
             </Link>

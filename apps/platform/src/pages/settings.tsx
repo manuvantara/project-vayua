@@ -13,10 +13,10 @@ export default function ProfileSettingsPage() {
   return (
     <div>
       <Link
-        className="inline-flex items-center text-muted-foreground"
+        className='inline-flex items-center text-muted-foreground'
         href={`/`}
       >
-        <ArrowLeft className="mr-1 h-4 w-4" />
+        <ArrowLeft className='mr-1 h-4 w-4' />
         Back
       </Link>
       <SharedProfile
@@ -24,8 +24,8 @@ export default function ProfileSettingsPage() {
         isTransactionInProgress={isWriteLoading || isLoading}
         isTransactionSuccessful={isSuccess}
         onSubmit={handleWrite}
-        title="Edit Identity"
-        type="user"
+        title='Edit Identity'
+        type='user'
       />
     </div>
   );

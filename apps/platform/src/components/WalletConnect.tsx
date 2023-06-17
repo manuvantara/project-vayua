@@ -66,7 +66,7 @@ export default function WalletConnect() {
     return (
       <Dialog onOpenChange={setOpen} open={open}>
         <DialogTrigger asChild>
-          <Button className="border-0" prefix={<Wallet />} variant="outline">
+          <Button className='border-0' prefix={<Wallet />} variant='outline'>
             {shortenAddress(account.address, 4, 4)}
           </Button>
         </DialogTrigger>
@@ -77,7 +77,7 @@ export default function WalletConnect() {
               Do you want to disconnect your wallet?
             </DialogDescription>
           </DialogHeader>
-          <Button onClick={handleDisconnect} variant="default">
+          <Button onClick={handleDisconnect} variant='default'>
             Disconnect
           </Button>
         </DialogContent>
@@ -88,7 +88,7 @@ export default function WalletConnect() {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button prefix={<Wallet />} variant="default">
+        <Button prefix={<Wallet />} variant='default'>
           Connect
         </Button>
       </DialogTrigger>
@@ -99,7 +99,7 @@ export default function WalletConnect() {
             Please connect your wallet to continue using the app.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col space-y-2">
+        <div className='flex flex-col space-y-2'>
           {connectors.map((connector) => {
             const iconPath = connectorsIcons[connector.name];
 
@@ -116,9 +116,9 @@ export default function WalletConnect() {
                 key={connector.id}
                 loading={isLoading && connector.id === pendingConnector?.id}
                 onClick={() => handleConnect(connector)}
-                variant="outline"
+                variant='outline'
               >
-                <span className="flex items-center space-x-2">
+                <span className='flex items-center space-x-2'>
                   <span>{connector.name}</span>
                 </span>
               </Button>

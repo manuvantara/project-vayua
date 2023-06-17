@@ -105,9 +105,9 @@ export default memo(function ProposalAction({
     }
 
     return (
-      <div className="mt-4">
-        <h3 className="mb-2 text-lg font-semibold">Calldatas</h3>
-        <p className="mb-4 text-sm text-muted-foreground">
+      <div className='mt-4'>
+        <h3 className='mb-2 text-lg font-semibold'>Calldatas</h3>
+        <p className='mb-4 text-sm text-muted-foreground'>
           The data for the function arguments you wish to send when the action
           executes
         </p>
@@ -123,14 +123,14 @@ export default memo(function ProposalAction({
           };
 
           return (
-            <div className="mt-2" key={input.name}>
+            <div className='mt-2' key={input.name}>
               <Label htmlFor={input.name}>{input.name}</Label>
               <Input
-                className="mt-2"
+                className='mt-2'
                 id={input.name}
                 onChange={handleChange}
                 placeholder={input.type}
-                type="text"
+                type='text'
                 value={inputValue}
               />
             </div>
@@ -164,37 +164,37 @@ export default memo(function ProposalAction({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-success">Action #{actionId}</CardTitle>
+        <CardTitle className='text-success'>Action #{actionId}</CardTitle>
       </CardHeader>
       <CardContent>
         <div>
-          <Label htmlFor="target">Target contract</Label>
+          <Label htmlFor='target'>Target contract</Label>
           <Input
-            className="mt-2"
-            id="target"
+            className='mt-2'
+            id='target'
             onChange={(e) => setTargetContractAddress(e.target.value)}
-            placeholder="Enter target contract address"
-            type="text"
+            placeholder='Enter target contract address'
+            type='text'
             value={targetContractAddress}
           />
         </div>
-        <div className="mt-4">
-          <Label htmlFor="abi">ABI</Label>
+        <div className='mt-4'>
+          <Label htmlFor='abi'>ABI</Label>
           <Input
-            accept=".json"
-            className="mt-2"
-            id="abi"
+            accept='.json'
+            className='mt-2'
+            id='abi'
             onChange={handleContractABIUpload}
-            type="file"
+            type='file'
           />
         </div>
         {targetContractABI.length > 0 && (
-          <div className="mt-4">
-            <Label htmlFor="target-function">Target function</Label>
-            <div className="relative mt-2 flex w-[200px] items-center">
+          <div className='mt-4'>
+            <Label htmlFor='target-function'>Target function</Label>
+            <div className='relative mt-2 flex w-[200px] items-center'>
               <select
-                className="h-10 w-full cursor-pointer appearance-none items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                id="target-function"
+                className='h-10 w-full cursor-pointer appearance-none items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                id='target-function'
                 onChange={(e) => setTargetFunctionId(Number(e.target.value))}
                 value={targetFunctionId}
               >
@@ -204,7 +204,7 @@ export default memo(function ProposalAction({
                   </option>
                 ))}
               </select>
-              <span className="pointer-events-none absolute right-3 inline-flex h-4 w-4 items-center">
+              <span className='pointer-events-none absolute right-3 inline-flex h-4 w-4 items-center'>
                 <ChevronDown />
               </span>
             </div>
@@ -217,20 +217,20 @@ export default memo(function ProposalAction({
           <Button
             disabled={actionId === 1}
             onClick={() => onActionRemoved(actionId)}
-            size="sm"
-            type="button"
-            variant="destructive"
+            size='sm'
+            type='button'
+            variant='destructive'
           >
             Remove
           </Button>
           {/*Only render add action button if it's the last action*/}
           {actionsLength === actionId && (
             <Button
-              className="ml-2"
+              className='ml-2'
               onClick={onActionAdded}
-              size="sm"
-              type="button"
-              variant="default"
+              size='sm'
+              type='button'
+              variant='default'
             >
               Add action
             </Button>

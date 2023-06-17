@@ -96,24 +96,24 @@ export default function DelegateModal() {
       <ClientOnly>
         <DialogTrigger asChild>
           <Button
-            className="w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900"
+            className='w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900'
             disabled={!isConnected}
             loading={isTransactionLoading || delegateVotesWrite.isLoading}
             onClick={openDelegateDialog}
           >
             <HelpingHand size={20} />
-            <span className="ml-2">Delegate</span>
+            <span className='ml-2'>Delegate</span>
           </Button>
         </DialogTrigger>
       </ClientOnly>
       <DialogContent
-        className="sm:max-w-[425px]"
+        className='sm:max-w-[425px]'
         onCloseAutoFocus={closeDelegateDialog}
       >
         <DialogHeader>
           <DialogTitle>Delegate voting power</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className='grid gap-4 py-4'>
           {switchDelegateForm ? (
             <>
               <Button
@@ -126,17 +126,17 @@ export default function DelegateModal() {
               >
                 Myself
               </Button>
-              <Button onClick={delegateToSomeone} variant="outline">
+              <Button onClick={delegateToSomeone} variant='outline'>
                 To someone
               </Button>
             </>
           ) : (
             <>
-              <Label htmlFor="delegatee">Delegatee address</Label>
+              <Label htmlFor='delegatee'>Delegatee address</Label>
               <Input
-                id="delegatee"
-                placeholder="0xC37713ef41Aff1A7ac1c3D02f6f0B3a57F8A3091"
-                type="text"
+                id='delegatee'
+                placeholder='0xC37713ef41Aff1A7ac1c3D02f6f0B3a57F8A3091'
+                type='text'
                 {...delegateVotesForm.getInputProps('delegatee')}
               />
               <Button

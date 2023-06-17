@@ -33,10 +33,10 @@ const theme: MantineThemeOverride = {
 export default function Home() {
   return (
     <MantineProvider theme={theme}>
-      <div className="flex flex-col">
-        <div className="flex items-center justify-start border-b">
-          <div className="my-8 flex items-center justify-between">
-            <h3 className="text-3xl font-medium tracking-tight md:text-4xl">
+      <div className='flex flex-col'>
+        <div className='flex items-center justify-start border-b'>
+          <div className='my-8 flex items-center justify-between'>
+            <h3 className='text-3xl font-medium tracking-tight md:text-4xl'>
               Vayua Wizard
             </h3>
           </div>

@@ -67,18 +67,18 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-md border sm:p-5">
-      <div className="min-h-[480px]">
-        <Table className="min-h-full">
+    <div className='rounded-md border sm:p-5'>
+      <div className='min-h-[480px]'>
+        <Table className='min-h-full'>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
-                      <div className="flex flex-row flex-wrap items-center py-3">
-                        <div className="mr-5 flex items-center ">
-                          <h2 className="text-base">
+                      <div className='flex flex-row flex-wrap items-center py-3'>
+                        <div className='mr-5 flex items-center '>
+                          <h2 className='text-base'>
                             {header.isPlaceholder
                               ? null
                               : flexRender(
@@ -87,20 +87,20 @@ export function DataTable<TData, TValue>({
                                 )}
                           </h2>
                           {toScanBlocksCounter > 0 && (
-                            <Spinner className="ml-2" color="#000" size={20} />
+                            <Spinner className='ml-2' color='#000' size={20} />
                           )}
                         </div>
-                        <div className="gap-5 sm:flex">
+                        <div className='gap-5 sm:flex'>
                           <div>
                             Scanned{' '}
-                            <span className="font-semibold text-slate-500 ">
+                            <span className='font-semibold text-slate-500 '>
                               {scannedBlocksCounter}
                             </span>{' '}
                             blocks
                           </div>
                           <div>
                             Left{' '}
-                            <span className="font-semibold text-slate-500 ">
+                            <span className='font-semibold text-slate-500 '>
                               {toScanBlocksCounter >= 0
                                 ? toScanBlocksCounter
                                 : 0}
@@ -136,15 +136,15 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length}>
-                  <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
+                  <div className='flex min-h-[400px] flex-col items-center justify-center text-center'>
                     <X size={30} />
-                    <h3 className="mt-3 text-base font-semibold">
+                    <h3 className='mt-3 text-base font-semibold'>
                       There aren&apos;t any proposals yet
                     </h3>
-                    <div className="mt-2">
+                    <div className='mt-2'>
                       You could create a{' '}
                       <Link
-                        className="text-success"
+                        className='text-success'
                         href={`${organisationAddress}/proposals/new`}
                       >
                         new proposal
@@ -223,14 +223,14 @@ function Proposal({
   }, [snapshot]);
 
   return (
-    <div className="flex items-center justify-between">
+    <div className='flex items-center justify-between'>
       <div>
-        <h3 className="text-base font-semibold">
+        <h3 className='text-base font-semibold'>
           {getProposalTitle(proposal.description)}
         </h3>
-        <div className="mt-2 flex flex-col items-start gap-2 md:flex-row">
+        <div className='mt-2 flex flex-col items-start gap-2 md:flex-row'>
           {proposalState == 'Unknown State' ? (
-            <Skeleton className="h-[22px] w-[75px] rounded-full" />
+            <Skeleton className='h-[22px] w-[75px] rounded-full' />
           ) : (
             <Badge variant={badgeVariantMap[proposalState]}>
               {proposalState}
@@ -238,13 +238,13 @@ function Proposal({
           )}
           {shortenText(proposal.proposalId, 0, 4, '#')}
           {proposalSnapshot == '' ? (
-            <Skeleton className="h-[22px] w-[190px] rounded-full" />
+            <Skeleton className='h-[22px] w-[190px] rounded-full' />
           ) : (
             <div>Proposed on {proposalSnapshot}</div>
           )}
         </div>
       </div>
-      <Button asChild className="mt-5 md:m-0" size="sm" variant="link">
+      <Button asChild className='mt-5 md:m-0' size='sm' variant='link'>
         <Link
           href={{
             pathname: `${organisationAddress}/proposals/${proposal.proposalId}`,

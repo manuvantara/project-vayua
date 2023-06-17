@@ -19,10 +19,10 @@ export default function GovernanceProfile() {
   return (
     <div>
       <Link
-        className="inline-flex items-center text-muted-foreground"
+        className='inline-flex items-center text-muted-foreground'
         href={`/organisations/${organisationAddress}`}
       >
-        <ArrowLeft className="mr-1 h-4 w-4" />
+        <ArrowLeft className='mr-1 h-4 w-4' />
         Back
       </Link>
       <SharedProfile
@@ -30,8 +30,8 @@ export default function GovernanceProfile() {
         isTransactionInProgress={isLoading || isWriteLoading}
         isTransactionSuccessful={isSuccess}
         onSubmit={handleWrite}
-        title="Edit DAO Indentity"
-        type="dao"
+        title='Edit DAO Indentity'
+        type='dao'
       />
     </div>
   );

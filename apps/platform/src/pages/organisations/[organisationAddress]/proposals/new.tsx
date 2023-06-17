@@ -149,57 +149,57 @@ export default function NewProposalPage({
   }, [isSuccess]);
 
   return (
-    <div className="flex w-full flex-col">
+    <div className='flex w-full flex-col'>
       <Link
-        className="inline-flex items-center text-muted-foreground"
+        className='inline-flex items-center text-muted-foreground'
         href={`/organisations/${organisationAddress}`}
       >
-        <ArrowLeft className="mr-1 h-4 w-4" />
+        <ArrowLeft className='mr-1 h-4 w-4' />
         Back
       </Link>
-      <div className="flex items-stretch justify-start border-b">
-        <div className="mb-8 mt-4 flex items-center">
-          <h1 className="text-3xl font-medium tracking-tight md:text-4xl">
+      <div className='flex items-stretch justify-start border-b'>
+        <div className='mb-8 mt-4 flex items-center'>
+          <h1 className='text-3xl font-medium tracking-tight md:text-4xl'>
             New proposal
           </h1>
         </div>
       </div>
-      <form className="flex flex-col gap-6" onSubmit={handlePropose}>
-        <div className="mt-8">
-          <Label htmlFor="proposal-name">Proposal name</Label>
+      <form className='flex flex-col gap-6' onSubmit={handlePropose}>
+        <div className='mt-8'>
+          <Label htmlFor='proposal-name'>Proposal name</Label>
           <Input
-            className="mt-2"
-            id="proposal-name"
+            className='mt-2'
+            id='proposal-name'
             onChange={handleProposalNameChange}
-            placeholder="Enter proposal name"
+            placeholder='Enter proposal name'
             required
-            type="text"
+            type='text'
             value={proposalName}
           />
         </div>
 
-        <div className="min-h-[400px]">
-          <Tabs defaultValue="edit">
-            <TabsList className="rounded-md bg-muted p-1 text-muted-foreground">
+        <div className='min-h-[400px]'>
+          <Tabs defaultValue='edit'>
+            <TabsList className='rounded-md bg-muted p-1 text-muted-foreground'>
               <TabsTrigger
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm border-none px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-                value="edit"
+                className='inline-flex items-center justify-center whitespace-nowrap rounded-sm border-none px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm'
+                value='edit'
               >
                 Edit in markdown
               </TabsTrigger>
               <TabsTrigger
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm border-none px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-                value="preview"
+                className='inline-flex items-center justify-center whitespace-nowrap rounded-sm border-none px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm'
+                value='preview'
               >
                 Preview
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="edit">
+            <TabsContent value='edit'>
               <MarkdownEditor />
             </TabsContent>
-            <TabsContent value="preview">
-              <div className="min-h-[400px] w-full rounded-md border p-4 shadow">
-                <div className="prose-sm !max-w-full sm:prose">
+            <TabsContent value='preview'>
+              <div className='min-h-[400px] w-full rounded-md border p-4 shadow'>
+                <div className='prose-sm !max-w-full sm:prose'>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {markdownEditorValue}
                   </ReactMarkdown>
@@ -213,11 +213,11 @@ export default function NewProposalPage({
           <NewProposalActions />
         </div>
 
-        <div className="flex justify-end">
+        <div className='flex justify-end'>
           <Web3Button
             disabled={!write}
             loading={isTransactionLoading || isWriteLoading}
-            type="submit"
+            type='submit'
           >
             Create proposal
           </Web3Button>

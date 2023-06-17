@@ -75,30 +75,30 @@ export default function Governance() {
   }, [governanceContractForm, setGovernanceContract, tokenContractType]);
 
   return (
-    <div className="grid max-w-2xl grid-cols-6 gap-6">
-      <div className="col-span-full">
+    <div className='grid max-w-2xl grid-cols-6 gap-6'>
+      <div className='col-span-full'>
         <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="gov-name"
+          className='block text-sm font-medium text-gray-700'
+          htmlFor='gov-name'
         >
           Name
         </label>
-        <div className="mt-2">
+        <div className='mt-2'>
           <TextInput
-            id="gov-name"
-            placeholder="Governance name"
+            id='gov-name'
+            placeholder='Governance name'
             {...governanceContractForm.getInputProps('name')}
           />
         </div>
       </div>
-      <div className="col-span-full sm:col-span-3">
+      <div className='col-span-full sm:col-span-3'>
         <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="voting-delay"
+          className='block text-sm font-medium text-gray-700'
+          htmlFor='voting-delay'
         >
           Voting delay
         </label>
-        <div className="mt-2">
+        <div className='mt-2'>
           <NumberInput
             rightSection={
               <Select
@@ -118,9 +118,9 @@ export default function Governance() {
                   timingFunction: 'ease',
                   transition: 'pop-top-left',
                 }}
-                aria-label="Voting delay time interval"
-                id="votingDelayTimeInterval"
-                placeholder="Voting delay time interval"
+                aria-label='Voting delay time interval'
+                id='votingDelayTimeInterval'
+                placeholder='Voting delay time interval'
                 radius={0}
                 {...governanceContractForm.getInputProps(
                   'votingDelay.timeInterval',
@@ -128,27 +128,27 @@ export default function Governance() {
               />
             }
             defaultValue={0}
-            id="voting-delay"
+            id='voting-delay'
             min={0}
-            placeholder="Voting delay number"
-            rightSectionWidth="50%"
+            placeholder='Voting delay number'
+            rightSectionWidth='50%'
             // formatter={(value) => `${value}%`}
             step={1}
             {...governanceContractForm.getInputProps('votingDelay.number')}
           />
         </div>
-        <Text className="mt-1.5 text-gray-500" size="xs">
+        <Text className='mt-1.5 text-gray-500' size='xs'>
           Delay since proposal is created until voting starts.
         </Text>
       </div>
-      <div className="col-span-full sm:col-span-3">
+      <div className='col-span-full sm:col-span-3'>
         <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="voting-period"
+          className='block text-sm font-medium text-gray-700'
+          htmlFor='voting-period'
         >
           Voting period
         </label>
-        <div className="mt-2">
+        <div className='mt-2'>
           <NumberInput
             rightSection={
               <Select
@@ -168,9 +168,9 @@ export default function Governance() {
                   timingFunction: 'ease',
                   transition: 'pop-top-left',
                 }}
-                aria-label="Voting period time interval"
-                id="votingPeriodTimeInterval"
-                placeholder="Voting period time interval"
+                aria-label='Voting period time interval'
+                id='votingPeriodTimeInterval'
+                placeholder='Voting period time interval'
                 radius={0}
                 {...governanceContractForm.getInputProps(
                   'votingPeriod.timeInterval',
@@ -178,65 +178,65 @@ export default function Governance() {
               />
             }
             defaultValue={0}
-            id="voting-period"
+            id='voting-period'
             min={0}
-            placeholder="Voting period number"
-            rightSectionWidth="50%"
+            placeholder='Voting period number'
+            rightSectionWidth='50%'
             // formatter={(value) => `${value}%`}
             step={1}
             {...governanceContractForm.getInputProps('votingPeriod.number')}
           />
         </div>
-        <Text className="mt-1.5 text-gray-500" size="xs">
+        <Text className='mt-1.5 text-gray-500' size='xs'>
           Length of period during which people can cast their vote.
         </Text>
       </div>
-      <div className="col-span-full">
+      <div className='col-span-full'>
         <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="proposal-threshold"
+          className='block text-sm font-medium text-gray-700'
+          htmlFor='proposal-threshold'
         >
           Proposal threshold
         </label>
-        <div className="mt-2">
+        <div className='mt-2'>
           <TextInput
-            id="proposal-threshold"
-            placeholder="Proposal threshold"
+            id='proposal-threshold'
+            placeholder='Proposal threshold'
             {...governanceContractForm.getInputProps('proposalThreshold')}
           />
         </div>
-        <Text className="mt-1.5 text-gray-500" size="xs">
+        <Text className='mt-1.5 text-gray-500' size='xs'>
           Minimum number of votes an account must have to create a proposal.
         </Text>
       </div>
-      <div className="col-span-full">
+      <div className='col-span-full'>
         <label
-          className="block text-sm font-medium text-gray-700"
-          htmlFor="quorum"
+          className='block text-sm font-medium text-gray-700'
+          htmlFor='quorum'
         >
           Quorum
         </label>
-        <div className="mt-2">
+        <div className='mt-2'>
           <NumberInput
             defaultValue={0}
-            id="quorum"
+            id='quorum'
             min={0}
-            placeholder="Quorum"
+            placeholder='Quorum'
             // formatter={(value) => `${value}%`}
             step={1}
             {...governanceContractForm.getInputProps('quorum')}
           />
         </div>
-        <Text className="mt-1.5 text-gray-500" size="xs">
+        <Text className='mt-1.5 text-gray-500' size='xs'>
           Quorum required for a proposal to pass.
         </Text>
       </div>
-      <div className="col-span-full">
-        <Accordion variant="contained">
-          <Accordion.Item value="code">
+      <div className='col-span-full'>
+        <Accordion variant='contained'>
+          <Accordion.Item value='code'>
             <Accordion.Control>Show contract code</Accordion.Control>
             <Accordion.Panel>
-              <Prism language="jsx">{governanceContract.source}</Prism>
+              <Prism language='jsx'>{governanceContract.source}</Prism>
             </Accordion.Panel>
           </Accordion.Item>
         </Accordion>
