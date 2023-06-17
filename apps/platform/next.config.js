@@ -34,6 +34,7 @@ const nextConfig = {
       },
     ];
   },
+  trailingSlash: true,
   webpack: (config, { isServer }) => {
     // If client-side, don't polyfill `fs`
     if (!isServer) {
