@@ -18,23 +18,6 @@ const nextConfig = {
     ],
   },
   reactStrictMode: false,
-  async rewrites() {
-    return [
-      {
-        destination: `/:path*`,
-        source: '/:path*',
-      },
-      {
-        destination: `${process.env.DOCS_URL}/docs`,
-        source: '/docs',
-      },
-      {
-        destination: `${process.env.DOCS_URL}/docs/:path*`,
-        source: '/docs/:path*',
-      },
-    ];
-  },
-  trailingSlash: true,
   webpack: (config, { isServer }) => {
     // If client-side, don't polyfill `fs`
     if (!isServer) {
