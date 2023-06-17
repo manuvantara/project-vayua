@@ -5,7 +5,6 @@ inputs:
   deployment-base-url:
     description: "The base URL of the deployment to warm up (e.g. https://my-deployment.vercel.app)"
     required: true
-    default: "https://project-vayua-platform-git-platform-102-dreamqip.vercel.app/"
 
 runs:
   using: composite
