@@ -6,7 +6,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/Dialog';
 import { useToast } from '@/hooks/use-toast';
-import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { useState } from 'react';
 import {
   useAccount,
@@ -21,21 +21,44 @@ import { Button } from './ui/Button';
 export default function CastVoteModal({
   organisationAddress,
   proposalId,
+  snapshot,
 }: {
   organisationAddress: `0x${string}`;
   proposalId: string;
+  snapshot: bigint;
 }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-
+  // get account details
   const { address, isConnected } = useAccount();
-
+  // get hasVoted when the wallet is connected
   const hasVotedRead = useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
     args: [BigInt(proposalId), address!],
     enabled: isConnected,
     functionName: 'hasVoted',
+  });
+  // get the token address
+  const { data: tokenAddress, isSuccess: readTokenParams } = useContractRead({
+    abi: GOVERNOR_ABI,
+    address: organisationAddress,
+    functionName: 'token',
+  });
+  // get the past votes for an account if the wallet is connected
+  const { data: pastVotes } = useContractRead({
+    abi: TOKEN_ABI,
+    address: tokenAddress,
+    args: [address!, snapshot],
+    enabled: readTokenParams && isConnected,
+    functionName: 'getPastVotes',
+  });
+  // get the token decimals
+  const { data: tokenDecimals } = useContractRead({
+    abi: TOKEN_ABI,
+    address: tokenAddress,
+    enabled: readTokenParams,
+    functionName: 'decimals',
   });
 
   const castVoteWrite = useContractWrite({
@@ -70,6 +93,18 @@ export default function CastVoteModal({
         <DialogHeader>
           <DialogTitle>Cast your vote</DialogTitle>
         </DialogHeader>
+        {pastVotes ? (
+          <div>
+            Your voting power is{' '}
+            <span className='font-bold'>
+              {Intl.NumberFormat('en-US', {
+                compactDisplay: 'short',
+                maximumFractionDigits: 1,
+                notation: 'compact',
+              }).format(Number(pastVotes) / 10 ** (tokenDecimals || 18))}
+            </span>
+          </div>
+        ) : null}
         <div className='flex gap-2'>
           <Button
             onClick={() => {

@@ -228,7 +228,7 @@ export default function ProposalPage({
   }, [voteStart]);
 
   // get and set snapshot
-  useContractRead({
+  const proposalSnapshotRead = useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
     args: [BigInt(proposalId)],
@@ -306,6 +306,7 @@ export default function ProposalPage({
           <CastVoteModal
             organisationAddress={organisationAddress}
             proposalId={proposalId}
+            snapshot={proposalSnapshotRead.data || BigInt(0)}
           />
         );
       case 'Succeeded':
@@ -324,6 +325,7 @@ export default function ProposalPage({
     voteStart,
     organisationAddress,
     proposalId,
+    proposalSnapshotRead.data,
     executeWrite,
     isConnected,
     isTransactionLoading,
