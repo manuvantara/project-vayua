@@ -156,7 +156,7 @@ export default function ProposalPage({
     functionName: 'state',
     onSuccess(data) {
       setProposalState(proposalStateMap[data ? data : -1] || 'Unknown State');
-      if (data !== 7) {
+      if (data === 4) {
         executeWritePrepare.refetch();
       }
       // TODO: refactor proposal state if watch works
