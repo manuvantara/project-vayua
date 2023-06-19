@@ -24,7 +24,7 @@ runs:
           \n
         EOF
 
-        for PATHNAME in "/[organisationAddress]" "/[organisationAddress]/proposals/[proposalId]"; do
+        for PATHNAME in "/0x93893caef4de88c47ae46a5e7003773b61cbd8d2" "/0x93893caef4de88c47ae46a5e7003773b61cbd8d2/proposals/102474802060472087641160576555905661957874551162675794771743863692244479143871?calldatas=0x00&description=---%0Atitle%3A+Proposal%0A---%0A+Test+description&proposer=0xf17A8d2D5186EFc07165B67F77A8a519a21cdE69&targets=0x0000000000000000000000000000000000000000&values=0&voteEnd=16895672&voteStart=16895647"; do
           npx retry-cli@0.6.0 -- curl --output /dev/null --silent --write-out "@curl-format.txt" "${BASE_URL}${PATHNAME}"
         done
       env:
