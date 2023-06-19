@@ -41,7 +41,7 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 
-const ONE_BLOCK_IN_SECONDS = 12;
+const ONE_BLOCK_IN_SECONDS = 1.5;
 const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 function setExecuteWriteArgs(

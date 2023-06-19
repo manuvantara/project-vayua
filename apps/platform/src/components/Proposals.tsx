@@ -28,7 +28,7 @@ export type Proposal = {
   voteStart: string;
 };
 
-const MIN_BLOCK_NUMBER = 21041027n;
+const MIN_BLOCK_NUMBER = 16883136n;
 
 const parseEvents = (logs: any) => {
   const parsedLogs = logs.map((log: any) => {

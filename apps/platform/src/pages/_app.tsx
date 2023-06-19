@@ -34,7 +34,7 @@ const inter = Inter({
 });
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [fantom, fantomTestnet],
+  [fantomTestnet, fantom],
   [publicProvider()],
 );
 
