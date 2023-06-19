@@ -29,12 +29,14 @@ export default function Home() {
       address: '',
     },
     validate: {
-      address: (value) =>
-        !ETH_ADDRESS_REGEX.test(value)
-          ? value.length === 0
-            ? null
-            : 'Please enter a valid Ethereum address'
-          : null,
+      address: (value) => {
+        const trimmedValue = value.trim();
+        if (!ETH_ADDRESS_REGEX.test(trimmedValue)) {
+          return 'Please enter a valid Ethereum address';
+        } else {
+          return null;
+        }
+      },
     },
     validateInputOnChange: true,
   });
@@ -62,8 +64,8 @@ export default function Home() {
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault();
-                if (!form.errors.address) {
-                  router.push(`/organisations/${form.values.address}`);
+                if (!form.errors.address && form.values.address) {
+                  router.push(`/organisations/${form.values.address.trim()}`);
                 }
               }
             }}
@@ -78,7 +80,9 @@ export default function Home() {
             asChild
             className='w-full md:w-auto'
           >
-            <Link href={`/organisations/${form.values.address}`}>Search</Link>
+            <Link href={`/organisations/${form.values.address.trim()}`}>
+              Search
+            </Link>
           </Button>
         </CardFooter>
       </Card>
