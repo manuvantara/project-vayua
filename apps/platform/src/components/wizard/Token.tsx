@@ -22,14 +22,19 @@ export default function Token() {
   const tokenContractForm = useForm<TokenFormValues>({
     initialValues: {
       baseURI: '',
-      mintNewTokens: false,
+      mintNewTokens: true,
       premintAmount: '',
       tokenName: 'MyToken',
       tokenSymbol: 'MTK',
       tokenType: 'erc20',
     },
+
     validate: {
-      baseURI: matches(URI_REGEX, "Unfortunately it's not a valid base URI"),
+      baseURI: (value) => {
+        return value === '' || URI_REGEX.test(value)
+          ? null
+          : "Unfortunately, it's not a valid base URI";
+      },
       premintAmount: (value, values) =>
         value == '0' && !values.mintNewTokens
           ? "Premint amount can't be zero if tokens are not mintable"
@@ -62,9 +67,9 @@ export default function Token() {
         });
       } else {
         contract = erc721.print({
-          baseUri: baseURI,
+          baseUri: tokenContractForm.isValid() ? baseURI : '',
           incremental: true,
-          mintable: mintNewTokens,
+          mintable: true,
           name: tokenName,
           symbol: tokenSymbol,
           votes: true,
@@ -177,22 +182,24 @@ export default function Token() {
           </div>
         </div>
       )}
-      <div className='col-span-4'>
-        <label
-          className='block text-sm font-medium text-gray-700'
-          htmlFor='mint-tokens'
-        >
-          Do you want to mint new tokens?
-        </label>
-        <div className='mt-2'>
-          <Switch
-            id='mint-tokens'
-            {...tokenContractForm.getInputProps('mintNewTokens', {
-              type: 'checkbox',
-            })}
-          />
+      {tokenContractForm.values.tokenType === 'erc20' && (
+        <div className='col-span-4'>
+          <label
+            className='block text-sm font-medium text-gray-700'
+            htmlFor='mint-tokens'
+          >
+            Do you want to mint new tokens?
+          </label>
+          <div className='mt-2'>
+            <Switch
+              id='mint-tokens'
+              {...tokenContractForm.getInputProps('mintNewTokens', {
+                type: 'checkbox',
+              })}
+            />
+          </div>
         </div>
-      </div>
+      )}
       <div className='col-span-full'>
         <Accordion variant='contained'>
           <Accordion.Item value='code'>
