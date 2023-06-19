@@ -190,7 +190,7 @@ export default function OrganisationPage({
               <span className='ml-2'>Propose</span>
             </Link>
           </Button>
-          <DelegateModal />
+          <DelegateModal organisationAddress={organisationAddress} />
         </CardFooter>
       </Card>
       {/* </OrganisationCard> */}

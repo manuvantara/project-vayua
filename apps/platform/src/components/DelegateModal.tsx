@@ -13,7 +13,6 @@ import { Label } from '@/components/ui/Label';
 import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { isNotEmpty, useForm } from '@mantine/form';
 import { HelpingHand } from 'lucide-react';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import {
   useAccount,
@@ -25,24 +24,22 @@ import {
 import { toast } from '../hooks/use-toast';
 import { Input } from './ui/Input';
 
-export default function DelegateModal() {
+export default function DelegateModal({
+  organisationAddress,
+}: {
+  organisationAddress: `0x${string}`;
+}) {
   const [switchDelegateForm, setSwitchDelegateForm] = useState(true);
   const [open, setOpen] = useState(false);
-  const { isConnected } = useAccount();
 
-  const router = useRouter();
-  // get the governance contract address from route
-  const govAddress = router.query.organisationAddress as `0x${string}`;
   // read token address from governance
-  const read = useContractRead({
+  const { data: tokenAddress } = useContractRead({
     abi: GOVERNOR_ABI,
-    address: govAddress,
+    address: organisationAddress,
     functionName: 'token',
   });
-  const tokenAddress: `0x${string}` = read.data as `0x${string}`;
   // get the account address from connected wallet
-  const account = useAccount();
-  const accountAddress = account.address as `0x${string}`;
+  const { address, isConnected } = useAccount();
 
   const delegateVotesWrite = useContractWrite({
     abi: TOKEN_ABI,
@@ -119,10 +116,10 @@ export default function DelegateModal() {
               <Button
                 onClick={() =>
                   delegateVotesWrite.write({
-                    args: [accountAddress],
+                    args: [address!],
                   })
                 }
-                disabled={!delegateVotesWrite.write || !isConnected}
+                disabled={!delegateVotesWrite.write || !isConnected || !address}
               >
                 Myself
               </Button>
