@@ -7,24 +7,36 @@ import {
 } from '@/components/ui/Dialog';
 import { useToast } from '@/hooks/use-toast';
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
-import { useEffect, useState } from 'react';
-import { useAccount, useContractWrite, useWaitForTransaction } from 'wagmi';
+import { useState } from 'react';
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 
 import Web3Button from './Web3Button';
 import { Button } from './ui/Button';
 
-type CastVoteModalProps = {
-  organisationAddress: `0x${string}`;
-  proposalId: string;
-};
-
 export default function CastVoteModal({
   organisationAddress,
   proposalId,
-}: CastVoteModalProps) {
-  const { isConnected } = useAccount();
+}: {
+  organisationAddress: `0x${string}`;
+  proposalId: string;
+}) {
   const { toast } = useToast();
-  const [isDialogOpened, setIsDialogOpened] = useState(true);
+  const [open, setOpen] = useState(false);
+
+  const { address, isConnected } = useAccount();
+
+  const hasVotedRead = useContractRead({
+    abi: GOVERNOR_ABI,
+    address: organisationAddress,
+    args: [BigInt(proposalId), address!],
+    enabled: isConnected,
+    functionName: 'hasVoted',
+  });
 
   const castVoteWrite = useContractWrite({
     abi: GOVERNOR_ABI,
@@ -32,83 +44,72 @@ export default function CastVoteModal({
     functionName: 'castVote',
   });
 
-  const {
-    isLoading: isTransactionLoading,
-    isSuccess: isTransactionSuccessful,
-  } = useWaitForTransaction({
+  const { isLoading: isTransactionLoading } = useWaitForTransaction({
     hash: castVoteWrite.data?.hash,
-  });
-
-  useEffect(() => {
-    if (isTransactionLoading || castVoteWrite.isLoading) {
-      setIsDialogOpened(false);
-    } else {
-      setIsDialogOpened(true);
-    }
-  }, [isTransactionLoading, castVoteWrite.isLoading]);
-
-  useEffect(() => {
-    if (isTransactionSuccessful) {
-      setIsDialogOpened(false);
+    onSuccess() {
       toast({
         description: 'Your vote has been successfully casted.',
       });
-    }
-  }, [isTransactionSuccessful]);
+      hasVotedRead.refetch();
+    },
+  });
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         <Web3Button
           className='w-full md:w-24'
+          disabled={hasVotedRead.data}
           loading={isTransactionLoading || castVoteWrite.isLoading}
         >
-          Vote
+          {hasVotedRead.data ? 'Voted' : 'Vote'}
         </Web3Button>
       </DialogTrigger>
-      {isDialogOpened && (
-        <DialogContent className='sm:max-w-[425px]'>
-          <DialogHeader>
-            <DialogTitle>Cast your vote</DialogTitle>
-          </DialogHeader>
-          <div className='flex gap-2'>
-            <Button
-              onClick={() => {
-                castVoteWrite.write({
-                  args: [BigInt(proposalId), 1],
-                });
-              }}
-              className='flex-1 bg-success hover:bg-success-light'
-              disabled={!castVoteWrite.write || !isConnected}
-            >
-              For
-            </Button>
-            <Button
-              onClick={() => {
-                castVoteWrite.write({
-                  args: [BigInt(proposalId), 0],
-                });
-              }}
-              className='flex-1 bg-destructive hover:bg-destructive/90'
-              disabled={!castVoteWrite.write || !isConnected}
-            >
-              Against
-            </Button>
-          </div>
 
+      <DialogContent className='sm:max-w-[425px]'>
+        <DialogHeader>
+          <DialogTitle>Cast your vote</DialogTitle>
+        </DialogHeader>
+        <div className='flex gap-2'>
           <Button
             onClick={() => {
               castVoteWrite.write({
-                args: [BigInt(proposalId), 2],
+                args: [BigInt(proposalId), 1],
               });
+              setOpen(false);
             }}
+            className='flex-1 bg-success hover:bg-success-light'
             disabled={!castVoteWrite.write || !isConnected}
-            variant='outline'
           >
-            Abstain
+            For
           </Button>
-        </DialogContent>
-      )}
+          <Button
+            onClick={() => {
+              castVoteWrite.write({
+                args: [BigInt(proposalId), 0],
+              });
+              setOpen(false);
+            }}
+            className='flex-1 bg-destructive hover:bg-destructive/90'
+            disabled={!castVoteWrite.write || !isConnected}
+          >
+            Against
+          </Button>
+        </div>
+
+        <Button
+          onClick={() => {
+            castVoteWrite.write({
+              args: [BigInt(proposalId), 2],
+            });
+            setOpen(false);
+          }}
+          disabled={!castVoteWrite.write || !isConnected}
+          variant='outline'
+        >
+          Abstain
+        </Button>
+      </DialogContent>
     </Dialog>
   );
 }
