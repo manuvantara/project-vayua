@@ -27,7 +27,8 @@ export default function NotFound() {
           </Button>
           <Link
             className='flex items-center text-sm font-semibold'
-            href='/docs'
+            href={`${process.env.NEXT_PUBLIC_DOCS_URL}`}
+            target='_blank'
           >
             Documentation
             <ArrowRight className='ml-2 h-4 w-4' />
