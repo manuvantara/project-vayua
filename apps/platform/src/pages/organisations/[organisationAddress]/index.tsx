@@ -2,10 +2,11 @@ import type { GetServerSideProps } from 'next';
 
 import ClientOnly from '@/components/ClientOnly';
 import DelegateModal from '@/components/DelegateModal';
-import Proposals from '@/components/Proposals';
+import { ProposalsTable } from '@/components/ProposalsTable';
 import { ProfileView } from '@/components/VRC1';
 import { Button } from '@/components/ui/Button';
 import { Card, CardFooter, CardHeader } from '@/components/ui/Card';
+import useProposalsList from '@/hooks/use-proposals-list';
 import {
   type OrganisationProfile,
   type UserStarringExtension,
@@ -15,6 +16,7 @@ import {
   parseUserStarringExtension,
 } from '@/utils/VRC1';
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { columns } from '@/utils/helpers/proposal.helper';
 import { Plus, Settings, Star, StarOff } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -36,6 +38,10 @@ export default function OrganisationPage({
   parsedOrganisationProfile: OrganisationProfile;
 }) {
   const publicClient = usePublicClient();
+  
+  const [proposals, scannedBlocksCounter, toScanBlocksCounter] =
+    useProposalsList(publicClient, organisationAddress);
+
   const [organisationProfile, setOrganisationProfile] =
     useState<OrganisationProfile>(parsedOrganisationProfile);
 
@@ -194,7 +200,15 @@ export default function OrganisationPage({
         </CardFooter>
       </Card>
       {/* </OrganisationCard> */}
-      <Proposals organisationAddress={organisationAddress} />
+      <div className='col-span-2'>
+        <ProposalsTable
+          columns={columns}
+          data={proposals}
+          organisationAddress={organisationAddress}
+          scannedBlocksCounter={scannedBlocksCounter}
+          toScanBlocksCounter={toScanBlocksCounter}
+        />
+      </div>
     </div>
   );
 }

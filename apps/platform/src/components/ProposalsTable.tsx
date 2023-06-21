@@ -11,6 +11,7 @@ import useProposalSnapshot from '@/hooks/use-proposal-snapshot';
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import {
   blockNumberToDate,
+  getProposalTitle,
   proposalTimestampToDate,
 } from '@/utils/helpers/proposal.helper';
 import { shortenText } from '@/utils/helpers/shorten.helper';
@@ -27,13 +28,12 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useContractRead, usePublicClient } from 'wagmi';
 
-import { getProposalTitle } from './Proposals';
 import { DataTablePagination } from './ProposalsTablePagination';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import Spinner from './ui/Spinner';
 
-interface DataTableProps<TData, TValue> {
+interface ProposalsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   organisationAddress: `0x${string}`;
@@ -41,13 +41,13 @@ interface DataTableProps<TData, TValue> {
   toScanBlocksCounter: number;
 }
 
-export function DataTable<TData, TValue>({
+export function ProposalsTable<TData, TValue>({
   columns,
   data,
   organisationAddress,
   scannedBlocksCounter,
   toScanBlocksCounter,
-}: DataTableProps<TData, TValue>) {
+}: ProposalsTableProps<TData, TValue>) {
   const [sortedData, setSortedData] = useState([...data]);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className='rounded-md border sm:p-5'>
+    <div className='rounded-md border sm:p-5 bg-white'>
       <div className='min-h-[480px]'>
         <Table className='min-h-full'>
           <TableHeader>
@@ -128,11 +128,10 @@ export function DataTable<TData, TValue>({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell colSpan={columns.length} key={cell.id}>
-                      <Proposal
+                      <ProposalTableItem
                         cellparams={cell.getContext()}
                         organisationAddress={organisationAddress}
                       />
-                      {/* {flexRender(Proposal, cell.getContext())} */}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -166,7 +165,7 @@ export function DataTable<TData, TValue>({
   );
 }
 
-function Proposal({
+function ProposalTableItem({
   cellparams,
   organisationAddress,
 }: {

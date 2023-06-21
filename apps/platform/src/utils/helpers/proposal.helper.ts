@@ -1,3 +1,5 @@
+import type { MarkdownFrontmatter, Proposal } from '@/types/proposals';
+import type { ColumnDef } from '@tanstack/react-table';
 import type { PublicClient } from 'viem';
 
 import { getStringHash } from '@/utils/hash-string';
@@ -122,3 +124,28 @@ export function setExecuteWriteArgs(
     executeDescription,
   ] as const;
 }
+
+export function getProposalTitle(rawDescription: string) {
+  const MAX_LENGTH = 50;
+
+  let { title } =
+    parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(rawDescription);
+
+  if (title) {
+    title =
+      title.length > MAX_LENGTH ? title.slice(0, MAX_LENGTH) + '...' : title;
+  } else {
+    title =
+      rawDescription.length > MAX_LENGTH
+        ? rawDescription.slice(0, MAX_LENGTH) + '...'
+        : rawDescription;
+  }
+
+  return title || '';
+}
+
+export const columns: ColumnDef<Proposal>[] = [
+  {
+    header: 'Proposals',
+  },
+];

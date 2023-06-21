@@ -1,32 +1,13 @@
-import type { MarkdownFrontmatter } from '@/types/proposals';
-import type { ColumnDef } from '@tanstack/react-table';
+import type { Proposal } from '@/types/proposals';
 
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
-import { MIN_BLOCK_NUMBER } from '@/utils/chains/chain-config';
-import { parseMarkdownWithYamlFrontmatter } from '@/utils/helpers/proposal.helper';
+import {
+  MIN_BLOCK_NUMBER,
+} from '@/utils/chains/chain-config';
 import { useEffect, useState } from 'react';
-import { parseAbiItem } from 'viem';
-import { useBlockNumber, useContractEvent, usePublicClient } from 'wagmi';
-
-import { DataTable } from './ProposalsTable';
-
-export const columns: ColumnDef<Proposal>[] = [
-  {
-    header: 'Proposals',
-  },
-];
-
-export type Proposal = {
-  calldatas: `0x${string}` | `0x${string}`[];
-  description: string;
-  proposalId: `0x${string}`;
-  proposer: `0x${string}`;
-  signatures: string | string[];
-  targets: `0x${string}` | `0x${string}`[];
-  values: string | string[];
-  voteEnd: string;
-  voteStart: string;
-};
+import { type PublicClient, parseAbiItem } from 'viem';
+import { useBlockNumber } from 'wagmi';
+import { useContractEvent } from 'wagmi';
 
 const parseEvents = (logs: any) => {
   const parsedLogs = logs.map((log: any) => {
@@ -72,33 +53,12 @@ const parseLogs = (logsPerCycle: any) => {
   return parsedLogs;
 };
 
-export function getProposalTitle(rawDescription: string) {
-  const MAX_LENGTH = 50;
+export default function useProposalsList(
+  publicClient: PublicClient,
+  organisationAddress: `0x${string}`
+): [Proposal[], number, number] {
 
-  let { title } =
-    parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(rawDescription);
-
-  if (title) {
-    title =
-      title.length > MAX_LENGTH ? title.slice(0, MAX_LENGTH) + '...' : title;
-  } else {
-    title =
-      rawDescription.length > MAX_LENGTH
-        ? rawDescription.slice(0, MAX_LENGTH) + '...'
-        : rawDescription;
-  }
-
-  return title || '';
-}
-
-export default function Proposals({
-  organisationAddress,
-}: {
-  organisationAddress: `0x${string}`;
-}) {
-  const publicClient = usePublicClient();
   const { data: blockNumber } = useBlockNumber();
-
   const [proposals, setProposals] = useState<Proposal[]>([]);
 
   const [scannedBlocksCounter, setScannedBlocksCounter] = useState(0);
@@ -240,15 +200,5 @@ export default function Proposals({
     },
   });
 
-  return (
-    <div className='col-span-2 bg-white'>
-      <DataTable
-        columns={columns}
-        data={proposals}
-        organisationAddress={organisationAddress}
-        scannedBlocksCounter={scannedBlocksCounter}
-        toScanBlocksCounter={toScanBlocksCounter}
-      />
-    </div>
-  );
+  return [proposals, scannedBlocksCounter, toScanBlocksCounter];
 }
