@@ -1,3 +1,7 @@
+import type { PublicClient } from 'viem';
+
+import { getStringHash } from '@/utils/hash-string';
+
 export function parseProposalActionInput(input: string) {
   let parsedData;
 
@@ -54,7 +58,7 @@ export const parseMarkdownWithYamlFrontmatter = <
 export function proposalTimestampToDate(
   timestampInSeconds: string,
   extended = false,
-) {
+): string {
   const timestampInMilliseconds = parseInt(timestampInSeconds) * 1000;
   const dateObj = new Date(timestampInMilliseconds);
 
@@ -68,4 +72,53 @@ export function proposalTimestampToDate(
   if (minute.length != 2) minute = '0' + minute;
 
   return `${day}-${month}-${year}` + (extended ? ` ${hour}:${minute}` : '');
+}
+
+export async function blockNumberToTimestamp(
+  publicClient: PublicClient,
+  blockNumber: bigint,
+): Promise<string> {
+  try {
+    const block = await publicClient.getBlock({
+      blockNumber: blockNumber,
+    });
+
+    return block.timestamp.toString();
+  } catch (error) {
+    console.log('Error while trying to get timestamp for block', error);
+    return '';
+  }
+}
+
+export async function blockNumberToDate(
+  publicClient: PublicClient,
+  blockNumber: bigint,
+): Promise<string> {
+  const timestamp = await blockNumberToTimestamp(publicClient, blockNumber);
+  const date = timestamp
+    ? proposalTimestampToDate(timestamp, true)
+    : 'Invalid date';
+  return date;
+}
+
+export function setExecuteWriteArgs(
+  targets: `0x${string}` | `0x${string}`[],
+  values: string | string[],
+  calldatas: `0x${string}` | `0x${string}`[],
+  description: string,
+) {
+  const executeDescription = getStringHash(description) as `0x${string}`;
+
+  const executeTargets = Array.isArray(targets) ? targets : [targets];
+  const executeValues = Array.isArray(values)
+    ? values.map((val) => BigInt(val))
+    : [BigInt(values)];
+  const executeCalldatas = Array.isArray(calldatas) ? calldatas : [calldatas];
+
+  return [
+    executeTargets,
+    executeValues,
+    executeCalldatas,
+    executeDescription,
+  ] as const;
 }
