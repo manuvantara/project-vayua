@@ -18,7 +18,7 @@ type Votes = {
   total: number;
 };
 
-export default function useProposalVoteEnd(
+export default function useProposalVotes(
   organisationAddress: `0x${string}`,
   proposalId: bigint,
   tokenDecimals: number | undefined,
