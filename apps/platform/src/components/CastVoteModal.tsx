@@ -24,7 +24,7 @@ export default function CastVoteModal({
   snapshot,
 }: {
   organisationAddress: `0x${string}`;
-  proposalId: string;
+  proposalId: bigint;
   snapshot: bigint;
 }) {
   const { toast } = useToast();
@@ -35,7 +35,7 @@ export default function CastVoteModal({
   const hasVotedRead = useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
-    args: [BigInt(proposalId), address!],
+    args: [proposalId, address!],
     enabled: isConnected,
     functionName: 'hasVoted',
   });
@@ -109,7 +109,7 @@ export default function CastVoteModal({
           <Button
             onClick={() => {
               castVoteWrite.write({
-                args: [BigInt(proposalId), 1],
+                args: [proposalId, 1],
               });
               setOpen(false);
             }}
@@ -121,7 +121,7 @@ export default function CastVoteModal({
           <Button
             onClick={() => {
               castVoteWrite.write({
-                args: [BigInt(proposalId), 0],
+                args: [proposalId, 0],
               });
               setOpen(false);
             }}
@@ -135,7 +135,7 @@ export default function CastVoteModal({
         <Button
           onClick={() => {
             castVoteWrite.write({
-              args: [BigInt(proposalId), 2],
+              args: [proposalId, 2],
             });
             setOpen(false);
           }}
