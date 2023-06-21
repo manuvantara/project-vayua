@@ -7,12 +7,16 @@ import { Button } from '@/components/ui/Button';
 import { Progress } from '@/components/ui/Progress';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import useProposalSnapshot from '@/hooks/use-proposal-snapshot';
+import useProposalVoteEnd from '@/hooks/use-proposal-vote-end';
+import useProposalVoteStart from '@/hooks/use-proposal-vote-start';
+import useProposalVotes from '@/hooks/use-proposal-votes';
 import { toast } from '@/hooks/use-toast';
 import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
-import { getStringHash } from '@/utils/hash-string';
+import { NULL_ADDRESS } from '@/utils/chains/chain-config';
 import {
   parseMarkdownWithYamlFrontmatter,
-  proposalTimestampToDate as timestampToDate,
+  setExecuteWriteArgs,
 } from '@/utils/helpers/proposal.helper';
 import { shortenAddress, shortenText } from '@/utils/helpers/shorten.helper';
 import { badgeVariantMap, proposalStateMap } from '@/utils/proposal-states';
@@ -28,11 +32,10 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   useAccount,
-  useBlockNumber,
   useContractEvent,
   useContractRead,
   useContractWrite,
@@ -40,31 +43,6 @@ import {
   usePublicClient,
   useWaitForTransaction,
 } from 'wagmi';
-
-const ONE_BLOCK_IN_SECONDS = 1.5;
-const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
-
-function setExecuteWriteArgs(
-  targets: `0x${string}` | `0x${string}`[],
-  values: string | string[],
-  calldatas: `0x${string}` | `0x${string}`[],
-  description: string,
-) {
-  const executeDescription = getStringHash(description) as `0x${string}`;
-
-  const executeTargets = Array.isArray(targets) ? targets : [targets];
-  const executeValues = Array.isArray(values)
-    ? values.map((val) => BigInt(val))
-    : [BigInt(values)];
-  const executeCalldatas = Array.isArray(calldatas) ? calldatas : [calldatas];
-
-  return [
-    executeTargets,
-    executeValues,
-    executeCalldatas,
-    executeDescription,
-  ] as const;
-}
 
 type ProposalPageProps = {
   calldatas: `0x${string}` | `0x${string}`[];
@@ -76,13 +54,6 @@ type ProposalPageProps = {
   values: string | string[];
   voteEnd: string;
   voteStart: string;
-};
-
-type Votes = {
-  abstain: number;
-  against: number;
-  for: number;
-  total: number;
 };
 
 export default function ProposalPage({
@@ -102,20 +73,9 @@ export default function ProposalPage({
     parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
 
   const publicClient = usePublicClient();
-
   const [proposalState, setProposalState] = useState('Unknown State');
-  const [proposalVoteStartDate, setProposalVoteStartDate] = useState('');
-  const [proposalVoteEndDate, setProposalVoteEndDate] = useState('');
-  const [proposalSnapshotDate, setProposalSnapshotDate] = useState('');
 
-  const [votes, setVotes] = useState<Votes>({
-    abstain: 0,
-    against: 0,
-    for: 0,
-    total: 0,
-  });
-
-  // get token decimals
+  // token decimals
   const { data: tokenAddress, isSuccess: readDecimals } = useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
@@ -129,26 +89,14 @@ export default function ProposalPage({
     functionName: 'decimals',
   });
 
-  // get votes
-  const votesContractRead = useContractRead({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    args: [BigInt(proposalId)],
-    functionName: 'proposalVotes',
-    onSuccess(data) {
-      const decimals = tokenDecimals || 18;
-      const votes: Votes = {
-        abstain: Number(data[2]) / 10 ** decimals,
-        against: Number(data[0]) / 10 ** decimals,
-        for: Number(data[1]) / 10 ** decimals,
-        total: 0,
-      };
-      votes.total = votes.for + votes.against + votes.abstain;
-      setVotes(votes);
-    },
-  });
+  // votes
+  const votes = useProposalVotes(
+    organisationAddress,
+    BigInt(proposalId),
+    tokenDecimals,
+  );
 
-  // get proposal state
+  // proposal state
   const proposalStateRead = useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
@@ -163,80 +111,26 @@ export default function ProposalPage({
     },
   });
 
-  // auxiliary functions
-  async function blockNumberToTimestamp(blockNumber: bigint) {
-    try {
-      const block = await publicClient.getBlock({
-        blockNumber: blockNumber,
-      });
+  // vote end
+  const proposalVoteEndDate = useProposalVoteEnd(
+    publicClient,
+    organisationAddress,
+    BigInt(voteStart),
+    BigInt(voteEnd),
+  );
 
-      return block.timestamp.toString();
-    } catch (error) {
-      console.log('Error while trying to get timestamp for block', error);
-      return '';
-    }
-  }
+  // vote start
+  const proposalVoteStartDate = useProposalVoteStart(
+    publicClient,
+    BigInt(voteStart),
+  );
 
-  async function blockNumberToDate(blockNumber: bigint) {
-    const timestamp = await blockNumberToTimestamp(blockNumber);
-    const date = timestamp ? timestampToDate(timestamp, true) : 'Invalid date';
-    return date;
-  }
-
-  async function getApproximateFutureDate(start: string, interval: string) {
-    const startTimestamp = await blockNumberToTimestamp(BigInt(start));
-    if (!startTimestamp) {
-      return 'Invalid date';
-    }
-
-    const intervalTimestamp = ONE_BLOCK_IN_SECONDS * Number(interval);
-    const endTimestamp = (
-      Number(startTimestamp) + intervalTimestamp
-    ).toString();
-
-    return timestampToDate(endTimestamp, true);
-  }
-
-  // get voting period and set vote end
-  useBlockNumber({
-    onSuccess: async (data) => {
-      if (BigInt(voteEnd) > data) {
-        votingPeriodRead.refetch();
-      } else {
-        const date = await blockNumberToDate(BigInt(voteEnd));
-        setProposalVoteEndDate(date);
-      }
-    },
-  });
-
-  const votingPeriodRead = useContractRead({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    enabled: false,
-    functionName: 'votingPeriod',
-    onSuccess: async (data) => {
-      const date = await getApproximateFutureDate(voteStart, data.toString());
-      setProposalVoteEndDate(date);
-    },
-  });
-
-  // set vote start
-  useEffect(() => {
-    blockNumberToDate(BigInt(voteStart)).then((date) =>
-      setProposalVoteStartDate(date),
-    );
-  }, [voteStart]);
-
-  // get and set snapshot
-  const proposalSnapshotRead = useContractRead({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    args: [BigInt(proposalId)],
-    functionName: 'proposalSnapshot',
-    onSuccess(data) {
-      blockNumberToDate(data).then((date) => setProposalSnapshotDate(date));
-    },
-  });
+  // snapshot
+  const [proposalSnapshot, proposalSnapshotDate] = useProposalSnapshot(
+    publicClient,
+    organisationAddress,
+    BigInt(proposalId),
+  );
 
   // execute write to contract
   const executeWritePrepare = usePrepareContractWrite({
@@ -280,18 +174,6 @@ export default function ProposalPage({
     },
   });
 
-  // listen to cast vote event and read votes again if such an event was emitted
-  useContractEvent({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    eventName: 'VoteCast',
-    listener: (logs) => {
-      if (logs.some((log) => log.args.proposalId?.toString() === proposalId)) {
-        votesContractRead.refetch();
-      }
-    },
-  });
-
   const renderProposalState = useCallback(() => {
     switch (proposalState) {
       case 'Pending':
@@ -305,8 +187,8 @@ export default function ProposalPage({
         return (
           <CastVoteModal
             organisationAddress={organisationAddress}
-            proposalId={proposalId}
-            snapshot={proposalSnapshotRead.data || BigInt(0)}
+            proposalId={BigInt(proposalId)}
+            snapshot={proposalSnapshot || BigInt(0)}
           />
         );
       case 'Succeeded':
@@ -325,7 +207,7 @@ export default function ProposalPage({
     voteStart,
     organisationAddress,
     proposalId,
-    proposalSnapshotRead.data,
+    proposalSnapshot,
     executeWrite,
     isConnected,
     isTransactionLoading,

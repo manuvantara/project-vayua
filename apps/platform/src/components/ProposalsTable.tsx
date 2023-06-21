@@ -7,8 +7,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/Table';
+import useProposalSnapshot from '@/hooks/use-proposal-snapshot';
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
-import { proposalTimestampToDate } from '@/utils/helpers/proposal.helper';
+import {
+  blockNumberToDate,
+  proposalTimestampToDate,
+} from '@/utils/helpers/proposal.helper';
 import { shortenText } from '@/utils/helpers/shorten.helper';
 import { badgeVariantMap, proposalStateMap } from '@/utils/proposal-states';
 import {
@@ -172,55 +176,26 @@ function Proposal({
   const proposal = cellparams.cell.row.original;
 
   const publicClient = usePublicClient();
-  const [proposalSnapshot, setProposalSnapshot] = useState('');
   const [proposalState, setProposalState] = useState('Unknown State');
 
-  // get proposal snapshot
-  const { data: snapshot } = useContractRead({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    args: [proposal.proposalId],
-    functionName: 'proposalSnapshot',
-  });
+  // get snapshot
+  const [, proposalSnapshotDate] = useProposalSnapshot(
+    publicClient,
+    organisationAddress,
+    proposal.proposalId,
+  );
 
-  const proposalStateRead = useContractRead({
+  // get proposal state
+  useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
     args: [proposal.proposalId],
     functionName: 'state',
-    onSettled(data) {
+    onSuccess(data) {
       setProposalState(proposalStateMap[data ? data : -1] || 'Unknown State');
+      // TODO: refactor proposal state if watch works
     },
   });
-
-  // get vote start in format of date
-  async function blockNumberToTimestamp(stringifiedBlockNumber: string) {
-    // convert stringified blockNumber to bigint
-    const blockNumber = BigInt(stringifiedBlockNumber);
-
-    // get the block
-    const block = await publicClient.getBlock({
-      blockNumber: blockNumber,
-    });
-
-    // return stringified timestamp
-    return block.timestamp.toString();
-  }
-
-  useEffect(() => {
-    async function getVoteDate(snapshot: string) {
-      try {
-        const timestamp = await blockNumberToTimestamp(snapshot);
-        setProposalSnapshot(proposalTimestampToDate(timestamp, true));
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    if (snapshot) {
-      getVoteDate(snapshot.toString());
-    }
-  }, [snapshot]);
 
   return (
     <div className='flex items-center justify-between'>
@@ -237,10 +212,10 @@ function Proposal({
             </Badge>
           )}
           {shortenText(proposal.proposalId, 0, 4, '#')}
-          {proposalSnapshot == '' ? (
+          {proposalSnapshotDate == '' ? (
             <Skeleton className='h-[22px] w-[190px] rounded-full' />
           ) : (
-            <div>Proposed on {proposalSnapshot}</div>
+            <div>Proposed on {proposalSnapshotDate}</div>
           )}
         </div>
       </div>
