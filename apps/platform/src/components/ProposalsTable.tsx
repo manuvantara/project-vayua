@@ -71,7 +71,7 @@ export function ProposalsTable<TData, TValue>({
   });
 
   return (
-    <div className='rounded-md border sm:p-5 bg-white'>
+    <div className='rounded-md border sm:p-5 bg-white col-span-2'>
       <div className='min-h-[480px]'>
         <Table className='min-h-full'>
           <TableHeader>

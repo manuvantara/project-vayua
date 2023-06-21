@@ -200,15 +200,13 @@ export default function OrganisationPage({
         </CardFooter>
       </Card>
       {/* </OrganisationCard> */}
-      <div className='col-span-2'>
-        <ProposalsTable
-          columns={columns}
-          data={proposals}
-          organisationAddress={organisationAddress}
-          scannedBlocksCounter={scannedBlocksCounter}
-          toScanBlocksCounter={toScanBlocksCounter}
-        />
-      </div>
+      <ProposalsTable
+        columns={columns}
+        data={proposals}
+        organisationAddress={organisationAddress}
+        scannedBlocksCounter={scannedBlocksCounter}
+        toScanBlocksCounter={toScanBlocksCounter}
+      />
     </div>
   );
 }
