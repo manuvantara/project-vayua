@@ -2,11 +2,11 @@ import type { MarkdownFrontmatter } from '@/types/proposals';
 import type { ColumnDef } from '@tanstack/react-table';
 
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { MIN_BLOCK_NUMBER } from '@/utils/chains/chain-config';
 import { parseMarkdownWithYamlFrontmatter } from '@/utils/helpers/proposal.helper';
-import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
-import { type Block, parseAbiItem } from 'viem';
-import { useContractEvent, usePublicClient } from 'wagmi';
+import { parseAbiItem } from 'viem';
+import { useBlockNumber, useContractEvent, usePublicClient } from 'wagmi';
 
 import { DataTable } from './ProposalsTable';
 
@@ -28,8 +28,6 @@ export type Proposal = {
   voteStart: string;
 };
 
-const MIN_BLOCK_NUMBER = 16883136n;
-
 const parseEvents = (logs: any) => {
   const parsedLogs = logs.map((log: any) => {
     const { args } = log;
@@ -41,7 +39,7 @@ const parseEvents = (logs: any) => {
       proposer: args.proposer.toString(),
       signatures: args.signatures,
       targets: args.targets,
-      values: args.values.map((value: ethers.BigNumber) => value.toString()),
+      values: args.values.map((value: bigint) => value.toString()),
       voteEnd: args.endBlock.toString(),
       voteStart: args.startBlock.toString(),
     };
@@ -63,7 +61,7 @@ const parseLogs = (logsPerCycle: any) => {
       proposer: args[1].toString(),
       signatures: args[4],
       targets: args[2],
-      values: args[3].map((value: ethers.BigNumber) => value.toString()),
+      values: args[3].map((value: bigint) => value.toString()),
       voteEnd: args[7].toString(),
       voteStart: args[6].toString(),
     };
@@ -99,7 +97,7 @@ export default function Proposals({
   organisationAddress: `0x${string}`;
 }) {
   const publicClient = usePublicClient();
-  const [block, setBlock] = useState<Block>();
+  const { data: blockNumber } = useBlockNumber();
 
   const [proposals, setProposals] = useState<Proposal[]>([]);
 
@@ -142,12 +140,8 @@ export default function Proposals({
     }
   };
 
-  const fetchLogsDown = async () => {
-    if (!block?.number) {
-      return;
-    }
-
-    const currentBlock = block.number;
+  const fetchLogsDown = async (blockNumber: bigint) => {
+    const currentBlock = blockNumber;
     const toBlockStored = getToBlockFromLocalStorage();
 
     let toBlock = toBlockStored == 0n ? currentBlock : toBlockStored;
@@ -171,12 +165,8 @@ export default function Proposals({
     }
   };
 
-  const fetchLogsUp = async () => {
-    if (!block?.number) {
-      return;
-    }
-
-    const currentBlock = block.number;
+  const fetchLogsUp = async (blockNumber: bigint) => {
+    const currentBlock = blockNumber;
     const toBlockStored = getToBlockFromLocalStorage();
     const initialBlock = getInitialBlockFromLocalStorage(currentBlock);
 
@@ -209,16 +199,11 @@ export default function Proposals({
   };
 
   useEffect(() => {
-    publicClient
-      .getBlock() // https://viem.sh/docs/actions/public/getBlock.html
-      .then((x) => setBlock(x))
-      .catch((error) => console.log(error));
-  }, [publicClient]);
-
-  useEffect(() => {
-    fetchLogsDown();
-    fetchLogsUp();
-  }, [block]);
+    if (blockNumber) {
+      fetchLogsDown(blockNumber);
+      fetchLogsUp(blockNumber);
+    }
+  }, [blockNumber]);
 
   useEffect(() => {
     const storedProposals = window.localStorage.getItem(
