@@ -163,6 +163,5 @@ export async function getApproximateFutureDate(
 
   const intervalTimestamp = ONE_BLOCK_IN_SECONDS * Number(interval);
   const endTimestamp = (Number(startTimestamp) + intervalTimestamp).toString();
-  console.log(endTimestamp);
   return proposalTimestampToDate(endTimestamp, true);
 }

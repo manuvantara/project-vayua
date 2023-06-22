@@ -5,8 +5,8 @@ import {
   MIN_BLOCK_NUMBER,
 } from '@/utils/chains/chain-config';
 import { useEffect, useState } from 'react';
-import { type PublicClient, parseAbiItem } from 'viem';
-import { useBlockNumber } from 'wagmi';
+import { parseAbiItem } from 'viem';
+import { useBlockNumber, usePublicClient } from 'wagmi';
 import { useContractEvent } from 'wagmi';
 
 const parseEvents = (logs: any) => {
@@ -54,9 +54,10 @@ const parseLogs = (logsPerCycle: any) => {
 };
 
 export default function useProposalsList(
-  publicClient: PublicClient,
   organisationAddress: `0x${string}`
 ): [Proposal[], number, number] {
+
+  const publicClient = usePublicClient();
 
   const { data: blockNumber } = useBlockNumber();
   const [proposals, setProposals] = useState<Proposal[]>([]);

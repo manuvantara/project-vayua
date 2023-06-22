@@ -1,9 +1,7 @@
-import type { PublicClient } from 'viem';
-
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { blockNumberToDate, getApproximateFutureDate } from '@/utils/helpers/proposal.helper';
 import { useEffect, useState } from 'react';
-import { useContractReads } from 'wagmi';
+import { useBlockNumber, useContractReads, usePublicClient } from 'wagmi';
 
 export type ProposalTimings = {
   proposedOn: bigint,
@@ -17,15 +15,17 @@ export type ProposalTimings = {
 };
 
 export default function useProposalTimings(
-  publicClient: PublicClient,
   organisationAddress: `0x${string}`,
   proposalId: bigint,
-  blockNumber: bigint,
 ) : ProposalTimings {
+  
   const govarnanceContract = {
     abi: GOVERNOR_ABI,
     address: organisationAddress
   }
+
+  const {data: blockNumber} = useBlockNumber();
+  const publicClient = usePublicClient();
 
   const [proposedOnDate, setProposedOnDate] = useState('');
   const [voteStartDate, setVoteStartDate] = useState('');
@@ -52,7 +52,7 @@ export default function useProposalTimings(
   });
 
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess && blockNumber) {
       // isSuccess means the data was fethed for all 3 contractReads
       const [proposalSnapshot, votingDelay, votingPeriod] = data!;
 

@@ -40,7 +40,7 @@ export default function OrganisationPage({
   const publicClient = usePublicClient();
   
   const [proposals, scannedBlocksCounter, toScanBlocksCounter] =
-    useProposalsList(publicClient, organisationAddress);
+    useProposalsList(organisationAddress);
 
   const [organisationProfile, setOrganisationProfile] =
     useState<OrganisationProfile>(parsedOrganisationProfile);

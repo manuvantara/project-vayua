@@ -34,12 +34,10 @@ import { useCallback, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   useAccount,
-  useBlockNumber,
   useContractEvent,
   useContractRead,
   useContractWrite,
   usePrepareContractWrite,
-  usePublicClient,
   useWaitForTransaction,
 } from 'wagmi';
 
@@ -69,28 +67,12 @@ export default function ProposalPage({
   const { proposalDescription, title } =
     parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
 
-  const publicClient = usePublicClient();
   const [proposalState, setProposalState] = useState('Unknown State');
-
-  // token decimals
-  const { data: tokenAddress, isSuccess: readDecimals } = useContractRead({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    functionName: 'token',
-  });
-
-  const { data: tokenDecimals } = useContractRead({
-    abi: TOKEN_ABI,
-    address: tokenAddress,
-    enabled: readDecimals,
-    functionName: 'decimals',
-  });
 
   // votes
   const votes = useProposalVotes(
     organisationAddress,
     BigInt(proposalId),
-    tokenDecimals,
   );
 
   // proposal state
@@ -109,11 +91,9 @@ export default function ProposalPage({
   });
 
   // proposal timings
-  const {data: blockNumber} = useBlockNumber();
-  const timings = useProposalTimings (publicClient, 
+  const timings = useProposalTimings (
     organisationAddress, 
     BigInt(proposalId), 
-    blockNumber || BigInt(0)
   );
 
 
@@ -165,7 +145,7 @@ export default function ProposalPage({
         return (
           <>
             <ClockIcon className='mr-2 h-4 w-4' />
-            Voting starts at {timings.voteStart} block
+            Vote starts {timings.voteStartDate}
           </>
         );
       case 'Active':
@@ -187,7 +167,7 @@ export default function ProposalPage({
           </Button>
         );
     }
-  }, [proposalState, timings.voteStart, organisationAddress, proposalId, executeWrite, isConnected, isTransactionLoading]);
+  }, [proposalState, timings.voteStartDate, timings.voteStart, organisationAddress, proposalId, executeWrite, isConnected, isTransactionLoading]);
 
   return (
     <div className='relative'>

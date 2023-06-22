@@ -24,7 +24,7 @@ import {
 import { X } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useBlockNumber, useContractRead, usePublicClient } from 'wagmi';
+import { useContractRead } from 'wagmi';
 
 import { DataTablePagination } from './ProposalsTablePagination';
 import { Badge } from './ui/Badge';
@@ -172,15 +172,12 @@ function ProposalTableItem({
 }) {
   const proposal = cellparams.cell.row.original;
 
-  const publicClient = usePublicClient();
   const [proposalState, setProposalState] = useState('Unknown State');
 
   // proposal timings
-  const {data: blockNumber} = useBlockNumber();
-  const timings = useProposalTimings (publicClient, 
+  const timings = useProposalTimings (
     organisationAddress, 
     proposal.proposalId, 
-    blockNumber || BigInt(0)
   );
 
   // proposal state
