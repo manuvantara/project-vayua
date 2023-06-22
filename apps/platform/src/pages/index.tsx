@@ -1,5 +1,6 @@
 import type { SearchDAOFormValues } from '@/types/forms';
 
+import ClientOnly from '@/components/ClientOnly';
 import { ProfileView, UserStarringExtensionView } from '@/components/VRC1';
 import Web3Button from '@/components/Web3Button';
 import { Button } from '@/components/ui/Button';
@@ -135,9 +136,14 @@ export default function Home() {
               A tool that enables users to bookmark or highlight organizations
               they want to remember.
             </CardDescription>
-            {userProfile && userProfile.extension.organisations.length > 0 && (
-              <UserStarringExtensionView extension={userProfile.extension} />
-            )}
+            <ClientOnly>
+              {userProfile &&
+                userProfile.extension.organisations.length > 0 && (
+                  <UserStarringExtensionView
+                    extension={userProfile.extension}
+                  />
+                )}
+            </ClientOnly>
           </CardHeader>
         </Card>
         {/* </UserStarringExtensionViewCard> */}
