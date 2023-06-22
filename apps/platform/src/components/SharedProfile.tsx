@@ -56,7 +56,7 @@ const PROFILE_TEXT = {
     cardLocationPlaceholder: 'Worldwide',
     cardName: "Your DAO's name",
     cardNameDescription: 'What your DAO should be called.',
-    cardNameFooter: 'Name is required.',
+    cardNameFooter: 'How people will know your DAO on the platform.',
     cardNameLabel: 'Name',
     cardNamePlaceholder: 'Vayua',
     cardWebsite: "Your DAO's Website URL",
@@ -88,7 +88,7 @@ const PROFILE_TEXT = {
     cardName: 'Your name',
     cardNameDescription:
       'Your name is how people will know you on the platform.',
-    cardNameFooter: 'Name is required.',
+    cardNameFooter: "That's could first name, last name, or nickname.",
     cardNameLabel: 'Name',
     cardNamePlaceholder: 'John Doe',
     cardWebsite: 'Your Website URL',
@@ -244,7 +244,7 @@ export default function SharedProfile({
                 </div>
               </CardContent>
               <CardFooter>
-                <p className='text-sm text-destructive'>
+                <p className='text-sm text-muted-foreground'>
                   {PROFILE_TEXT[type].cardNameFooter}
                 </p>
               </CardFooter>
@@ -269,6 +269,7 @@ export default function SharedProfile({
                     {PROFILE_TEXT[type].cardBioLabel}
                   </Label>
                   <Textarea
+                    className='resize-none'
                     id={PROFILE_TEXT[type].cardBioLabel.toLowerCase()}
                     name={PROFILE_TEXT[type].cardBioLabel.toLowerCase()}
                     placeholder={PROFILE_TEXT[type].cardBioPlaceholder}
