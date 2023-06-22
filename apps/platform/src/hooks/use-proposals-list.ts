@@ -21,8 +21,6 @@ const parseEvents = (logs: any) => {
       signatures: args.signatures,
       targets: args.targets,
       values: args.values.map((value: bigint) => value.toString()),
-      voteEnd: args.endBlock.toString(),
-      voteStart: args.startBlock.toString(),
     };
 
     return proposalObject;
@@ -43,8 +41,6 @@ const parseLogs = (logsPerCycle: any) => {
       signatures: args[4],
       targets: args[2],
       values: args[3].map((value: bigint) => value.toString()),
-      voteEnd: args[7].toString(),
-      voteStart: args[6].toString(),
     };
 
     return proposalObject;
