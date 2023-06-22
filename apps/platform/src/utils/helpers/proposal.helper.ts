@@ -2,6 +2,7 @@ import type { MarkdownFrontmatter, Proposal } from '@/types/proposals';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { PublicClient } from 'viem';
 
+import { ONE_BLOCK_IN_SECONDS } from '@/utils/chains/chain-config';
 import { getStringHash } from '@/utils/hash-string';
 
 export function parseProposalActionInput(input: string) {
@@ -149,3 +150,19 @@ export const columns: ColumnDef<Proposal>[] = [
     header: 'Proposals',
   },
 ];
+
+export async function getApproximateFutureDate(
+  publicClient: PublicClient,
+  start: bigint,
+  interval: bigint,
+) {
+  const startTimestamp = await blockNumberToTimestamp(publicClient, start);
+  if (!startTimestamp) {
+    return 'Invalid date';
+  }
+
+  const intervalTimestamp = ONE_BLOCK_IN_SECONDS * Number(interval);
+  const endTimestamp = (Number(startTimestamp) + intervalTimestamp).toString();
+  console.log(endTimestamp);
+  return proposalTimestampToDate(endTimestamp, true);
+}

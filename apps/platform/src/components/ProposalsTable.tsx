@@ -7,12 +7,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/Table';
-import useProposalSnapshot from '@/hooks/use-proposal-snapshot';
+import useProposalTimings from '@/hooks/use-proposal-timings';
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import {
-  blockNumberToDate,
   getProposalTitle,
-  proposalTimestampToDate,
 } from '@/utils/helpers/proposal.helper';
 import { shortenText } from '@/utils/helpers/shorten.helper';
 import { badgeVariantMap, proposalStateMap } from '@/utils/proposal-states';
@@ -26,7 +24,7 @@ import {
 import { X } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useContractRead, usePublicClient } from 'wagmi';
+import { useBlockNumber, useContractRead, usePublicClient } from 'wagmi';
 
 import { DataTablePagination } from './ProposalsTablePagination';
 import { Badge } from './ui/Badge';
@@ -177,14 +175,15 @@ function ProposalTableItem({
   const publicClient = usePublicClient();
   const [proposalState, setProposalState] = useState('Unknown State');
 
-  // get snapshot
-  const [, proposalSnapshotDate] = useProposalSnapshot(
-    publicClient,
-    organisationAddress,
-    proposal.proposalId,
+  // proposal timings
+  const {data: blockNumber} = useBlockNumber();
+  const timings = useProposalTimings (publicClient, 
+    organisationAddress, 
+    proposal.proposalId, 
+    blockNumber || BigInt(0)
   );
 
-  // get proposal state
+  // proposal state
   useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
@@ -211,10 +210,10 @@ function ProposalTableItem({
             </Badge>
           )}
           {shortenText(proposal.proposalId, 0, 4, '#')}
-          {proposalSnapshotDate == '' ? (
+          {timings.proposedOnDate == '' ? (
             <Skeleton className='h-[22px] w-[190px] rounded-full' />
           ) : (
-            <div>Proposed on {proposalSnapshotDate}</div>
+            <div>Proposed on {timings.proposedOnDate}</div>
           )}
         </div>
       </div>
@@ -228,8 +227,6 @@ function ProposalTableItem({
               proposer: proposal.proposer,
               targets: proposal.targets,
               values: proposal.values,
-              voteEnd: proposal.voteEnd,
-              voteStart: proposal.voteStart,
             },
           }}
         >

@@ -21,11 +21,11 @@ import { Button } from './ui/Button';
 export default function CastVoteModal({
   organisationAddress,
   proposalId,
-  snapshot,
+  voteStart,
 }: {
   organisationAddress: `0x${string}`;
   proposalId: bigint;
-  snapshot: bigint;
+  voteStart: bigint;
 }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -49,7 +49,7 @@ export default function CastVoteModal({
   const { data: pastVotes } = useContractRead({
     abi: TOKEN_ABI,
     address: tokenAddress,
-    args: [address!, snapshot],
+    args: [address!, voteStart],
     enabled: readTokenParams && isConnected,
     functionName: 'getPastVotes',
   });

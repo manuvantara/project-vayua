@@ -7,9 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Progress } from '@/components/ui/Progress';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
-import useProposalSnapshot from '@/hooks/use-proposal-snapshot';
-import useProposalVoteEnd from '@/hooks/use-proposal-vote-end';
-import useProposalVoteStart from '@/hooks/use-proposal-vote-start';
+import useProposalTimings from '@/hooks/use-proposal-timings';
 import useProposalVotes from '@/hooks/use-proposal-votes';
 import { toast } from '@/hooks/use-toast';
 import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
@@ -36,6 +34,7 @@ import { useCallback, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   useAccount,
+  useBlockNumber,
   useContractEvent,
   useContractRead,
   useContractWrite,
@@ -64,8 +63,6 @@ export default function ProposalPage({
   proposer,
   targets,
   values,
-  voteEnd,
-  voteStart,
 }: ProposalPageProps) {
   const { isConnected } = useAccount();
 
@@ -111,26 +108,14 @@ export default function ProposalPage({
     },
   });
 
-  // vote end
-  const proposalVoteEndDate = useProposalVoteEnd(
-    publicClient,
-    organisationAddress,
-    BigInt(voteStart),
-    BigInt(voteEnd),
+  // proposal timings
+  const {data: blockNumber} = useBlockNumber();
+  const timings = useProposalTimings (publicClient, 
+    organisationAddress, 
+    BigInt(proposalId), 
+    blockNumber || BigInt(0)
   );
 
-  // vote start
-  const proposalVoteStartDate = useProposalVoteStart(
-    publicClient,
-    BigInt(voteStart),
-  );
-
-  // snapshot
-  const [proposalSnapshot, proposalSnapshotDate] = useProposalSnapshot(
-    publicClient,
-    organisationAddress,
-    BigInt(proposalId),
-  );
 
   // execute write to contract
   const executeWritePrepare = usePrepareContractWrite({
@@ -180,7 +165,7 @@ export default function ProposalPage({
         return (
           <>
             <ClockIcon className='mr-2 h-4 w-4' />
-            Voting starts at {voteStart} block
+            Voting starts at {timings.voteStart} block
           </>
         );
       case 'Active':
@@ -188,7 +173,7 @@ export default function ProposalPage({
           <CastVoteModal
             organisationAddress={organisationAddress}
             proposalId={BigInt(proposalId)}
-            snapshot={proposalSnapshot || BigInt(0)}
+            voteStart={timings.voteStart}
           />
         );
       case 'Succeeded':
@@ -202,16 +187,7 @@ export default function ProposalPage({
           </Button>
         );
     }
-  }, [
-    proposalState,
-    voteStart,
-    organisationAddress,
-    proposalId,
-    proposalSnapshot,
-    executeWrite,
-    isConnected,
-    isTransactionLoading,
-  ]);
+  }, [proposalState, timings.voteStart, organisationAddress, proposalId, executeWrite, isConnected, isTransactionLoading]);
 
   return (
     <div className='relative'>
@@ -380,10 +356,10 @@ export default function ProposalPage({
         </div>
 
         <ProposalStatus
-          proposalSnapshotDate={proposalSnapshotDate}
+          proposalDate={timings.proposedOnDate}
           proposalState={proposalState}
-          proposalVoteEndDate={proposalVoteEndDate}
-          proposalVoteStartDate={proposalVoteStartDate}
+          proposalVoteEndDate={timings.voteEndDate}
+          voteStartDate={timings.voteStartDate}
         />
       </div>
     </div>
@@ -406,8 +382,6 @@ export const getServerSideProps: GetServerSideProps = async ({
   const description = query?.description as string;
 
   const proposer = query?.proposer as `0x${string}`;
-  const voteStart = query?.voteStart as string;
-  const voteEnd = query?.voteEnd as string;
 
   return {
     props: {
@@ -418,22 +392,20 @@ export const getServerSideProps: GetServerSideProps = async ({
       proposer,
       targets,
       values,
-      voteEnd,
-      voteStart,
     },
   };
 };
 
 function ProposalStatus({
-  proposalSnapshotDate,
+  proposalDate,
   proposalState,
   proposalVoteEndDate,
-  proposalVoteStartDate,
+  voteStartDate,
 }: {
-  proposalSnapshotDate: string;
+  proposalDate: string;
   proposalState: string;
   proposalVoteEndDate: string;
-  proposalVoteStartDate: string;
+  voteStartDate: string;
 }) {
   return (
     <div className='col-start-1 rounded-md border border-border bg-white p-6'>
@@ -446,11 +418,11 @@ function ProposalStatus({
         <div>
           <PlusCircle size={20} />
           <p className='font-medium'>Proposed on</p>
-          {proposalSnapshotDate === '' ? (
+          {proposalDate === '' ? (
             <Skeleton className='h-[20px] w-[150px]' />
           ) : (
             <p className='text-sm text-muted-foreground'>
-              {proposalSnapshotDate}
+              {proposalDate}
             </p>
           )}
         </div>
@@ -463,11 +435,11 @@ function ProposalStatus({
         <div className='mt-4'>
           <Vote size={22} />
           <p className='font-medium'>Vote start</p>
-          {proposalVoteStartDate === '' ? (
+          {voteStartDate === '' ? (
             <Skeleton className='h-[20px] w-[150px]' />
           ) : (
             <p className='text-sm text-muted-foreground'>
-              {proposalVoteStartDate}
+              {voteStartDate}
             </p>
           )}
         </div>
