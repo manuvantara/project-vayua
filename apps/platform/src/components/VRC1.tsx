@@ -123,11 +123,11 @@ type UserStarringExtensionView = { extension: UserStarringExtension };
 export const UserStarringExtensionView: FC<UserStarringExtensionView> = ({
   extension,
 }) => (
-  <ul className='grid grid-cols-1 divide-y text-gray-500 hover:text-primary'>
+  <ul className='grid grid-cols-1 divide-y'>
     {extension.organisations.map((organisationAddress) => (
       <li key={organisationAddress}>
         <Link
-          className='flex items-center justify-between py-4'
+          className='flex items-center justify-between py-4 text-gray-500 transition-colors hover:text-primary'
           href={`/organisations/${organisationAddress}`}
         >
           <span>{shortenAddress(organisationAddress)}</span>
