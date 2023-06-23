@@ -5,8 +5,14 @@ import DelegateModal from '@/components/DelegateModal';
 import { ProposalsTable } from '@/components/ProposalsTable';
 import { ProfileView } from '@/components/VRC1';
 import { Button } from '@/components/ui/Button';
-import { Card, CardFooter, CardHeader } from '@/components/ui/Card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/Card';
 import useProposalsList from '@/hooks/use-proposals-list';
+import useUserDelegatee from '@/hooks/use-user-delegatee';
 import {
   type OrganisationProfile,
   type UserStarringExtension,
@@ -16,8 +22,10 @@ import {
   parseUserStarringExtension,
 } from '@/utils/VRC1';
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { NULL_ADDRESS } from '@/utils/chains/chain-config';
 import { columns } from '@/utils/helpers/proposal.helper';
-import { Plus, Settings, Star, StarOff } from 'lucide-react';
+import { shortenAddress } from '@/utils/helpers/shorten.helper';
+import { ArrowRightCircle, Plus, Settings, Star, StarOff } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { createPublicClient, http } from 'viem';
@@ -38,6 +46,8 @@ export default function OrganisationPage({
   parsedOrganisationProfile: OrganisationProfile;
 }) {
   const publicClient = usePublicClient();
+
+  const delegatee = useUserDelegatee(organisationAddress);
 
   const [proposals, scannedBlocksCounter, toScanBlocksCounter] =
     useProposalsList(organisationAddress);
@@ -147,6 +157,20 @@ export default function OrganisationPage({
             />
           </div>
         </CardHeader>
+        {delegatee !== NULL_ADDRESS && (
+          <CardContent className='flex space-x-2 border-t pt-6'>
+            <ArrowRightCircle />
+            <div className='col-span-2 text-gray-500'>
+              Delegated to{' '}
+              <Link
+                href={`https://testnet.ftmscan.com/address/${delegatee}`}
+                target='_blank'
+              >
+                {shortenAddress(delegatee || '', 4, 4)}
+              </Link>
+            </div>
+          </CardContent>
+        )}
         <CardFooter className='grid grid-cols-2 gap-4'>
           <Button
             asChild
