@@ -158,18 +158,20 @@ export default function OrganisationPage({
           </div>
         </CardHeader>
         {delegatee && delegatee !== NULL_ADDRESS && (
-          <CardContent className='flex space-x-2 border-t pt-6'>
-            <ArrowRightCircle />
-            <div className='col-span-2 text-gray-500'>
-              Delegated to{' '}
-              <Link
-                href={`https://testnet.ftmscan.com/address/${delegatee}`}
-                target='_blank'
-              >
-                {shortenAddress(delegatee || NULL_ADDRESS, 4, 4)}
-              </Link>
-            </div>
-          </CardContent>
+          <ClientOnly>
+            <CardContent className='flex space-x-2 border-t pt-6'>
+              <ArrowRightCircle />
+              <div className='col-span-2 text-gray-500'>
+                Delegated to{' '}
+                <Link
+                  href={`https://testnet.ftmscan.com/address/${delegatee}`}
+                  target='_blank'
+                >
+                  {shortenAddress(delegatee, 4, 4)}
+                </Link>
+              </div>
+            </CardContent>
+          </ClientOnly>
         )}
         <CardFooter className='grid grid-cols-2 gap-4'>
           <Button
