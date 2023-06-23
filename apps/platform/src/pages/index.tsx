@@ -87,7 +87,7 @@ export default function Home() {
           </Button>
         </CardFooter>
       </Card>
-      <div className='grid grid-cols-1 gap-4 md:grid-flow-col md:grid-rows-2'>
+      <div className='grid grid-cols-1 gap-4 md:grid-flow-col'>
         {/* <ProfileCard> */}
 
         <Card className='row-span-2 w-full md:max-w-sm'>
