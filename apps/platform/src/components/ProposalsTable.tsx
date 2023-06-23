@@ -9,9 +9,7 @@ import {
 } from '@/components/ui/Table';
 import useProposalState from '@/hooks/use-proposal-state';
 import useProposalTimings from '@/hooks/use-proposal-timings';
-import {
-  getProposalTitle,
-} from '@/utils/helpers/proposal.helper';
+import { getProposalTitle } from '@/utils/helpers/proposal.helper';
 import { shortenText } from '@/utils/helpers/shorten.helper';
 import { badgeVariantMap } from '@/utils/proposal-states';
 import {
@@ -68,8 +66,8 @@ export function ProposalsTable<TData, TValue>({
   });
 
   return (
-    <div className='rounded-md border sm:p-5 bg-white col-span-2'>
-      <div className='min-h-[480px]'>
+    <div className='col-span-2 flex flex-col rounded-md border bg-white sm:p-5'>
+      <div className='min-h-[480px] grow'>
         <Table className='min-h-full'>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -172,13 +170,14 @@ function ProposalTableItem({
   const proposal = cellparams.cell.row.original;
 
   // proposal timings
-  const timings = useProposalTimings (
-    organisationAddress,
-    proposal.proposalId,
-  );
+  const timings = useProposalTimings(organisationAddress, proposal.proposalId);
 
   // proposal state
-  const proposalState = useProposalState(organisationAddress, proposal.proposalId, false);
+  const proposalState = useProposalState(
+    organisationAddress,
+    proposal.proposalId,
+    false,
+  );
 
   return (
     <div className='flex items-center justify-between'>
