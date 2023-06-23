@@ -55,7 +55,7 @@ export default function CastVoteModal({
     functionName: 'getPastVotes',
   });
   // get the token decimals
-  const { data: tokenDecimals } = useContractRead({
+  const { data: tokenDecimals, isSuccess: decimalsReadSuccessfully } = useContractRead({
     abi: TOKEN_ABI,
     address: tokenAddress,
     enabled: readTokenParams,
@@ -104,7 +104,9 @@ export default function CastVoteModal({
                 compactDisplay: 'short',
                 maximumFractionDigits: 1,
                 notation: 'compact',
-              }).format(Number(pastVotes) / 10 ** (tokenDecimals || 18))}
+              }).format(
+                decimalsReadSuccessfully ? Number(pastVotes) / 10 ** tokenDecimals!
+                : Number(pastVotes))}
             </span>
           </div>
         ) : null}

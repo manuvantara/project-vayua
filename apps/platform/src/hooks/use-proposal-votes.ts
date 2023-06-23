@@ -22,16 +22,16 @@ export default function useProposalVotes(
   });
 
   // token decimals
-  const { data: tokenAddress, isSuccess: readDecimals } = useContractRead({
+  const { data: tokenAddress, isSuccess: tokenReadSuccessfully } = useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
     functionName: 'token',
   });
 
-  const { data: tokenDecimals } = useContractRead({
+  const { data: tokenDecimals, isSuccess: decimalsReadSuccessfully } = useContractRead({
     abi: TOKEN_ABI,
     address: tokenAddress,
-    enabled: readDecimals,
+    enabled: tokenReadSuccessfully,
     functionName: 'decimals',
   });
 
@@ -45,17 +45,28 @@ export default function useProposalVotes(
 
   useEffect(() => {
     if(votesContractRead.isSuccess){
-      const decimals = tokenDecimals || 18;
+      const votesAbstain = decimalsReadSuccessfully
+        ? Number(votesContractRead.data![2]) / 10 ** tokenDecimals!
+        : Number(votesContractRead.data![2]);
+
+      const votesAgainst = decimalsReadSuccessfully
+        ? Number(votesContractRead.data![0]) / 10 ** tokenDecimals!
+        : Number(votesContractRead.data![0]);
+
+      const votesFor = decimalsReadSuccessfully
+        ? Number(votesContractRead.data![1]) / 10 ** tokenDecimals!
+        : Number(votesContractRead.data![1]);
+
       const votes: Votes = {
-        abstain: Number(votesContractRead.data![2]) / 10 ** decimals,
-        against: Number(votesContractRead.data![0]) / 10 ** decimals,
-        for: Number(votesContractRead.data![1]) / 10 ** decimals,
-        total: 0,
+        abstain: votesAbstain,
+        against: votesAgainst,
+        for: votesFor,
+        total: votesAbstain + votesAgainst + votesFor,
       };
-      votes.total = votes.for + votes.against + votes.abstain;
+      
       setVotes(votes);
     }
-  }, [tokenDecimals, votesContractRead.data, votesContractRead.isSuccess]);
+  }, [decimalsReadSuccessfully, tokenDecimals, votesContractRead.data, votesContractRead.isSuccess]);
 
   return votes;
 }
