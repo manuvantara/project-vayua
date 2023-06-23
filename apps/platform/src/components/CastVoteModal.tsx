@@ -89,10 +89,14 @@ export default function CastVoteModal({
       <DialogTrigger asChild>
         <Web3Button
           className='w-full md:w-24'
-          disabled={hasVotedRead.data}
+          disabled={hasVotedRead.data || Number(pastVotes) === 0}
           loading={isTransactionLoading || castVoteWrite.isLoading}
         >
-          {hasVotedRead.data ? 'Voted' : 'Vote'}
+          {hasVotedRead.data
+            ? 'Voted'
+            : Number(pastVotes) === 0
+            ? 'No votes'
+            : 'Vote'}
         </Web3Button>
       </DialogTrigger>
 
