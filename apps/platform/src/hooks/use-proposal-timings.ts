@@ -18,7 +18,7 @@ export default function useProposalTimings(
   organisationAddress: `0x${string}`,
   proposalId: bigint,
 ) : ProposalTimings {
-  
+
   const govarnanceContract = {
     abi: GOVERNOR_ABI,
     address: organisationAddress
@@ -89,13 +89,7 @@ export default function useProposalTimings(
         );
       }
     }
-
-    return () => {
-      setProposedOnDate('');
-      setVoteStartDate('');
-      setVoteEndDate('');
-    };
-  }, [isSuccess, data, publicClient, blockNumber]);
+  }, [isSuccess, data, blockNumber, publicClient]);
 
   
   return {

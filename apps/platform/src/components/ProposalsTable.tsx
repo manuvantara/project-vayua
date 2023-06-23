@@ -7,13 +7,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/Table';
+import useProposalState from '@/hooks/use-proposal-state';
 import useProposalTimings from '@/hooks/use-proposal-timings';
-import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import {
   getProposalTitle,
 } from '@/utils/helpers/proposal.helper';
 import { shortenText } from '@/utils/helpers/shorten.helper';
-import { badgeVariantMap, proposalStateMap } from '@/utils/proposal-states';
+import { badgeVariantMap } from '@/utils/proposal-states';
 import {
   type ColumnDef,
   flexRender,
@@ -24,7 +24,6 @@ import {
 import { X } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useContractRead } from 'wagmi';
 
 import { DataTablePagination } from './ProposalsTablePagination';
 import { Badge } from './ui/Badge';
@@ -172,25 +171,14 @@ function ProposalTableItem({
 }) {
   const proposal = cellparams.cell.row.original;
 
-  const [proposalState, setProposalState] = useState('Unknown State');
-
   // proposal timings
   const timings = useProposalTimings (
-    organisationAddress, 
-    proposal.proposalId, 
+    organisationAddress,
+    proposal.proposalId,
   );
 
   // proposal state
-  useContractRead({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    args: [proposal.proposalId],
-    functionName: 'state',
-    onSuccess(data) {
-      setProposalState(proposalStateMap[data ? data : -1] || 'Unknown State');
-      // TODO: refactor proposal state if watch works
-    },
-  });
+  const proposalState = useProposalState(organisationAddress, proposal.proposalId, false);
 
   return (
     <div className='flex items-center justify-between'>

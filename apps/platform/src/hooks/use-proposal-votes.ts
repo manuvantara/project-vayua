@@ -68,15 +68,6 @@ export default function useProposalVotes(
       votes.total = votes.for + votes.against + votes.abstain;
       setVotes(votes);
     }
-
-    return () => {
-      setVotes({
-        abstain: 0,
-        against: 0,
-        for: 0,
-        total: 0,
-      });
-    };
   }, [tokenDecimals, votesContractRead.data, votesContractRead.isSuccess]);
 
   return votes;

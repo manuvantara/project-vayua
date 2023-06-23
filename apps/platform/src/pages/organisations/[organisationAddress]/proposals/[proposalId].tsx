@@ -7,10 +7,11 @@ import { Button } from '@/components/ui/Button';
 import { Progress } from '@/components/ui/Progress';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import useProposalState from '@/hooks/use-proposal-state';
 import useProposalTimings from '@/hooks/use-proposal-timings';
 import useProposalVotes from '@/hooks/use-proposal-votes';
 import { toast } from '@/hooks/use-toast';
-import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { NULL_ADDRESS } from '@/utils/chains/chain-config';
 import {
   parseMarkdownWithYamlFrontmatter,
@@ -30,12 +31,11 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   useAccount,
   useContractEvent,
-  useContractRead,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
@@ -62,33 +62,20 @@ export default function ProposalPage({
   targets,
   values,
 }: ProposalPageProps) {
+
+  // proposal state
+  const proposalState = useProposalState(organisationAddress, BigInt(proposalId), true);
+
   const { isConnected } = useAccount();
 
   const { proposalDescription, title } =
     parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
-
-  const [proposalState, setProposalState] = useState('Unknown State');
 
   // votes
   const votes = useProposalVotes(
     organisationAddress,
     BigInt(proposalId),
   );
-
-  // proposal state
-  const proposalStateRead = useContractRead({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    args: [BigInt(proposalId)],
-    functionName: 'state',
-    onSuccess(data) {
-      setProposalState(proposalStateMap[data ? data : -1] || 'Unknown State');
-      if (data === 4) {
-        executeWritePrepare.refetch();
-      }
-      // TODO: refactor proposal state if watch works
-    },
-  });
 
   // proposal timings
   const timings = useProposalTimings (
@@ -112,6 +99,12 @@ export default function ProposalPage({
   });
   const executeWrite = useContractWrite(executeWritePrepare.config);
 
+  useEffect(() => {
+    if(proposalState === "Succeeded"){
+      executeWritePrepare.refetch();
+    }
+  }, [executeWritePrepare, proposalState])
+
   // transaction processing (loading and success)
   const { isLoading: isTransactionLoading } = useWaitForTransaction({
     hash: executeWrite.data?.hash,
@@ -123,30 +116,39 @@ export default function ProposalPage({
   });
 
   // listen to ProposalExecuted event and update state
-  useContractEvent({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    eventName: 'ProposalExecuted',
-    listener(logs) {
-      if (logs) {
-        logs.map((log: any) => {
-          const { args } = log;
-          if (args.proposalId.toString() == proposalId) {
-            proposalStateRead.refetch();
-          }
-        });
-      }
-    },
-  });
+  // useContractEvent({
+  //   abi: GOVERNOR_ABI,
+  //   address: organisationAddress,
+  //   eventName: 'ProposalExecuted',
+  //   listener(logs) {
+  //     if (logs) {
+  //       logs.map((log: any) => {
+  //         const { args } = log;
+  //         if (args.proposalId.toString() == proposalId) {
+  //           proposalStateRead.refetch();
+  //         }
+  //       });
+  //     }
+  //   },
+  // });
 
   const renderProposalState = useCallback(() => {
     switch (proposalState) {
       case 'Pending':
         return (
-          <>
-            <ClockIcon className='mr-2 h-4 w-4' />
-            Vote starts {timings.voteStartDate}
-          </>
+          <div>
+            <div className='flex items-center'>
+              <p>Vote start</p>
+              <ClockIcon className='ml-2 h-4 w-4' />
+            </div>
+            {timings.voteStartDate === '' ? (
+                <Skeleton className='h-[20px] w-[150px]' />
+              ) : (
+                <p className='text-sm text-muted-foreground'>
+                  {timings.voteStartDate}
+                </p>
+              )}
+          </div>
         );
       case 'Active':
         return (
@@ -187,9 +189,9 @@ export default function ProposalPage({
       <div className='mt-5 grid items-start gap-5 md:grid-cols-3'>
         <div className='rounded-md border border-border bg-white p-6 md:col-start-1'>
           <div className='space-y-5'>
-            <div className='flex flex-col gap-5 md:flex-row md:justify-between'>
+            <div className='flex flex-col gap-5 lg:flex-row lg:justify-between'>
               <div>
-                {proposalState == 'Unknown State' ? (
+                {proposalState === 'Unknown State' ? (
                   <Skeleton className='h-[22px] w-[75px] rounded-full' />
                 ) : (
                   <Badge variant={badgeVariantMap[proposalState]}>
@@ -427,7 +429,7 @@ function ProposalStatus({
       <div className='flex gap-4'>
         <div className='flex w-min flex-col'>
           <span className='my-1 h-3 w-3 rounded-full border border-black'></span>
-          {proposalState === 'Active' ? null : (
+          {proposalState === 'Active' || proposalState === 'Pending' ? null : (
             <span className='w-[1px] flex-1 self-center border-r border-dashed border-black'></span>
           )}
         </div>
