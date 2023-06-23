@@ -157,7 +157,7 @@ export default function OrganisationPage({
             />
           </div>
         </CardHeader>
-        {delegatee !== NULL_ADDRESS && (
+        {delegatee && delegatee !== NULL_ADDRESS && (
           <CardContent className='flex space-x-2 border-t pt-6'>
             <ArrowRightCircle />
             <div className='col-span-2 text-gray-500'>
@@ -166,7 +166,7 @@ export default function OrganisationPage({
                 href={`https://testnet.ftmscan.com/address/${delegatee}`}
                 target='_blank'
               >
-                {shortenAddress(delegatee || '', 4, 4)}
+                {shortenAddress(delegatee || NULL_ADDRESS, 4, 4)}
               </Link>
             </div>
           </CardContent>
