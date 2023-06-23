@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/Dialog';
 import { useToast } from '@/hooks/use-toast';
 import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   useAccount,
   useContractRead,
@@ -38,6 +38,7 @@ export default function CastVoteModal({
     args: [proposalId, address!],
     enabled: isConnected,
     functionName: 'hasVoted',
+    watch: true
   });
   // get the token address
   const { data: tokenAddress, isSuccess: readTokenParams } = useContractRead({
@@ -67,15 +68,17 @@ export default function CastVoteModal({
     functionName: 'castVote',
   });
 
-  const { isLoading: isTransactionLoading } = useWaitForTransaction({
+  const { isLoading: isTransactionLoading, isSuccess: isTransactionSuccessful } = useWaitForTransaction({
     hash: castVoteWrite.data?.hash,
-    onSuccess() {
+  });
+
+  useEffect(() => {
+    if(isTransactionSuccessful){
       toast({
         description: 'Your vote has been successfully casted.',
       });
-      hasVotedRead.refetch();
-    },
-  });
+    }
+  }, [isTransactionSuccessful, toast]);
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
