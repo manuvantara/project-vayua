@@ -1,9 +1,7 @@
 import type { Proposal } from '@/types/proposals';
 
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
-import {
-  MIN_BLOCK_NUMBER,
-} from '@/utils/chains/chain-config';
+import { MIN_BLOCK_NUMBER } from '@/utils/chains/chain-config';
 import { useEffect, useState } from 'react';
 import { parseAbiItem } from 'viem';
 import { useBlockNumber, usePublicClient } from 'wagmi';
@@ -54,9 +52,8 @@ const parseLogs = (logsPerCycle: any) => {
 };
 
 export default function useProposalsList(
-  organisationAddress: `0x${string}`
+  organisationAddress: `0x${string}`,
 ): [Proposal[], number, number] {
-
   const publicClient = usePublicClient();
 
   const { data: blockNumber } = useBlockNumber();

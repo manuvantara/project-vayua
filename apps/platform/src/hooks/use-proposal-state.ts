@@ -1,14 +1,13 @@
-import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { proposalStateMap } from "@/utils/proposal-states";
-import { useEffect, useState } from "react";
-import { useBlockNumber, useContractRead } from "wagmi";
-
+import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { proposalStateMap } from '@/utils/proposal-states';
+import { useEffect, useState } from 'react';
+import { useBlockNumber, useContractRead } from 'wagmi';
 
 export default function useProposalState(
-    organisationAddress: `0x${string}`, 
-    proposalId: bigint,
-    toWatch: boolean
-  ): string {
+  organisationAddress: `0x${string}`,
+  proposalId: bigint,
+  toWatch: boolean,
+): string {
   const [proposalState, setProposalState] = useState('Unknown State');
 
   const stateRead = useContractRead({
@@ -25,12 +24,12 @@ export default function useProposalState(
   }, [stateRead.isSuccess, stateRead.data]);
 
   useBlockNumber({
-    onBlock(){
-      if(toWatch){
+    onBlock() {
+      if (toWatch) {
         stateRead.refetch();
-      } 
-    }
-  })
+      }
+    },
+  });
 
   return proposalState;
 }

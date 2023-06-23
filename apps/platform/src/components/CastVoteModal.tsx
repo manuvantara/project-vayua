@@ -38,7 +38,7 @@ export default function CastVoteModal({
     args: [proposalId, address!],
     enabled: isConnected,
     functionName: 'hasVoted',
-    watch: true
+    watch: true,
   });
   // get the token address
   const { data: tokenAddress, isSuccess: readTokenParams } = useContractRead({
@@ -55,12 +55,13 @@ export default function CastVoteModal({
     functionName: 'getPastVotes',
   });
   // get the token decimals
-  const { data: tokenDecimals, isSuccess: decimalsReadSuccessfully } = useContractRead({
-    abi: TOKEN_ABI,
-    address: tokenAddress,
-    enabled: readTokenParams,
-    functionName: 'decimals',
-  });
+  const { data: tokenDecimals, isSuccess: decimalsReadSuccessfully } =
+    useContractRead({
+      abi: TOKEN_ABI,
+      address: tokenAddress,
+      enabled: readTokenParams,
+      functionName: 'decimals',
+    });
 
   const castVoteWrite = useContractWrite({
     abi: GOVERNOR_ABI,
@@ -68,12 +69,15 @@ export default function CastVoteModal({
     functionName: 'castVote',
   });
 
-  const { isLoading: isTransactionLoading, isSuccess: isTransactionSuccessful } = useWaitForTransaction({
+  const {
+    isLoading: isTransactionLoading,
+    isSuccess: isTransactionSuccessful,
+  } = useWaitForTransaction({
     hash: castVoteWrite.data?.hash,
   });
 
   useEffect(() => {
-    if(isTransactionSuccessful){
+    if (isTransactionSuccessful) {
       toast({
         description: 'Your vote has been successfully casted.',
       });
@@ -105,8 +109,10 @@ export default function CastVoteModal({
                 maximumFractionDigits: 1,
                 notation: 'compact',
               }).format(
-                decimalsReadSuccessfully ? Number(pastVotes) / 10 ** tokenDecimals!
-                : Number(pastVotes))}
+                decimalsReadSuccessfully
+                  ? Number(pastVotes) / 10 ** tokenDecimals!
+                  : Number(pastVotes),
+              )}
             </span>
           </div>
         ) : null}

@@ -1,4 +1,3 @@
-
 import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { useEffect, useState } from 'react';
 import { useContractRead } from 'wagmi';
@@ -22,29 +21,31 @@ export default function useProposalVotes(
   });
 
   // token decimals
-  const { data: tokenAddress, isSuccess: tokenReadSuccessfully } = useContractRead({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    functionName: 'token',
-  });
+  const { data: tokenAddress, isSuccess: tokenReadSuccessfully } =
+    useContractRead({
+      abi: GOVERNOR_ABI,
+      address: organisationAddress,
+      functionName: 'token',
+    });
 
-  const { data: tokenDecimals, isSuccess: decimalsReadSuccessfully } = useContractRead({
-    abi: TOKEN_ABI,
-    address: tokenAddress,
-    enabled: tokenReadSuccessfully,
-    functionName: 'decimals',
-  });
+  const { data: tokenDecimals, isSuccess: decimalsReadSuccessfully } =
+    useContractRead({
+      abi: TOKEN_ABI,
+      address: tokenAddress,
+      enabled: tokenReadSuccessfully,
+      functionName: 'decimals',
+    });
 
   const votesContractRead = useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
     args: [BigInt(proposalId)],
     functionName: 'proposalVotes',
-    watch: true
+    watch: true,
   });
 
   useEffect(() => {
-    if(votesContractRead.isSuccess){
+    if (votesContractRead.isSuccess) {
       const votesAbstain = decimalsReadSuccessfully
         ? Number(votesContractRead.data![2]) / 10 ** tokenDecimals!
         : Number(votesContractRead.data![2]);
@@ -63,10 +64,15 @@ export default function useProposalVotes(
         for: votesFor,
         total: votesAbstain + votesAgainst + votesFor,
       };
-      
+
       setVotes(votes);
     }
-  }, [decimalsReadSuccessfully, tokenDecimals, votesContractRead.data, votesContractRead.isSuccess]);
+  }, [
+    decimalsReadSuccessfully,
+    tokenDecimals,
+    votesContractRead.data,
+    votesContractRead.isSuccess,
+  ]);
 
   return votes;
 }

@@ -12,9 +12,7 @@ import useProposalState from '@/hooks/use-proposal-state';
 import useProposalTimings from '@/hooks/use-proposal-timings';
 import useProposalVotes from '@/hooks/use-proposal-votes';
 import { NULL_ADDRESS } from '@/utils/chains/chain-config';
-import {
-  parseMarkdownWithYamlFrontmatter,
-} from '@/utils/helpers/proposal.helper';
+import { parseMarkdownWithYamlFrontmatter } from '@/utils/helpers/proposal.helper';
 import { shortenAddress, shortenText } from '@/utils/helpers/shorten.helper';
 import { badgeVariantMap } from '@/utils/proposal-states';
 import {
@@ -31,10 +29,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
-import {
-  useAccount,
-
-} from 'wagmi';
+import { useAccount } from 'wagmi';
 
 export default function ProposalPage({
   calldatas,
@@ -52,29 +47,27 @@ export default function ProposalPage({
     parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
 
   // votes
-  const votes = useProposalVotes(
-    organisationAddress,
-    BigInt(proposalId),
-  );
+  const votes = useProposalVotes(organisationAddress, BigInt(proposalId));
 
   // timings
-  const timings = useProposalTimings (
-    organisationAddress, 
-    BigInt(proposalId), 
-  );
+  const timings = useProposalTimings(organisationAddress, BigInt(proposalId));
 
   // state
-  const proposalState = useProposalState(organisationAddress, BigInt(proposalId), true);
+  const proposalState = useProposalState(
+    organisationAddress,
+    BigInt(proposalId),
+    true,
+  );
 
   // execution
-  const {loading: executeLoading, write: executeWrite} = useProposalExecute(
+  const { loading: executeLoading, write: executeWrite } = useProposalExecute(
     organisationAddress,
     proposalState,
     targets,
     values,
     calldatas,
     description,
-    )
+  );
 
   const renderProposalState = useCallback(() => {
     switch (proposalState) {
@@ -86,12 +79,12 @@ export default function ProposalPage({
               <ClockIcon className='ml-2 h-4 w-4' />
             </div>
             {timings.voteStartDate === '' ? (
-                <Skeleton className='h-[20px] w-[150px]' />
-              ) : (
-                <p className='text-sm text-muted-foreground'>
-                  {timings.voteStartDate}
-                </p>
-              )}
+              <Skeleton className='h-[20px] w-[150px]' />
+            ) : (
+              <p className='text-sm text-muted-foreground'>
+                {timings.voteStartDate}
+              </p>
+            )}
           </div>
         );
       case 'Active':
@@ -113,7 +106,16 @@ export default function ProposalPage({
           </Button>
         );
     }
-  }, [proposalState, timings.voteStartDate, timings.voteStart, organisationAddress, proposalId, executeWrite, isConnected, executeLoading]);
+  }, [
+    proposalState,
+    timings.voteStartDate,
+    timings.voteStart,
+    organisationAddress,
+    proposalId,
+    executeWrite,
+    isConnected,
+    executeLoading,
+  ]);
 
   return (
     <div className='relative'>
@@ -347,9 +349,7 @@ function ProposalStatus({
           {proposalDate === '' ? (
             <Skeleton className='h-[20px] w-[150px]' />
           ) : (
-            <p className='text-sm text-muted-foreground'>
-              {proposalDate}
-            </p>
+            <p className='text-sm text-muted-foreground'>{proposalDate}</p>
           )}
         </div>
       </div>
@@ -364,9 +364,7 @@ function ProposalStatus({
           {voteStartDate === '' ? (
             <Skeleton className='h-[20px] w-[150px]' />
           ) : (
-            <p className='text-sm text-muted-foreground'>
-              {voteStartDate}
-            </p>
+            <p className='text-sm text-muted-foreground'>{voteStartDate}</p>
           )}
         </div>
       </div>

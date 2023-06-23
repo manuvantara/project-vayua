@@ -1,8 +1,11 @@
-
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { setExecuteWriteArgs } from '@/utils/helpers/proposal.helper';
 import { useEffect } from 'react';
-import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
+import {
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 
 import { toast } from './use-toast';
 
@@ -12,7 +15,7 @@ export default function useProposalExecute(
   targets: `0x${string}` | `0x${string}`[],
   values: string | string[],
   calldatas: `0x${string}` | `0x${string}`[],
-  description: string
+  description: string,
 ): {
   loading: boolean;
   write: (() => void) | undefined;
@@ -21,7 +24,7 @@ export default function useProposalExecute(
     abi: GOVERNOR_ABI,
     address: organisationAddress,
     args: setExecuteWriteArgs(targets, values, calldatas, description),
-    enabled: proposalState === "Succeeded",
+    enabled: proposalState === 'Succeeded',
     functionName: 'execute',
     value: Array.isArray(values)
       ? values
@@ -32,12 +35,15 @@ export default function useProposalExecute(
   const executeWrite = useContractWrite(executeWritePrepare.config);
 
   // execute transaction processing (loading and success)
-  const { isLoading: isTransactionLoading, isSuccess: isTransactionSuccessful } = useWaitForTransaction({
+  const {
+    isLoading: isTransactionLoading,
+    isSuccess: isTransactionSuccessful,
+  } = useWaitForTransaction({
     hash: executeWrite.data?.hash,
   });
 
   useEffect(() => {
-    if(isTransactionSuccessful){
+    if (isTransactionSuccessful) {
       toast({
         description: 'Execute action successfully applied.',
       });

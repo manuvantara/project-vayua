@@ -38,7 +38,7 @@ export default function OrganisationPage({
   parsedOrganisationProfile: OrganisationProfile;
 }) {
   const publicClient = usePublicClient();
-  
+
   const [proposals, scannedBlocksCounter, toScanBlocksCounter] =
     useProposalsList(organisationAddress);
 
