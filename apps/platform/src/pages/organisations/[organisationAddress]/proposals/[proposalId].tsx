@@ -1,4 +1,4 @@
-import type { MarkdownFrontmatter } from '@/types/proposals';
+import type { MarkdownFrontmatter, ProposalPageProps } from '@/types/proposals';
 import type { GetServerSideProps } from 'next';
 
 import CastVoteModal from '@/components/CastVoteModal';
@@ -7,18 +7,16 @@ import { Button } from '@/components/ui/Button';
 import { Progress } from '@/components/ui/Progress';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import useProposalExecute from '@/hooks/use-proposal-execute';
 import useProposalState from '@/hooks/use-proposal-state';
 import useProposalTimings from '@/hooks/use-proposal-timings';
 import useProposalVotes from '@/hooks/use-proposal-votes';
-import { toast } from '@/hooks/use-toast';
-import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { NULL_ADDRESS } from '@/utils/chains/chain-config';
 import {
   parseMarkdownWithYamlFrontmatter,
-  setExecuteWriteArgs,
 } from '@/utils/helpers/proposal.helper';
 import { shortenAddress, shortenText } from '@/utils/helpers/shorten.helper';
-import { badgeVariantMap, proposalStateMap } from '@/utils/proposal-states';
+import { badgeVariantMap } from '@/utils/proposal-states';
 import {
   ArrowLeft,
   CalendarOff,
@@ -31,27 +29,12 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   useAccount,
-  useContractEvent,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
 
-type ProposalPageProps = {
-  calldatas: `0x${string}` | `0x${string}`[];
-  description: string;
-  organisationAddress: `0x${string}`;
-  proposalId: string;
-  proposer: `0x${string}`;
-  targets: `0x${string}` | `0x${string}`[];
-  values: string | string[];
-  voteEnd: string;
-  voteStart: string;
-};
+} from 'wagmi';
 
 export default function ProposalPage({
   calldatas,
@@ -62,12 +45,9 @@ export default function ProposalPage({
   targets,
   values,
 }: ProposalPageProps) {
-
-  // proposal state
-  const proposalState = useProposalState(organisationAddress, BigInt(proposalId), true);
-
   const { isConnected } = useAccount();
 
+  // title
   const { proposalDescription, title } =
     parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
 
@@ -77,60 +57,24 @@ export default function ProposalPage({
     BigInt(proposalId),
   );
 
-  // proposal timings
+  // timings
   const timings = useProposalTimings (
     organisationAddress, 
     BigInt(proposalId), 
   );
 
+  // state
+  const proposalState = useProposalState(organisationAddress, BigInt(proposalId), true);
 
-  // execute write to contract
-  const executeWritePrepare = usePrepareContractWrite({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    args: setExecuteWriteArgs(targets, values, calldatas, description),
-    enabled: false,
-    functionName: 'execute',
-    value: Array.isArray(values)
-      ? values
-          .map((val) => BigInt(val))
-          .reduce((acc, curr) => acc + curr, BigInt(0))
-      : BigInt(values),
-  });
-  const executeWrite = useContractWrite(executeWritePrepare.config);
-
-  useEffect(() => {
-    if(proposalState === "Succeeded"){
-      executeWritePrepare.refetch();
-    }
-  }, [executeWritePrepare, proposalState])
-
-  // transaction processing (loading and success)
-  const { isLoading: isTransactionLoading } = useWaitForTransaction({
-    hash: executeWrite.data?.hash,
-    onSuccess() {
-      toast({
-        description: 'Execute action successfully applied.',
-      });
-    },
-  });
-
-  // listen to ProposalExecuted event and update state
-  // useContractEvent({
-  //   abi: GOVERNOR_ABI,
-  //   address: organisationAddress,
-  //   eventName: 'ProposalExecuted',
-  //   listener(logs) {
-  //     if (logs) {
-  //       logs.map((log: any) => {
-  //         const { args } = log;
-  //         if (args.proposalId.toString() == proposalId) {
-  //           proposalStateRead.refetch();
-  //         }
-  //       });
-  //     }
-  //   },
-  // });
+  // execution
+  const {loading: executeLoading, write: executeWrite} = useProposalExecute(
+    organisationAddress,
+    proposalState,
+    targets,
+    values,
+    calldatas,
+    description,
+    )
 
   const renderProposalState = useCallback(() => {
     switch (proposalState) {
@@ -162,14 +106,14 @@ export default function ProposalPage({
         return (
           <Button
             disabled={!executeWrite || !isConnected}
-            loading={isTransactionLoading || executeWrite.isLoading}
-            onClick={executeWrite.write}
+            loading={executeLoading}
+            onClick={executeWrite}
           >
             Execute
           </Button>
         );
     }
-  }, [proposalState, timings.voteStartDate, timings.voteStart, organisationAddress, proposalId, executeWrite, isConnected, isTransactionLoading]);
+  }, [proposalState, timings.voteStartDate, timings.voteStart, organisationAddress, proposalId, executeWrite, isConnected, executeLoading]);
 
   return (
     <div className='relative'>

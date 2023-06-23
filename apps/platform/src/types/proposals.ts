@@ -24,3 +24,15 @@ export type Proposal = {
   voteEnd: string;
   voteStart: string;
 };
+
+export type ProposalPageProps = {
+  calldatas: `0x${string}` | `0x${string}`[];
+  description: string;
+  organisationAddress: `0x${string}`;
+  proposalId: string;
+  proposer: `0x${string}`;
+  targets: `0x${string}` | `0x${string}`[];
+  values: string | string[];
+  voteEnd: string;
+  voteStart: string;
+};

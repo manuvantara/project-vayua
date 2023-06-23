@@ -20,7 +20,6 @@ export default function useProposalState(
 
   useEffect(() => {
     if (stateRead.isSuccess) {
-      console.log(789)
       setProposalState(proposalStateMap[stateRead.data!]);
     }
   }, [stateRead.isSuccess, stateRead.data]);

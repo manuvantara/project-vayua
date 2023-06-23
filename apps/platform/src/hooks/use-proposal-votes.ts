@@ -1,7 +1,7 @@
 
 import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { useEffect, useState } from 'react';
-import { useContractEvent, useContractRead, useContractReads } from 'wagmi';
+import { useContractRead } from 'wagmi';
 
 type Votes = {
   abstain: number;
@@ -35,26 +35,13 @@ export default function useProposalVotes(
     functionName: 'decimals',
   });
 
-
   const votesContractRead = useContractRead({
     abi: GOVERNOR_ABI,
     address: organisationAddress,
     args: [BigInt(proposalId)],
     functionName: 'proposalVotes',
+    watch: true
   });
-
-  // listen to cast vote event and read votes again if such an event was emitted
-  useContractEvent({
-    abi: GOVERNOR_ABI,
-    address: organisationAddress,
-    eventName: 'VoteCast',
-    listener: (logs) => {
-      if (logs.some((log) => log.args.proposalId === proposalId)) {
-        votesContractRead.refetch();
-      }
-    },
-  });
-
 
   useEffect(() => {
     if(votesContractRead.isSuccess){
