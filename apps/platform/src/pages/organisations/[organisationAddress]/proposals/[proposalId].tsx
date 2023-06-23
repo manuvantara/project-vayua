@@ -230,7 +230,7 @@ export default function ProposalPage({
                           Target: <br />
                           <Link
                             className='border-b border-dashed border-[#999]'
-                            href={`https://testnet-explorer.thetatoken.org/account/${target}`}
+                            href={`https://testnet.ftmscan.com/address/${organisationAddress}`}
                             target='_blank'
                           >
                             {shortenAddress(target)}

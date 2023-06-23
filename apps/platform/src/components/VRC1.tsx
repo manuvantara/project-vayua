@@ -65,7 +65,8 @@ export const ProfileView: FC<ProfileViewProps> = ({
           </div>
           <div className='text-gray-500'>
             <Link
-              href={`https://explorer.thetatoken.org/account/${accountAddress}`}
+              href={`https://testnet.ftmscan.com/address/${accountAddress}`}
+              target='_blank'
             >
               {shortenAddress(accountAddress, 4, 4)}
             </Link>
