@@ -99,7 +99,7 @@ export default function ProposalPage({
           />
         );
       case 'Succeeded':
-        return (
+        return targets === NULL_ADDRESS ? null : (
           <Button
             disabled={!executeWrite || !isConnected}
             loading={executeLoading}
@@ -115,6 +115,7 @@ export default function ProposalPage({
     timings.voteStart,
     organisationAddress,
     proposalId,
+    targets,
     executeWrite,
     isConnected,
     executeLoading,
@@ -239,17 +240,9 @@ export default function ProposalPage({
                       </div>
                     </div>
                   ))}
-                {!Array.isArray(targets) && (
+                {!Array.isArray(targets) && targets !== NULL_ADDRESS && (
                   <div>
-                    {targets === NULL_ADDRESS ? (
-                      <div className='mb-2 flex items-center gap-2'>
-                        <h3>Function 1:</h3>
-                        <Badge variant='warning'>empty</Badge>
-                      </div>
-                    ) : (
-                      <h3 className='mb-2'>Function 1:</h3>
-                    )}
-
+                    <h3>Function 1:</h3>
                     <div className='border border-border p-5'>
                       <div>
                         Calldatas: <br />
