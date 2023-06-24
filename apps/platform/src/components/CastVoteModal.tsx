@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/Dialog';
 import { useToast } from '@/hooks/use-toast';
 import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { formatVotes } from '@/utils/helpers/proposal.helper';
 import { useEffect, useState } from 'react';
 import {
   useAccount,
@@ -108,11 +109,7 @@ export default function CastVoteModal({
           <div>
             Your voting power is{' '}
             <span className='font-bold'>
-              {Intl.NumberFormat('en-US', {
-                compactDisplay: 'short',
-                maximumFractionDigits: 1,
-                notation: 'compact',
-              }).format(
+              {formatVotes(
                 decimalsReadSuccessfully
                   ? Number(pastVotes) / 10 ** tokenDecimals!
                   : Number(pastVotes),

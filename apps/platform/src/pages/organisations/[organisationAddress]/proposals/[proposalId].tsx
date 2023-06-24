@@ -12,7 +12,10 @@ import useProposalState from '@/hooks/use-proposal-state';
 import useProposalTimings from '@/hooks/use-proposal-timings';
 import useProposalVotes from '@/hooks/use-proposal-votes';
 import { NULL_ADDRESS } from '@/utils/chains/chain-config';
-import { parseMarkdownWithYamlFrontmatter } from '@/utils/helpers/proposal.helper';
+import {
+  formatVotes,
+  parseMarkdownWithYamlFrontmatter,
+} from '@/utils/helpers/proposal.helper';
 import { shortenAddress, shortenText } from '@/utils/helpers/shorten.helper';
 import { badgeVariantMap } from '@/utils/proposal-states';
 import {
@@ -166,13 +169,10 @@ export default function ProposalPage({
           <h3 className='mb-2 text-xl font-semibold'>Votes</h3>
           <div className='space-y-5'>
             <div>
-              <span>
-                {Intl.NumberFormat('en-US', {
-                  compactDisplay: 'short',
-                  maximumFractionDigits: 1,
-                  notation: 'compact',
-                }).format(votes.for)}
-              </span>
+              <div className='flex justify-between'>
+                <span>{formatVotes(votes.for)}</span>
+                <span>For</span>
+              </div>
               <Progress
                 indicatorclassname='bg-success'
                 max={votes.total}
@@ -180,13 +180,10 @@ export default function ProposalPage({
               />
             </div>
             <div>
-              <span>
-                {Intl.NumberFormat('en-US', {
-                  compactDisplay: 'short',
-                  maximumFractionDigits: 1,
-                  notation: 'compact',
-                }).format(votes.against)}
-              </span>
+              <div className='flex justify-between'>
+                <span>{formatVotes(votes.against)}</span>
+                <span>Against</span>
+              </div>
               <Progress
                 indicatorclassname='bg-destructive'
                 max={votes.total}
@@ -194,13 +191,10 @@ export default function ProposalPage({
               />
             </div>
             <div>
-              <span>
-                {Intl.NumberFormat('en-US', {
-                  compactDisplay: 'short',
-                  maximumFractionDigits: 1,
-                  notation: 'compact',
-                }).format(votes.abstain)}
-              </span>
+              <div className='flex justify-between'>
+                <span>{formatVotes(votes.abstain)}</span>
+                <span>Abstain</span>
+              </div>
               <Progress max={votes.total} value={votes.abstain} />
             </div>
           </div>

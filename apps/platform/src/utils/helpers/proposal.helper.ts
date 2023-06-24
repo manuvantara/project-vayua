@@ -165,3 +165,11 @@ export async function getApproximateFutureDate(
   const endTimestamp = (Number(startTimestamp) + intervalTimestamp).toString();
   return proposalTimestampToDate(endTimestamp, true);
 }
+
+export function formatVotes(votes: number) {
+  return Intl.NumberFormat('en-US', {
+    compactDisplay: 'short',
+    maximumFractionDigits: 1,
+    notation: 'compact',
+  }).format(votes);
+}
