@@ -213,9 +213,14 @@ export default function NewProposalPage({
           <NewProposalActions />
         </div>
 
-        <div className='flex justify-end'>
+        <div className='flex items-baseline justify-end gap-4'>
+          {!markdownEditorValue.trim().length && (
+            <p className='mt-1 text-sm text-destructive'>
+              Please fill the description
+            </p>
+          )}
           <Web3Button
-            disabled={!write}
+            disabled={!write || !markdownEditorValue.trim().length}
             loading={isTransactionLoading || isWriteLoading}
             type='submit'
           >
