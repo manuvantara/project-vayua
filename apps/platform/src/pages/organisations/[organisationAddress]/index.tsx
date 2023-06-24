@@ -162,7 +162,7 @@ export default function OrganisationPage({
             <CardContent className='flex space-x-2 border-t pt-6'>
               <ArrowRightCircle />
               <div className='col-span-2 text-gray-500'>
-                Delegated to{' '}
+                Voting power delegated to{' '}
                 <Link
                   href={`https://testnet.ftmscan.com/address/${delegatee}`}
                   target='_blank'
