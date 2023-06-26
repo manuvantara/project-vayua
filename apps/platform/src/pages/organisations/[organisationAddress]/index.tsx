@@ -5,14 +5,8 @@ import DelegateModal from '@/components/DelegateModal';
 import { ProposalsTable } from '@/components/ProposalsTable';
 import { ProfileView } from '@/components/VRC1';
 import { Button } from '@/components/ui/Button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/Card';
+import { Card, CardFooter, CardHeader } from '@/components/ui/Card';
 import useProposalsList from '@/hooks/use-proposals-list';
-import useUserDelegatee from '@/hooks/use-user-delegatee';
 import {
   type OrganisationProfile,
   type UserStarringExtension,
@@ -22,10 +16,8 @@ import {
   parseUserStarringExtension,
 } from '@/utils/VRC1';
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
-import { NULL_ADDRESS } from '@/utils/chains/chain-config';
 import { columns } from '@/utils/helpers/proposal.helper';
-import { shortenAddress } from '@/utils/helpers/shorten.helper';
-import { ArrowRightCircle, Plus, Settings, Star, StarOff } from 'lucide-react';
+import { Plus, Settings, Star, StarOff } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { createPublicClient, http } from 'viem';
@@ -47,7 +39,7 @@ export default function OrganisationPage({
 }) {
   const publicClient = usePublicClient();
 
-  const delegatee = useUserDelegatee(organisationAddress);
+  //const delegatee = useUserDelegatee(organisationAddress);
 
   const [proposals, scannedBlocksCounter, toScanBlocksCounter] =
     useProposalsList(organisationAddress);
@@ -157,7 +149,7 @@ export default function OrganisationPage({
             />
           </div>
         </CardHeader>
-        {delegatee && delegatee !== NULL_ADDRESS && (
+        {/* {delegatee && delegatee !== NULL_ADDRESS && (
           <ClientOnly>
             <CardContent className='flex space-x-2 border-t pt-6'>
               <ArrowRightCircle />
@@ -172,7 +164,7 @@ export default function OrganisationPage({
               </div>
             </CardContent>
           </ClientOnly>
-        )}
+        )} */}
         <CardFooter className='grid grid-cols-2 gap-4'>
           <Button
             asChild

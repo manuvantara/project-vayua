@@ -10,9 +10,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/Dialog';
 import { Label } from '@/components/ui/Label';
+import useUserDelegatee from '@/hooks/use-user-delegatee';
 import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { NULL_ADDRESS } from '@/utils/chains/chain-config';
+import { shortenAddress } from '@/utils/helpers/shorten.helper';
 import { isNotEmpty, useForm } from '@mantine/form';
-import { HelpingHand } from 'lucide-react';
+import { ArrowRightCircle, HelpingHand } from 'lucide-react';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import {
   useAccount,
@@ -29,6 +33,8 @@ export default function DelegateModal({
 }: {
   organisationAddress: `0x${string}`;
 }) {
+  const [refetchDelegatee, setRefetchDelegatee] = useState(false);
+  const delegatee = useUserDelegatee(organisationAddress, refetchDelegatee);
   const [switchDelegateForm, setSwitchDelegateForm] = useState(true);
   const [open, setOpen] = useState(false);
 
@@ -85,6 +91,7 @@ export default function DelegateModal({
       toast({
         description: 'Your votes have been successfully delegated.',
       });
+      setRefetchDelegatee(true);
     }
   }, [isTransactionSuccessful]);
 
@@ -110,6 +117,20 @@ export default function DelegateModal({
         <DialogHeader>
           <DialogTitle>Delegate voting power</DialogTitle>
         </DialogHeader>
+        {delegatee && delegatee !== NULL_ADDRESS && switchDelegateForm && (
+          <div className='flex space-x-2 pt-2'>
+            <ArrowRightCircle />
+            <div className='col-span-2 text-gray-500'>
+              You currently delegate to{' '}
+              <Link
+                href={`https://testnet.ftmscan.com/address/${delegatee}`}
+                target='_blank'
+              >
+                {shortenAddress(delegatee, 4, 4)}
+              </Link>
+            </div>
+          </div>
+        )}
         <div className='grid gap-4 py-4'>
           {switchDelegateForm ? (
             <>
@@ -124,7 +145,7 @@ export default function DelegateModal({
                 Myself
               </Button>
               <Button onClick={delegateToSomeone} variant='outline'>
-                To someone
+                Someone
               </Button>
             </>
           ) : (

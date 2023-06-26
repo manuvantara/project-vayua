@@ -2,7 +2,10 @@ import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
 import { useEffect } from 'react';
 import { useAccount, useContractRead } from 'wagmi';
 
-export default function useUserDelegatee(organisationAddress: `0x${string}`) {
+export default function useUserDelegatee(
+  organisationAddress: `0x${string}`,
+  refetch: boolean,
+) {
   const { address: account } = useAccount();
 
   const { data: tokenAddress, isSuccess: tokenReadSuccessfully } =
@@ -12,7 +15,7 @@ export default function useUserDelegatee(organisationAddress: `0x${string}`) {
       functionName: 'token',
     });
 
-  const { data: delegatee } = useContractRead({
+  const delegateeRead = useContractRead({
     abi: TOKEN_ABI,
     address: tokenAddress,
     args: [account!],
@@ -20,5 +23,11 @@ export default function useUserDelegatee(organisationAddress: `0x${string}`) {
     functionName: 'delegates',
   });
 
-  return delegatee;
+  useEffect(() => {
+    if (refetch) {
+      delegateeRead.refetch();
+    }
+  }, [refetch, delegateeRead]);
+
+  return delegateeRead.data;
 }
