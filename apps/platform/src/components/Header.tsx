@@ -17,7 +17,7 @@ export default function Header() {
         },
       )}
     >
-      <header className='min-h-16 container flex w-full items-center justify-between py-4'>
+      <header className='container flex h-16 w-full items-center justify-between py-4'>
         <div className='flex h-full items-center justify-between'>
           <Link href='/'>
             <svg
