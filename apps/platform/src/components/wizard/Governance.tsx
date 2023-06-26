@@ -1,63 +1,39 @@
-import type { GovernanceFormValues } from '@/types/forms';
+import type { FormValues } from '@/components/wizard/Stepper';
+import type { UseFormReturnType } from '@mantine/form';
 
 import { governanceContractAtom, tokenTypeAtom } from '@/atoms';
 import { processContractName } from '@/utils/helpers/contract.helper';
 import { Accordion, NumberInput, Select, Text, TextInput } from '@mantine/core';
-import { isInRange, isNotEmpty, useForm } from '@mantine/form';
 import { Prism } from '@mantine/prism';
 import { OptionsError, governor } from '@openzeppelin/wizard';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 
-export default function Governance() {
+export default function Governance({
+  form,
+}: {
+  form: UseFormReturnType<FormValues>;
+}) {
   const [governanceContract, setGovernanceContract] = useAtom(
     governanceContractAtom,
   );
   const tokenContractType = useAtomValue(tokenTypeAtom);
-  const governanceContractForm = useForm<GovernanceFormValues>({
-    initialValues: {
-      name: 'MyGovernor',
-      proposalThreshold: '',
-      quorum: 4,
-      votingDelay: {
-        number: 2,
-        timeInterval: 'block',
-      },
-      votingPeriod: {
-        number: 2,
-        timeInterval: 'week',
-      },
-    },
-    validate: {
-      name: isNotEmpty('Name is required'),
-      proposalThreshold: (value) =>
-        Number(value) >= 0
-          ? null
-          : "Doesn't look like a valid number, try any positive number",
-      quorum: isInRange(
-        { max: 100, min: 0 },
-        'Please enter a number between 0 and 100',
-      ),
-      votingDelay: {
-        number: isNotEmpty('Voting delay number is required'),
-      },
-      votingPeriod: {
-        number: isNotEmpty('Voting period number is required'),
-      },
-    },
-    validateInputOnBlur: true,
-  });
 
   useEffect(() => {
-    const { name, proposalThreshold, quorum, votingDelay, votingPeriod } =
-      governanceContractForm.values;
+    const {
+      governorName,
+      proposalThreshold,
+      quorum,
+      votingDelay,
+      votingPeriod,
+    } = form.values;
 
     try {
       setGovernanceContract({
-        name: processContractName(name),
+        name: processContractName(governorName),
         source: governor.print({
           delay: `${votingDelay.number} ${votingDelay.timeInterval}`, // e.g. "1 block"
-          name,
+          name: governorName,
           period: `${votingPeriod.number} ${votingPeriod.timeInterval}`, // e.g. "1 week"
           proposalThreshold: proposalThreshold,
           quorumMode: 'percent',
@@ -72,7 +48,7 @@ export default function Governance() {
         // console.log((e.messages as OptionsErrorMessages));
       }
     }
-  }, [governanceContractForm, setGovernanceContract, tokenContractType]);
+  }, [form, setGovernanceContract, tokenContractType]);
 
   return (
     <div className='grid max-w-2xl grid-cols-6 gap-6'>
@@ -87,7 +63,7 @@ export default function Governance() {
           <TextInput
             id='gov-name'
             placeholder='Governance name'
-            {...governanceContractForm.getInputProps('name')}
+            {...form.getInputProps('governorName')}
           />
         </div>
       </div>
@@ -102,7 +78,6 @@ export default function Governance() {
           <NumberInput
             rightSection={
               <Select
-                // className="w-fit"
                 data={[
                   { label: 'Blocks', value: 'block' },
                   { label: 'Seconds', value: 'second' },
@@ -122,9 +97,7 @@ export default function Governance() {
                 id='votingDelayTimeInterval'
                 placeholder='Voting delay time interval'
                 radius={0}
-                {...governanceContractForm.getInputProps(
-                  'votingDelay.timeInterval',
-                )}
+                {...form.getInputProps('votingDelay.timeInterval')}
               />
             }
             defaultValue={0}
@@ -132,9 +105,8 @@ export default function Governance() {
             min={0}
             placeholder='Voting delay number'
             rightSectionWidth='50%'
-            // formatter={(value) => `${value}%`}
             step={1}
-            {...governanceContractForm.getInputProps('votingDelay.number')}
+            {...form.getInputProps('votingDelay.number')}
           />
         </div>
         <Text className='mt-1.5 text-gray-500' size='xs'>
@@ -152,7 +124,6 @@ export default function Governance() {
           <NumberInput
             rightSection={
               <Select
-                // className="w-fit"
                 data={[
                   { label: 'Blocks', value: 'block' },
                   { label: 'Seconds', value: 'second' },
@@ -172,9 +143,7 @@ export default function Governance() {
                 id='votingPeriodTimeInterval'
                 placeholder='Voting period time interval'
                 radius={0}
-                {...governanceContractForm.getInputProps(
-                  'votingPeriod.timeInterval',
-                )}
+                {...form.getInputProps('votingPeriod.timeInterval')}
               />
             }
             defaultValue={0}
@@ -182,9 +151,8 @@ export default function Governance() {
             min={0}
             placeholder='Voting period number'
             rightSectionWidth='50%'
-            // formatter={(value) => `${value}%`}
             step={1}
-            {...governanceContractForm.getInputProps('votingPeriod.number')}
+            {...form.getInputProps('votingPeriod.number')}
           />
         </div>
         <Text className='mt-1.5 text-gray-500' size='xs'>
@@ -199,10 +167,10 @@ export default function Governance() {
           Proposal threshold
         </label>
         <div className='mt-2'>
-          <TextInput
+          <NumberInput
             id='proposal-threshold'
             placeholder='Proposal threshold'
-            {...governanceContractForm.getInputProps('proposalThreshold')}
+            {...form.getInputProps('proposalThreshold')}
           />
         </div>
         <Text className='mt-1.5 text-gray-500' size='xs'>
@@ -222,13 +190,13 @@ export default function Governance() {
             id='quorum'
             min={0}
             placeholder='Quorum'
-            // formatter={(value) => `${value}%`}
             step={1}
-            {...governanceContractForm.getInputProps('quorum')}
+            {...form.getInputProps('quorum')}
           />
         </div>
         <Text className='mt-1.5 text-gray-500' size='xs'>
-          Quorum required for a proposal to pass.
+          The quorum required for a proposal to pass in percentage. Nowadays,
+          many governors often use a 4% quorum.
         </Text>
       </div>
       <div className='col-span-full'>

@@ -1,8 +1,8 @@
-import type { TokenFormValues } from '@/types/forms';
+import type { FormValues } from '@/components/wizard/Stepper';
+import type { UseFormReturnType } from '@mantine/form';
 
 import { tokenContractAtom, tokenTypeAtom } from '@/atoms';
 import { processContractName } from '@/utils/helpers/contract.helper';
-import { URI_REGEX } from '@/utils/regexes';
 import {
   Accordion,
   NumberInput,
@@ -10,40 +10,18 @@ import {
   Switch,
   TextInput,
 } from '@mantine/core';
-import { isNotEmpty, matches, useForm } from '@mantine/form';
 import { Prism } from '@mantine/prism';
 import { erc20, erc721 } from '@openzeppelin/wizard';
 import { useAtom, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 
-export default function Token() {
+export default function Token({
+  form,
+}: {
+  form: UseFormReturnType<FormValues>;
+}) {
   const [tokenContract, setTokenContract] = useAtom(tokenContractAtom);
   const setTokenType = useSetAtom(tokenTypeAtom);
-  const tokenContractForm = useForm<TokenFormValues>({
-    initialValues: {
-      baseURI: '',
-      mintNewTokens: true,
-      premintAmount: '',
-      tokenName: 'MyToken',
-      tokenSymbol: 'MTK',
-      tokenType: 'erc20',
-    },
-
-    validate: {
-      baseURI: (value) => {
-        return value === '' || URI_REGEX.test(value)
-          ? null
-          : "Unfortunately, it's not a valid base URI";
-      },
-      premintAmount: (value, values) =>
-        value == '0' && !values.mintNewTokens
-          ? "Premint amount can't be zero if tokens are not mintable"
-          : null,
-      tokenName: isNotEmpty('Please provide a lovely name for your token'),
-      tokenSymbol: isNotEmpty('Your token needs a charming symbol'),
-    },
-    validateInputOnBlur: true,
-  });
 
   useEffect(() => {
     const {
@@ -53,7 +31,7 @@ export default function Token() {
       tokenName,
       tokenSymbol,
       tokenType,
-    } = tokenContractForm.values;
+    } = form.values;
     let contract: string;
 
     try {
@@ -67,7 +45,7 @@ export default function Token() {
         });
       } else {
         contract = erc721.print({
-          baseUri: tokenContractForm.isValid() ? baseURI : '',
+          baseUri: form.isValid() ? baseURI : '',
           incremental: true,
           mintable: true,
           name: tokenName,
@@ -84,12 +62,12 @@ export default function Token() {
       name: processContractName(tokenName),
       source: contract,
     });
-  }, [setTokenContract, tokenContractForm.values]);
+  }, [setTokenContract, form.values]);
 
   // Can't use select on change handler because it's being used by form hook
   useEffect(() => {
-    setTokenType(tokenContractForm.values.tokenType);
-  }, [setTokenType, tokenContractForm.values.tokenType]);
+    setTokenType(form.values.tokenType);
+  }, [setTokenType, form.values.tokenType]);
 
   return (
     <div className='grid max-w-2xl grid-cols-6 gap-6'>
@@ -114,7 +92,7 @@ export default function Token() {
             className='w-fit'
             id='token-type'
             placeholder='Token type'
-            {...tokenContractForm.getInputProps('tokenType')}
+            {...form.getInputProps('tokenType')}
           />
         </div>
       </div>
@@ -129,7 +107,7 @@ export default function Token() {
           <TextInput
             id='token-name'
             placeholder='Vayua Metaverse Token'
-            {...tokenContractForm.getInputProps('tokenName')}
+            {...form.getInputProps('tokenName')}
           />
         </div>
       </div>
@@ -144,11 +122,11 @@ export default function Token() {
           <TextInput
             id='token-name-symbol'
             placeholder='VAYUA'
-            {...tokenContractForm.getInputProps('tokenSymbol')}
+            {...form.getInputProps('tokenSymbol')}
           />
         </div>
       </div>
-      {tokenContractForm.values.tokenType === 'erc20' ? (
+      {form.values.tokenType === 'erc20' ? (
         <div className='col-span-full'>
           <label
             className='block text-sm font-medium text-gray-700'
@@ -161,7 +139,7 @@ export default function Token() {
               id='amount-of-tokens-to-mint'
               min={0}
               placeholder='0'
-              {...tokenContractForm.getInputProps('premintAmount')}
+              {...form.getInputProps('premintAmount')}
             />
           </div>
         </div>
@@ -177,12 +155,12 @@ export default function Token() {
             <TextInput
               id='base-uri'
               placeholder='https://my-nft-collection.com/'
-              {...tokenContractForm.getInputProps('baseURI')}
+              {...form.getInputProps('baseURI')}
             />
           </div>
         </div>
       )}
-      {tokenContractForm.values.tokenType === 'erc20' && (
+      {form.values.tokenType === 'erc20' && (
         <div className='col-span-4'>
           <label
             className='block text-sm font-medium text-gray-700'
@@ -193,7 +171,7 @@ export default function Token() {
           <div className='mt-2'>
             <Switch
               id='mint-tokens'
-              {...tokenContractForm.getInputProps('mintNewTokens', {
+              {...form.getInputProps('mintNewTokens', {
                 type: 'checkbox',
               })}
             />
