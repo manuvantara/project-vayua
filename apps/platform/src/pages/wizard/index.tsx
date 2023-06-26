@@ -30,7 +30,7 @@ const theme: MantineThemeOverride = {
   },
 };
 
-export default function Home() {
+export default function Wizard() {
   return (
     <MantineProvider theme={theme}>
       <div className='flex flex-col'>
@@ -41,7 +41,6 @@ export default function Home() {
             </h3>
           </div>
         </div>
-        {/*<Introduction />*/}
         <Stepper />
         <style global jsx>{`
           body {
