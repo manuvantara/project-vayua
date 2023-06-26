@@ -33,7 +33,11 @@ export function shortenAddress(
   suffixLength: number = 8,
   delimiter: string = '...',
 ): string {
-  const address = getAddress(text);
-
-  return shortenText(address, prefixLength + 2, suffixLength, delimiter);
+  try {
+    const address = getAddress(text);
+    return shortenText(address, prefixLength + 2, suffixLength, delimiter);
+  } catch (e) {
+    console.log(e);
+    return '';
+  }
 }
