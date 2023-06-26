@@ -171,8 +171,8 @@ export default function ProposalPage({
           <div className='space-y-5'>
             <div>
               <div className='flex justify-between'>
-                <span>{formatVotes(votes.for)}</span>
                 <span>For</span>
+                <span>{formatVotes(votes.for)}</span>
               </div>
               <Progress
                 indicatorclassname='bg-success'
@@ -182,8 +182,8 @@ export default function ProposalPage({
             </div>
             <div>
               <div className='flex justify-between'>
-                <span>{formatVotes(votes.against)}</span>
                 <span>Against</span>
+                <span>{formatVotes(votes.against)}</span>
               </div>
               <Progress
                 indicatorclassname='bg-destructive'
@@ -193,8 +193,8 @@ export default function ProposalPage({
             </div>
             <div>
               <div className='flex justify-between'>
-                <span>{formatVotes(votes.abstain)}</span>
                 <span>Abstain</span>
+                <span>{formatVotes(votes.abstain)}</span>
               </div>
               <Progress max={votes.total} value={votes.abstain} />
             </div>
