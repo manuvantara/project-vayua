@@ -207,8 +207,8 @@ export default function ProposalPage({
               <TabsTrigger value='description'>Description</TabsTrigger>
               <TabsTrigger value='code'>Executable code</TabsTrigger>
             </TabsList>
-            <TabsContent value='description'>
-              <article className='prose-sm py-5 sm:prose'>
+            <TabsContent className='overflow-x-auto' value='description'>
+              <article className='prose-sm max-w-none py-5 sm:prose'>
                 <ReactMarkdown>{proposalDescription}</ReactMarkdown>
               </article>
             </TabsContent>
@@ -271,7 +271,6 @@ export default function ProposalPage({
             </TabsContent>
           </Tabs>
         </div>
-
         <ProposalStatus
           proposalDate={timings.proposedOnDate}
           proposalState={proposalState}
