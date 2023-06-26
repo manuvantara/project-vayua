@@ -66,7 +66,12 @@ export default function WalletConnect() {
     return (
       <Dialog onOpenChange={setOpen} open={open}>
         <DialogTrigger asChild>
-          <Button className='border-0' prefix={<Wallet />} variant='outline'>
+          <Button
+            className='border-0'
+            prefix={<Wallet size={20} />}
+            size='sm'
+            variant='outline'
+          >
             {shortenAddress(account.address, 4, 4)}
           </Button>
         </DialogTrigger>
@@ -88,7 +93,7 @@ export default function WalletConnect() {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button prefix={<Wallet />} variant='default'>
+        <Button prefix={<Wallet size={20} />} size='sm' variant='default'>
           Connect
         </Button>
       </DialogTrigger>
