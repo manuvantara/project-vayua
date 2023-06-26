@@ -1,7 +1,7 @@
 import type { AppProps } from 'next/app';
 
-import Footer from '@/components/Footer';
-import Header from '@/components/Header';
+import Footer from '@/components/layout/Footer';
+import Header from '@/components/layout/Header';
 import Toaster from '@/components/ui/Toaster';
 import '@/styles/globals.css';
 import SEO from '@/utils/next-seo.config';

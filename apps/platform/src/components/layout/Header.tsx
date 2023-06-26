@@ -1,5 +1,5 @@
-import ClientOnly from '@/components/ClientOnly';
 import WalletConnect from '@/components/WalletConnect';
+import ClientOnly from '@/components/layout/ClientOnly';
 import useScroll from '@/hooks/use-scroll';
 import { cn } from '@/utils/helpers/class-merge.helper';
 import Link from 'next/link';

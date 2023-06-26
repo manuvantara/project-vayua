@@ -1,8 +1,8 @@
 import type { SearchDAOFormValues } from '@/types/forms';
 
-import ClientOnly from '@/components/ClientOnly';
 import { ProfileView, UserStarringExtensionView } from '@/components/VRC1';
 import Web3Button from '@/components/Web3Button';
+import ClientOnly from '@/components/layout/ClientOnly';
 import { Button } from '@/components/ui/Button';
 import {
   Card,

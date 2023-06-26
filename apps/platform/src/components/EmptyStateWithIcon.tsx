@@ -1,5 +1,5 @@
-import ClientOnly from '@/components/ClientOnly';
 import WalletConnect from '@/components/WalletConnect';
+import ClientOnly from '@/components/layout/ClientOnly';
 import { Button } from '@/components/ui/Button';
 import { Unplug, UserCog } from 'lucide-react';
 import Link from 'next/link';

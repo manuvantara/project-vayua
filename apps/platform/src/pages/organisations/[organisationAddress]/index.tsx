@@ -1,9 +1,9 @@
 import type { GetServerSideProps } from 'next';
 
-import ClientOnly from '@/components/ClientOnly';
 import DelegateModal from '@/components/DelegateModal';
 import { ProposalsTable } from '@/components/ProposalsTable';
 import { ProfileView } from '@/components/VRC1';
+import ClientOnly from '@/components/layout/ClientOnly';
 import { Button } from '@/components/ui/Button';
 import { Card, CardFooter, CardHeader } from '@/components/ui/Card';
 import useProposalsList from '@/hooks/use-proposals-list';

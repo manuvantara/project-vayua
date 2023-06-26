@@ -1,6 +1,6 @@
 import type { DelegateVoteFormValues } from '@/types/forms';
 
-import ClientOnly from '@/components/ClientOnly';
+import ClientOnly from '@/components/layout/ClientOnly';
 import { Button } from '@/components/ui/Button';
 import {
   Dialog,
