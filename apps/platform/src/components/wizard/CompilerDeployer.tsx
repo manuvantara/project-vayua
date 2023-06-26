@@ -1,10 +1,4 @@
-import {
-  deployedGovernorAddressAtom,
-  deployedTokenAddressAtom,
-  governanceContractAtom,
-  stepsAtom,
-  tokenContractAtom,
-} from '@/atoms';
+import { governanceContractAtom, tokenContractAtom } from '@/atoms';
 import { Button } from '@/components/ui/Button';
 import { SOLIDITY_COMPILER_VERSION } from '@/utils/compiler/compiler';
 import { handleNpmImport } from '@/utils/compiler/import-handler';
@@ -17,7 +11,8 @@ import {
   pathToURL,
 } from '@remix-project/remix-solidity';
 import { waitForTransaction } from '@wagmi/core';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
 import { fantomTestnet } from 'wagmi/chains';
@@ -71,6 +66,8 @@ function showSuccessNotification(tokenType: string, phase: string) {
 })();
 
 function CompilerDeployer() {
+  const router = useRouter();
+
   const [currentStage, setCurrentStage] = useState<string>(
     DEPLOYMENT_STAGES[0],
   );
@@ -80,11 +77,6 @@ function CompilerDeployer() {
   const [deployment, setDeployment] = useState(false);
 
   const { isConnected } = useAccount();
-
-  const setStepperStep = useSetAtom(stepsAtom);
-
-  const setDeployedTokenAddress = useSetAtom(deployedTokenAddressAtom);
-  const setDeployedGovernorAddress = useSetAtom(deployedGovernorAddressAtom);
 
   const tokenContract = useAtomValue(tokenContractAtom);
   const governanceContract = useAtomValue(governanceContractAtom);
@@ -127,8 +119,6 @@ function CompilerDeployer() {
       const tokenContractAddress = tokenCompileResponse
         ? await handleDeploy('tokenContract', tokenCompileResponse, '')
         : null;
-      // TODO: Temporary fix for token contract address type
-      setDeployedTokenAddress(tokenContractAddress as `0x${string}`);
       if (tokenContractAddress) {
         const governanceCompileResponse = await handleCompile(
           'governanceContract',
@@ -140,18 +130,27 @@ function CompilerDeployer() {
               tokenContractAddress,
             )
           : null;
-        // TODO: Temporary fix for governance contract address type
-        setDeployedGovernorAddress(governanceContractAddress as `0x${string}`);
+
+        if (tokenContractAddress && governanceContractAddress) {
+          showSuccessNotification('all', 'deployment');
+          router.push({
+            pathname: '/wizard/success',
+            query: {
+              governanceAddress: governanceContractAddress,
+              tokenAddress: tokenContractAddress,
+            },
+          });
+        }
       }
     } catch (error: any) {
       showErrorNotification(error.message, 'Unexpected error');
       return;
     } finally {
+      console.log('finally');
       // TODO: Think of a better way to handle this logic
       setDeploymentQueue([...DEPLOYMENT_STAGES]);
       setCurrentStage(DEPLOYMENT_STAGES[0]);
       setDeployment(false);
-      setStepperStep((current) => (current < 3 ? current + 1 : current));
     }
   };
 
