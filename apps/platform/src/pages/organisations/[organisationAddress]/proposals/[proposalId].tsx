@@ -158,7 +158,7 @@ export default function ProposalPage({
               <span>by</span>
               <Link
                 className='border-b border-dashed border-[#999]'
-                href={`https://testnet-explorer.thetatoken.org/account/${proposer}`}
+                href={`https://testnet.ftmscan.com/address/${proposer}`}
                 target='_blank'
               >
                 {shortenAddress(proposer)}
@@ -240,7 +240,7 @@ export default function ProposalPage({
                       </div>
                     </div>
                   ))}
-                {!Array.isArray(targets) && targets !== NULL_ADDRESS && (
+                {!Array.isArray(targets) && targets !== NULL_ADDRESS ? (
                   <div>
                     <h3>Function 1:</h3>
                     <div className='border border-border p-5'>
@@ -252,7 +252,7 @@ export default function ProposalPage({
                         Target: <br />
                         <Link
                           className='border-b border-dashed border-[#999]'
-                          href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
+                          href={`https://testnet.ftmscan.com/address/${targets}`}
                           target='_blank'
                         >
                           {shortenAddress(targets)}
@@ -264,6 +264,8 @@ export default function ProposalPage({
                       </div>
                     </div>
                   </div>
+                ) : (
+                  <p>This proposal cannot be executed</p>
                 )}
               </div>
             </TabsContent>
