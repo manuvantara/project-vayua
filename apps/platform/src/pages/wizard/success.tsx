@@ -36,7 +36,7 @@ export default function Success() {
       }
     };
 
-    // frame();
+    frame();
 
     return () => {
       confetti.reset();
