@@ -8,37 +8,38 @@ import {
   parseUserStarringExtension,
 } from '@/utils/VRC1';
 import { useEffect, useState } from 'react';
-import { useAccount, useContractReads } from 'wagmi';
+import { useContractReads } from 'wagmi';
 
 const vrc1Contract = {
   abi: VRC1_CONTRACT_ABI,
   address: VRC1_CONTRACT_ADDRESS as `0x${string}`,
 };
 
-export default function useUserProfile(): UserProfile | null {
+export default function useUserProfile(
+  address: `0x${string}` | undefined,
+): UserProfile | null {
   const { toast } = useToast();
-  const { address, isConnecting, isDisconnected } = useAccount();
 
   const [hasErrored, setHasErrored] = useState(false);
 
   const { data, isError, isLoading } = useContractReads({
     allowFailure: false,
+    // We're using typescript's non-null assertion operator here
+    // because we know that we won't be fetching if address is undefined
     contracts: [
       {
         ...vrc1Contract,
-        // We're using typescript's non-null assertion operator here because we know that the address can't be null
         args: [address!],
         functionName: 'profiles',
       },
       {
         ...vrc1Contract,
-        // We're using typescript's non-null assertion operator here because we know that the address can't be null
         args: [address!],
         functionName: 'profileExtensions',
       },
     ],
     // Do not fetch if the user is connecting and currently disconnected from the wallet
-    enabled: !isConnecting && !isDisconnected,
+    enabled: !!address,
     watch: !hasErrored,
   });
 
