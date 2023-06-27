@@ -1,8 +1,9 @@
 import { governanceContractAtom, tokenContractAtom } from '@/atoms';
 import { Button } from '@/components/ui/Button';
+import Spinner from '@/components/ui/Spinner';
 import { SOLIDITY_COMPILER_VERSION } from '@/utils/compiler/compiler';
 import { handleNpmImport } from '@/utils/compiler/import-handler';
-import { Box, Loader, Overlay, Text, Title } from '@mantine/core';
+import { Box, Loader, Overlay, Title } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import {
   CompilerAbstract,
@@ -12,6 +13,7 @@ import {
 } from '@remix-project/remix-solidity';
 import { waitForTransaction } from '@wagmi/core';
 import { useAtomValue } from 'jotai';
+import { Circle } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
@@ -268,31 +270,44 @@ function CompilerDeployer() {
             </div>
           </Overlay>
         )}
-        <div className='py-8 md:px-8 md:py-14 lg:py-20'>
-          <div className='flex flex-col items-center'>
-            <Title className='mb-2 tracking-tight' order={2} size='h2'>
-              Now it is high time to deploy constructed contracts
-            </Title>
-            <Text
-              className='max-w-2xl text-gray-500 sm:text-center'
-              component='p'
-              size='md'
+        <div className='grid grid-cols-2 py-20'>
+          <div>
+            <h3 className='mb-2 text-4xl font-semibold tracking-tight'>
+              You&apos;re almost there!
+            </h3>
+            <p className='text-sm font-medium text-muted-foreground'>
+              We&apos;ll going to do all the heavy lifting for you. Just click
+              the button below and relax.
+            </p>
+            <Button
+              className='mt-4'
+              disabled={!isConnected}
+              onClick={handleDeployment}
+              variant='default'
             >
-              Let&apos;s begin by compiling the token contract. Once that is
-              done, we can proceed to deploy the compiled token contract.
-              Following that, we&apos;ll compile the governance contract.
-              Finally, we&apos;ll deploy the compiled governance contract.
-            </Text>
-
-            <div className='mt-7 flex flex-col items-center gap-7 md:flex-row'>
-              <Button
-                disabled={!isConnected}
-                onClick={handleDeployment}
-                variant='default'
+              Deploy
+            </Button>
+          </div>
+          <div className='flex flex-col justify-center pt-10'>
+            {DEPLOYMENT_STAGES.map((stage) => (
+              <div
+                className='group flex items-center justify-between gap-3 border-b py-3 last:border-none'
+                // TODO: Mocked this for now, need to implement
+                data-status={stage === currentStage ? 'in-progress' : 'pending'}
+                key={stage}
               >
-                Deploy contracts
-              </Button>
-            </div>
+                <span className='text-sm font-medium capitalize text-primary group-data-[status=pending]:text-muted-foreground group-data-[status=pending]:opacity-50'>
+                  {stage}
+                </span>
+                <span className='flex h-8 w-8 items-center justify-center text-primary group-data-[status=pending]:text-muted-foreground group-data-[status=pending]:opacity-50'>
+                  {stage === currentStage ? (
+                    <Spinner size={24} />
+                  ) : (
+                    <Circle size={24} />
+                  )}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </Box>
