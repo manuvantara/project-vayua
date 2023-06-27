@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { shortenAddress } from '@/utils/helpers/shorten.helper';
+import confetti from 'canvas-confetti';
 import { ArrowRight, Coins, Scale } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -11,6 +12,36 @@ import { getAddress } from 'viem';
 export default function Success() {
   const router = useRouter();
   const { governanceAddress, tokenAddress } = router.query;
+
+  useEffect(() => {
+    const animationDuration = 3 * 1000;
+    const animationEnd = Date.now() + animationDuration;
+
+    const randomInRange = (min: number, max: number) => {
+      return Math.random() * (max - min) + min;
+    };
+
+    const frame = () => {
+      const timeLeft = animationEnd - Date.now();
+
+      confetti({
+        colors: ['#0070f3', '#7928ca', '#ff0080'],
+        origin: { x: randomInRange(0, 1), y: 0 },
+        particleCount: 3,
+        ticks: 500,
+      });
+
+      if (timeLeft > 0) {
+        requestAnimationFrame(frame);
+      }
+    };
+
+    // frame();
+
+    return () => {
+      confetti.reset();
+    };
+  }, []);
 
   useEffect(() => {
     const validateAddresses = () => {
@@ -41,7 +72,7 @@ export default function Success() {
   }, [governanceAddress, router, tokenAddress]);
 
   return (
-    <div className='mx-auto max-w-3xl px-4 pb-24 pt-16 sm:px-6 sm:py-24 lg:px-8'>
+    <div className='mx-auto max-w-3xl px-0 pb-24 pt-16 sm:px-6 sm:py-24 lg:px-8'>
       <div className='max-w-xl'>
         <h1 className='flex gap-1 font-medium text-success'>
           Thank you!
@@ -59,14 +90,14 @@ export default function Success() {
       </div>
       <section className='mt-10 border-t'>
         <h2 className='sr-only'>Your Contracts</h2>
-        <div className='flex gap-x-4 border-b py-10'>
+        <div className='flex gap-x-2 border-b py-10 sm:gap-x-4'>
           <span className='inline-flex items-center justify-center rounded-full bg-gradient-to-t from-success to-success-lighter p-4 text-white shadow-2xl'>
-            <Coins className='h-8 w-8' />
+            <Coins className='h-6 w-6 sm:h-8 sm:w-8' />
           </span>
           <div>
             <h4 className='font-medium'>Token contract</h4>
             <div className='mt-2 flex items-center gap-x-2'>
-              <div className='text-muted-foreground'>
+              <div className='text-sm text-muted-foreground sm:text-base'>
                 {tokenAddress ? (
                   shortenAddress(tokenAddress.toString())
                 ) : (
@@ -77,14 +108,14 @@ export default function Success() {
             </div>
           </div>
         </div>
-        <div className='flex gap-x-4 py-10'>
+        <div className='flex gap-x-2 py-10 sm:gap-x-4'>
           <span className='inline-flex items-center justify-center rounded-full bg-gradient-to-t from-success to-success-lighter p-4 text-white shadow-2xl'>
-            <Scale className='h-8 w-8' />
+            <Scale className='h-6 w-6 sm:h-8 sm:w-8' />
           </span>
           <div>
             <h4 className='font-medium'>Governance contract</h4>
             <div className='mt-2 flex items-center gap-x-2'>
-              <div className='text-muted-foreground'>
+              <div className='text-sm text-muted-foreground sm:text-base'>
                 {governanceAddress ? (
                   shortenAddress(governanceAddress.toString())
                 ) : (
