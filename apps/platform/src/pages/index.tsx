@@ -18,12 +18,13 @@ import { useForm } from '@mantine/form';
 import { SparklesIcon, Wand2Icon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import useKeypress from 'react-use-keypress';
 import { useAccount } from 'wagmi';
 
 export default function Home() {
   const router = useRouter();
   const { address } = useAccount();
-  const userProfile = useUserProfile();
+  const userProfile = useUserProfile(address);
 
   const form = useForm<SearchDAOFormValues>({
     initialValues: {
@@ -40,6 +41,12 @@ export default function Home() {
       },
     },
     validateInputOnChange: true,
+  });
+
+  useKeypress('Enter', () => {
+    if (form.validate().hasErrors) return;
+
+    router.push(`/organisations/${form.values.address.trim()}`);
   });
 
   return (
@@ -62,14 +69,6 @@ export default function Home() {
             placeholder='Search DAO by address'
             type='text'
             {...form.getInputProps('address')}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                if (!form.errors.address && form.values.address) {
-                  router.push(`/organisations/${form.values.address.trim()}`);
-                }
-              }
-            }}
           />
           {form.errors.address && (
             <p className='mt-1 text-sm text-destructive'>
