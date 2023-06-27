@@ -1,5 +1,3 @@
-import type { GetServerSideProps } from 'next';
-
 import { markdownEditorValueAtom, proposalActionsAtom } from '@/atoms';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import NewProposalActions from '@/components/NewProposalActions';
@@ -25,12 +23,13 @@ import {
   useWaitForTransaction,
 } from 'wagmi';
 
-export default function NewProposalPage({
-  organisationAddress,
-}: {
-  organisationAddress: `0x${string}`;
-}) {
+export default function NewProposalPage() {
   const router = useRouter();
+  const {
+    organisationAddress,
+  }: {
+    organisationAddress?: `0x${string}` | undefined;
+  } = router.query;
   const { address } = useAccount();
   const { toast } = useToast();
 
@@ -214,11 +213,6 @@ export default function NewProposalPage({
         </div>
 
         <div className='flex items-baseline justify-end gap-4'>
-          {!markdownEditorValue.trim().length && (
-            <p className='mt-1 text-sm text-destructive'>
-              Please fill the description
-            </p>
-          )}
           <Web3Button
             disabled={!write || !markdownEditorValue.trim().length}
             loading={isTransactionLoading || isWriteLoading}
@@ -231,14 +225,3 @@ export default function NewProposalPage({
     </div>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  // Better than useRouter hook because on the client side we will always have the address
-  const organisationAddress = params?.organisationAddress as `0x${string}`;
-
-  return {
-    props: {
-      organisationAddress,
-    },
-  };
-};
