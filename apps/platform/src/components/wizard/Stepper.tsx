@@ -15,8 +15,12 @@ const CompilerDeployer = dynamic(
   () => import('@/components/wizard/CompilerDeployer'),
   {
     loading: () => (
-      <div className='mt-16 flex w-full items-center justify-center'>
-        <Spinner color='#000000' size={128} />
+      <div className='py-20 text-center'>
+        <h1 className='text-5xl font-bold tracking-tight'>Hang tight!</h1>
+        <p className='mt-2 text-muted-foreground'>
+          We are currently loading the compiler, so just wait a few seconds.
+        </p>
+        <Spinner className='mt-4' color='#000000' size={32} />
       </div>
     ),
   },
