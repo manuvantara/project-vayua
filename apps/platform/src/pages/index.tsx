@@ -94,12 +94,12 @@ export default function Home() {
             <ProfileView accountAddress={address} profile={userProfile} />
           </CardHeader>
           <CardFooter>
-            <Web3Button
+            <Button
               asChild
               className='w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900'
             >
               <Link href='/settings'>Settings</Link>
-            </Web3Button>
+            </Button>
           </CardFooter>
         </Card>
 
@@ -117,9 +117,9 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           <CardFooter>
-            <Web3Button asChild className='w-full'>
+            <Button asChild className='w-full'>
               <Link href='/wizard'>Create a new DAO</Link>
-            </Web3Button>
+            </Button>
           </CardFooter>
         </Card>
         {/* </WizardCard> */}
