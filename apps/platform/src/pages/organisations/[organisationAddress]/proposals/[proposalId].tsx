@@ -122,13 +122,7 @@ export default function ProposalPage({
   ]);
 
   return (
-    <div className='relative'>
-      <Image
-        alt='gradient'
-        className='absolute left-1/2 top-0 z-[-1] h-auto w-[160%] max-w-none -translate-y-1/4 translate-x-[-30%] opacity-20 blur-[100px] filter'
-        fill
-        src='/gradient-2.jpg'
-      />
+    <div>
       <Link
         className='inline-flex items-center text-muted-foreground'
         href={`/organisations/${organisationAddress}`}
@@ -137,70 +131,78 @@ export default function ProposalPage({
         {`organisations/${shortenAddress(organisationAddress)}`}
       </Link>
       <div className='mt-5 grid items-start gap-5 md:grid-cols-3'>
-        <div className='rounded-md border border-border bg-white p-6 md:col-start-1'>
-          <div className='space-y-5'>
-            <div className='flex flex-col gap-5 lg:flex-row lg:justify-between'>
+        <div className='space-y-5'>
+          <div className='rounded-md border border-border bg-white p-6'>
+            <div className='space-y-5'>
+              <div className='flex flex-col gap-5 lg:flex-row lg:justify-between'>
+                <div>
+                  {proposalState === 'Unknown State' ? (
+                    <Skeleton className='h-[22px] w-[75px] rounded-full' />
+                  ) : (
+                    <Badge variant={badgeVariantMap[proposalState]}>
+                      {proposalState}
+                    </Badge>
+                  )}
+                  <h1 className='mt-3 text-xl font-semibold'>
+                    {title || `Proposal #${shortenText(proposalId)}`}
+                  </h1>
+                </div>
+                {renderProposalState()}
+              </div>
+              <div className='space-x-1 text-sm'>
+                <span>by</span>
+                <Link
+                  className='border-b border-dashed border-[#999]'
+                  href={`https://testnet.ftmscan.com/address/${proposer}`}
+                  target='_blank'
+                >
+                  {shortenAddress(proposer)}
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className='rounded-md border border-border bg-white p-6'>
+            <h3 className='mb-2 text-xl font-semibold'>Votes</h3>
+            <div className='space-y-5'>
               <div>
-                {proposalState === 'Unknown State' ? (
-                  <Skeleton className='h-[22px] w-[75px] rounded-full' />
-                ) : (
-                  <Badge variant={badgeVariantMap[proposalState]}>
-                    {proposalState}
-                  </Badge>
-                )}
-                <h1 className='mt-3 text-xl font-semibold'>
-                  {title || `Proposal #${shortenText(proposalId)}`}
-                </h1>
+                <div className='flex justify-between'>
+                  <span>For</span>
+                  <span>{formatVotes(votes.for)}</span>
+                </div>
+                <Progress
+                  indicatorclassname='bg-success'
+                  max={votes.total}
+                  value={votes.for}
+                />
               </div>
-              {renderProposalState()}
-            </div>
-            <div className='space-x-1 text-sm'>
-              <span>by</span>
-              <Link
-                className='border-b border-dashed border-[#999]'
-                href={`https://testnet.ftmscan.com/address/${proposer}`}
-                target='_blank'
-              >
-                {shortenAddress(proposer)}
-              </Link>
+              <div>
+                <div className='flex justify-between'>
+                  <span>Against</span>
+                  <span>{formatVotes(votes.against)}</span>
+                </div>
+                <Progress
+                  indicatorclassname='bg-destructive'
+                  max={votes.total}
+                  value={votes.against}
+                />
+              </div>
+              <div>
+                <div className='flex justify-between'>
+                  <span>Abstain</span>
+                  <span>{formatVotes(votes.abstain)}</span>
+                </div>
+                <Progress max={votes.total} value={votes.abstain} />
+              </div>
             </div>
           </div>
+          <ProposalStatus
+            proposalDate={timings.proposedOnDate}
+            proposalState={proposalState}
+            proposalVoteEndDate={timings.voteEndDate}
+            voteStartDate={timings.voteStartDate}
+          />
         </div>
-        <div className='rounded-md border border-border bg-white p-6 md:col-start-1'>
-          <h3 className='mb-2 text-xl font-semibold'>Votes</h3>
-          <div className='space-y-5'>
-            <div>
-              <div className='flex justify-between'>
-                <span>For</span>
-                <span>{formatVotes(votes.for)}</span>
-              </div>
-              <Progress
-                indicatorclassname='bg-success'
-                max={votes.total}
-                value={votes.for}
-              />
-            </div>
-            <div>
-              <div className='flex justify-between'>
-                <span>Against</span>
-                <span>{formatVotes(votes.against)}</span>
-              </div>
-              <Progress
-                indicatorclassname='bg-destructive'
-                max={votes.total}
-                value={votes.against}
-              />
-            </div>
-            <div>
-              <div className='flex justify-between'>
-                <span>Abstain</span>
-                <span>{formatVotes(votes.abstain)}</span>
-              </div>
-              <Progress max={votes.total} value={votes.abstain} />
-            </div>
-          </div>
-        </div>
-        <div className='rounded-md border border-border bg-white p-6 md:col-span-2 md:col-start-2 md:row-span-3 md:row-start-1'>
+        <div className='rounded-md border border-border bg-white p-6 md:col-span-2'>
           <h3 className='mb-2 text-xl font-semibold'>Details</h3>
           <Tabs defaultValue='description'>
             <TabsList>
@@ -208,7 +210,7 @@ export default function ProposalPage({
               <TabsTrigger value='code'>Executable code</TabsTrigger>
             </TabsList>
             <TabsContent className='overflow-x-auto' value='description'>
-              <article className='prose-sm max-w-none py-5 sm:prose'>
+              <article className='prose-sm !max-w-none py-5 sm:prose'>
                 <ReactMarkdown>{proposalDescription}</ReactMarkdown>
               </article>
             </TabsContent>
@@ -271,12 +273,6 @@ export default function ProposalPage({
             </TabsContent>
           </Tabs>
         </div>
-        <ProposalStatus
-          proposalDate={timings.proposedOnDate}
-          proposalState={proposalState}
-          proposalVoteEndDate={timings.voteEndDate}
-          voteStartDate={timings.voteStartDate}
-        />
       </div>
     </div>
   );
@@ -324,7 +320,7 @@ function ProposalStatus({
   voteStartDate: string;
 }) {
   return (
-    <div className='col-start-1 rounded-md border border-border bg-white p-6'>
+    <div className='rounded-md border border-border bg-white p-6'>
       <h3 className='mb-2 text-xl font-semibold'>Status</h3>
       <div className='flex gap-4'>
         <div className='flex w-min flex-col'>
