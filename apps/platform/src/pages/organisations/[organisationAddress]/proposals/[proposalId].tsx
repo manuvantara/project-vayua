@@ -22,13 +22,14 @@ import {
   ArrowLeft,
   CalendarOff,
   CheckCircle2,
+  ChevronRight,
   ClockIcon,
   ListChecks,
   PlusCircle,
+  User,
   Vote,
   XCircle,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -149,12 +150,11 @@ export default function ProposalPage({
                 </div>
                 {renderProposalState()}
               </div>
-              <div className='space-x-1 text-sm'>
+              <div className='flex items-center space-x-1 text-sm'>
                 <span>by</span>
                 <Link
                   className='border-b border-dashed border-[#999]'
-                  href={`https://testnet.ftmscan.com/address/${proposer}`}
-                  target='_blank'
+                  href={`/users/${proposer}`}
                 >
                   {shortenAddress(proposer)}
                 </Link>
