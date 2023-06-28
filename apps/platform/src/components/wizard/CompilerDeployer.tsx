@@ -58,14 +58,19 @@ export default function CompilerDeployer() {
   const contracts = useAtomValue(contractsAtom);
 
   const [stages, setStages] = useState<Stage[]>(INITIAL_STAGES);
+  const [isDeploying, setIsDeploying] = useState(false);
 
   const { data: walletClient } = useWalletClient();
   const { address } = useAccount();
 
   const handleStart = async () => {
+    setIsDeploying(true);
     const tokenCompileResponse = await handleCompile('tokenContract');
 
     if (!tokenCompileResponse) {
+      // TODO: Create an abstraction for this
+      setIsDeploying(false);
+      setStages(INITIAL_STAGES);
       return;
     }
 
@@ -75,12 +80,16 @@ export default function CompilerDeployer() {
     );
 
     if (!tokenContractAddress) {
+      setIsDeploying(false);
+      setStages(INITIAL_STAGES);
       return;
     }
 
     const governanceCompileResponse = await handleCompile('governanceContract');
 
     if (!governanceCompileResponse) {
+      setIsDeploying(false);
+      setStages(INITIAL_STAGES);
       return;
     }
 
@@ -266,7 +275,11 @@ export default function CompilerDeployer() {
           We&apos;ll going to do all the heavy lifting for you. Just click the
           button below and relax.
         </p>
-        <Web3Button onClick={handleStart} variant='default'>
+        <Web3Button
+          disabled={isDeploying}
+          onClick={handleStart}
+          variant='default'
+        >
           Start
         </Web3Button>
       </div>
