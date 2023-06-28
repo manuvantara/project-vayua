@@ -9,13 +9,15 @@ import {
 import useUserProfile from '@/hooks/use-user-profile';
 import { SparklesIcon } from 'lucide-react';
 import { useRouter } from 'next/router';
-import React from 'react';
 
-function UserProfile() {
-  const router = useRouter();
-  const { address } = router.query;
-  const accountAddress = address as `0x${string}`;
-  const userProfile = useUserProfile(accountAddress);
+export default function UserProfile() {
+  const {
+    address,
+  }: {
+    address?: `0x${string}` | undefined;
+  } = useRouter().query;
+
+  const userProfile = useUserProfile(address);
 
   return (
     <div>
@@ -30,10 +32,7 @@ function UserProfile() {
         {/* <ProfileCard> */}
         <Card className='md:max-w-sm'>
           <CardHeader>
-            <ProfileView
-              accountAddress={accountAddress}
-              profile={userProfile}
-            />
+            <ProfileView accountAddress={address} profile={userProfile} />
           </CardHeader>
         </Card>
         {/* </ProfileCard> */}
@@ -63,5 +62,3 @@ function UserProfile() {
     </div>
   );
 }
-
-export default UserProfile;
