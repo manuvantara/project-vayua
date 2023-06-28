@@ -72,7 +72,7 @@ export default function Footer() {
         </Link>
         <p className='my-6 text-gray-500 dark:text-gray-400'>
           A web3 innovation bridging DAOs into the metaverse, enhancing the
-          Theta Network ecosystem.
+          Fantom Network ecosystem.
         </p>
         <ul className='mb-6 flex flex-wrap items-center justify-center text-gray-900 dark:text-white'>
           <li>
@@ -98,7 +98,11 @@ export default function Footer() {
             </a>
           </li>
           <li>
-            <a className='mr-4 hover:underline md:mr-6' href='#'>
+            <a
+              className='mr-4 hover:underline md:mr-6'
+              href='https://twitter.com/VayuaMTVRS'
+              target='_blank'
+            >
               Twitter
             </a>
           </li>
