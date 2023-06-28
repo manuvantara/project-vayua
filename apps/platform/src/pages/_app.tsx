@@ -6,6 +6,7 @@ import Toaster from '@/components/ui/Toaster';
 import '@/styles/globals.css';
 import SEO from '@/utils/next-seo.config';
 import ProgressBar from '@badrap/bar-of-progress';
+import { Analytics } from '@vercel/analytics/react';
 import { Inter } from 'next/font/google';
 import Router from 'next/router';
 import { DefaultSeo } from 'next-seo';
@@ -78,6 +79,7 @@ export default function App({ Component, pageProps }: AppProps) {
         </WagmiConfig>
         <Toaster />
       </div>
+      <Analytics />
     </>
   );
 }
