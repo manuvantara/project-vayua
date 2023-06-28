@@ -1,10 +1,9 @@
-import { governanceContractAtom, tokenContractAtom } from '@/atoms';
-import { Button } from '@/components/ui/Button';
+import { contractsAtom } from '@/atoms';
+import Web3Button from '@/components/Web3Button';
 import Spinner from '@/components/ui/Spinner';
+import { useToast } from '@/hooks/use-toast';
 import { SOLIDITY_COMPILER_VERSION } from '@/utils/compiler/compiler';
 import { handleNpmImport } from '@/utils/compiler/import-handler';
-import { Box, Loader, Overlay, Title } from '@mantine/core';
-import { showNotification } from '@mantine/notifications';
 import {
   CompilerAbstract,
   baseURLBin,
@@ -13,165 +12,130 @@ import {
 } from '@remix-project/remix-solidity';
 import { waitForTransaction } from '@wagmi/core';
 import { useAtomValue } from 'jotai';
-import { Circle } from 'lucide-react';
+import { Check, Circle } from 'lucide-react';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
-import { fantomTestnet } from 'wagmi/chains';
 
-const DEPLOYMENT_STAGES = [
-  'Compiling token contract',
-  'Deploying token contract',
-  'Compiling governance contract',
-  'Deploying governance contract',
+type Stage = {
+  key?: string;
+  message?: string;
+  name: string;
+  status: 'error' | 'in-progress' | 'pending' | 'success';
+};
+
+const INITIAL_STAGES: Stage[] = [
+  {
+    key: 'tokenContract',
+    name: 'Compiling token contract',
+    status: 'pending',
+  },
+  {
+    key: 'tokenContractDeployment',
+    name: 'Deploying token contract',
+    status: 'pending',
+  },
+  {
+    key: 'governanceContract',
+    name: 'Compiling governance contract',
+    status: 'pending',
+  },
+  {
+    key: 'governanceContractDeployment',
+    name: 'Deploying governance contract',
+    status: 'pending',
+  },
 ];
-
-function showErrorNotification(error: any, title: string) {
-  showNotification({
-    autoClose: 5000,
-    color: 'red',
-    message: error,
-    title: title || 'Error',
-  });
-}
-
-function showSuccessNotification(tokenType: string, phase: string) {
-  let contractTypeMessage = '';
-  if (tokenType === 'governanceContract') {
-    contractTypeMessage = 'governance';
-  } else if (tokenType === 'tokenContract') {
-    contractTypeMessage = 'token';
-  }
-
-  let successMessage = '';
-  switch (phase) {
-    case 'compilation':
-      successMessage = `Your ${contractTypeMessage} contract has been compiled successfully!`;
-      break;
-    case 'deployment':
-      successMessage = `Your ${contractTypeMessage} contract has been deployed successfully!`;
-      break;
-    default:
-      successMessage = 'The action was successful!';
-  }
-
-  showNotification({
-    autoClose: 5000,
-    color: 'teal',
-    message: successMessage,
-    title: 'Success',
-  });
-}
 
 (function initSupportedSolcVersion() {
   (pathToURL as any)['soljson-v0.8.11+commit.d7f03943.js'] = baseURLBin;
 })();
 
-function CompilerDeployer() {
+export default function CompilerDeployer() {
+  const { toast } = useToast();
   const router = useRouter();
 
-  const [currentStage, setCurrentStage] = useState<string>(
-    DEPLOYMENT_STAGES[0],
-  );
-  const [deploymentQueue, setDeploymentQueue] = useState<string[]>([
-    ...DEPLOYMENT_STAGES,
-  ]);
-  const [deployment, setDeployment] = useState(false);
+  const contracts = useAtomValue(contractsAtom);
 
-  const { isConnected } = useAccount();
+  const [stages, setStages] = useState<Stage[]>(INITIAL_STAGES);
 
-  const tokenContract = useAtomValue(tokenContractAtom);
-  const governanceContract = useAtomValue(governanceContractAtom);
+  const { data: walletClient } = useWalletClient();
+  const { address } = useAccount();
 
-  const { data: walletClient } = useWalletClient({
-    chainId: fantomTestnet.id,
-  });
-  const account = useAccount();
-  const contractMap: {
-    [key: string]: {
-      contractName: string;
-      source: string;
-    };
-  } = {
-    governanceContract: {
-      contractName: governanceContract.name,
-      source: governanceContract.source,
-    },
-    tokenContract: {
-      contractName: tokenContract.name,
-      source: tokenContract.source,
-    },
-  };
+  const handleStart = async () => {
+    const tokenCompileResponse = await handleCompile('tokenContract');
 
-  const processNextStage = () => {
-    setDeploymentQueue((prevQueue) => prevQueue.slice(1, prevQueue.length));
-  };
-
-  useEffect(() => {
-    if (deploymentQueue.length > 0) {
-      setCurrentStage(deploymentQueue[0]);
-    }
-  }, [deploymentQueue]);
-
-  const handleDeployment = async () => {
-    setDeployment(true);
-    try {
-      const tokenCompileResponse = await handleCompile('tokenContract');
-      // TODO: Make more readable
-      const tokenContractAddress = tokenCompileResponse
-        ? await handleDeploy('tokenContract', tokenCompileResponse, '')
-        : null;
-      if (tokenContractAddress) {
-        const governanceCompileResponse = await handleCompile(
-          'governanceContract',
-        );
-        const governanceContractAddress = governanceCompileResponse
-          ? await handleDeploy(
-              'governanceContract',
-              governanceCompileResponse,
-              tokenContractAddress,
-            )
-          : null;
-
-        if (tokenContractAddress && governanceContractAddress) {
-          showSuccessNotification('all', 'deployment');
-          router.push({
-            pathname: '/wizard/success',
-            query: {
-              governanceAddress: governanceContractAddress,
-              tokenAddress: tokenContractAddress,
-            },
-          });
-        }
-      }
-    } catch (error: any) {
-      showErrorNotification(error.message, 'Unexpected error');
+    if (!tokenCompileResponse) {
       return;
-    } finally {
-      console.log('finally');
-      // TODO: Think of a better way to handle this logic
-      setDeploymentQueue([...DEPLOYMENT_STAGES]);
-      setCurrentStage(DEPLOYMENT_STAGES[0]);
-      setDeployment(false);
+    }
+
+    const tokenContractAddress = await handleDeploy(
+      'tokenContract',
+      tokenCompileResponse,
+    );
+
+    if (!tokenContractAddress) {
+      return;
+    }
+
+    const governanceCompileResponse = await handleCompile('governanceContract');
+
+    if (!governanceCompileResponse) {
+      return;
+    }
+
+    const governanceContractAddress = await handleDeploy(
+      'governanceContract',
+      governanceCompileResponse,
+      tokenContractAddress,
+    );
+
+    if (tokenContractAddress && governanceContractAddress) {
+      router.push({
+        pathname: '/wizard/success',
+        query: {
+          governanceAddress: governanceContractAddress,
+          tokenAddress: tokenContractAddress,
+        },
+      });
     }
   };
 
-  const handleCompile = async (contractType: string) => {
-    const { contractName, source } = contractMap[contractType] || {};
-
-    if (!source || !contractName) {
-      showErrorNotification(
-        'Contract error',
-        'Invalid contract type, name or source',
+  const updateStage = (updatedStage: Stage, key: string) => {
+    setStages((prevStages) => {
+      return prevStages.map((stage) =>
+        stage.key === key ? updatedStage : stage,
       );
-      return null;
+    });
+  };
+
+  const handleCompile = async (
+    contractType: 'governanceContract' | 'tokenContract',
+  ) => {
+    const contract = contracts.get(contractType);
+
+    if (!contract?.source || !contract?.name) {
+      toast({
+        description:
+          'We could not find a contract with the name you provided. Please try again.',
+        title: 'Contract error',
+        variant: 'destructive',
+      });
+      return;
     }
 
     try {
-      const response = (await compile(
+      // TODO: For now we do not think about errors, but we should in the future
+      const updatedStage: Stage = {
+        ...(stages.find((stage) => stage.key === contractType) as Stage),
+        status: 'in-progress',
+      };
+      updateStage(updatedStage, contractType);
+
+      const compileResponse = await compile(
         {
-          [`${contractName}.sol`]: {
-            content: source,
+          [`${contract.name}.sol`]: {
+            content: contract.source,
           },
         },
         {
@@ -179,140 +143,158 @@ function CompilerDeployer() {
           version: SOLIDITY_COMPILER_VERSION,
         },
         handleNpmImport,
-      )) as CompilerAbstract;
+      );
 
-      if (response.data.errors) {
-        showErrorNotification(
-          response.data.errors[0].formattedMessage,
-          'Compilation error',
-        );
-        return null;
+      // Checking for compilation errors, there are not caught by the try/catch block
+      // If any errors are found, in data we will have an errors array
+      if (compileResponse.data.errors) {
+        // TODO: The error message is not very user friendly, we should improve it
+        // TODO: Plus it's an array, we should consider showing all the errors
+
+        toast({
+          description:
+            'There was an error with one of your contracts. Please try again.',
+          title: 'Compilation error',
+          variant: 'destructive',
+        });
+
+        return;
       }
-      showSuccessNotification(contractType, 'compilation');
-      processNextStage();
-      return response;
-    } catch (error: any) {
-      showErrorNotification(error.message, 'Compilation error');
-      return null;
+
+      updatedStage.status = 'success';
+      updateStage(updatedStage, contractType);
+      return compileResponse;
+    } catch {
+      toast({
+        description:
+          'Unfortunately something bad has happened. Please try again, if the problem persists contact us.',
+        title: 'Compilation error',
+        variant: 'destructive',
+      });
+      return;
     }
   };
 
   const handleDeploy = async (
-    contractType: string,
+    contractType: 'governanceContract' | 'tokenContract',
     response: CompilerAbstract,
-    tokenContractAddress: string,
+    tokenContractAddress?: `0x${string}`,
   ) => {
-    const { contractName } = contractMap[contractType] || {};
-    const contractArgs =
-      contractType === 'governanceContract' ? [tokenContractAddress] : [];
+    const contractName = contracts.get(contractType)?.name;
+    // Temporary solution, we should find a better way to do this
+    const stageKey = `${contractType}Deployment`;
 
     if (!contractName) {
-      showErrorNotification(
-        'Contract error',
-        'Invalid contract type, name or source',
-      );
-      return null;
+      toast({
+        description:
+          'We could not find a contract with the name you provided. Please try again.',
+        title: 'Contract error',
+        variant: 'destructive',
+      });
+      return;
     }
 
     try {
-      const compiledContract = response && response.getContract(contractName);
-      const contractBinary: `0x${string}` = `0x${compiledContract?.object.evm.bytecode.object}`;
-      const contractABI = compiledContract?.object.abi;
+      // TODO: For now we do not think about errors, but we should in the future
+      const updatedStage: Stage = {
+        ...(stages.find((stage) => stage.key === stageKey) as Stage),
+        status: 'in-progress',
+      };
+      updateStage(updatedStage, stageKey);
+      const contract = response.getContract(contractName);
 
-      if (
-        !contractABI ||
-        contractBinary == `0x${undefined}` ||
-        !compiledContract
-      ) {
-        showErrorNotification(
-          'Contract error',
-          'Could not find compiled contract',
-        );
-        return null;
+      if (!contract) {
+        toast({
+          description:
+            'We could not find a contract with the name you provided. Please try again.',
+          title: 'Contract error',
+          variant: 'destructive',
+        });
+        return;
       }
 
-      let tx;
-      if (walletClient) {
-        try {
-          tx = await walletClient.deployContract({
-            abi: contractABI,
-            account: account.address,
-            args: contractArgs,
-            bytecode: contractBinary,
-          });
-        } catch (error: any) {
-          showErrorNotification(error.message, 'Transaction failed');
-          return null;
-        }
+      const bytecode =
+        `0x${contract?.object.evm.bytecode.object}` as `0x${string}`;
+      const abi = contract?.object.abi;
+      const args =
+        contractType === 'governanceContract' ? [tokenContractAddress] : [];
+
+      if (!walletClient) return;
+
+      let hash;
+
+      try {
+        hash = await walletClient.deployContract({
+          abi,
+          account: address,
+          args,
+          bytecode,
+        });
+      } catch (error: unknown) {
+        toast({
+          description: 'Transaction failed',
+          title: 'Deployment error',
+          variant: 'destructive',
+        });
+        return;
       }
-      if (tx) {
-        const data = await waitForTransaction({ hash: tx });
-        showSuccessNotification(contractType, 'deployment');
-        processNextStage();
+
+      if (hash) {
+        const data = await waitForTransaction({ hash });
+        updatedStage.status = 'success';
+        updateStage(updatedStage, stageKey);
         return data.contractAddress;
       }
-    } catch (error: any) {
-      showErrorNotification(error.message, 'Deployment error');
-      return null;
+    } catch {
+      toast({
+        description:
+          'Unfortunately something bad has happened. Please try again, if the problem persists contact us.',
+        title: 'Deployment error',
+        variant: 'destructive',
+      });
+      return;
     }
   };
 
   return (
-    <>
-      <Box pos='relative'>
-        {deployment && (
-          <Overlay blur={8} center fixed opacity={0.4}>
-            <div className='flex items-end gap-5'>
-              <Loader />
-              <Title className='mb-2' color='white' order={3} size='h4'>
-                {currentStage}
-              </Title>
-            </div>
-          </Overlay>
-        )}
-        <div className='grid grid-cols-2 py-20'>
-          <div>
-            <h3 className='mb-2 text-4xl font-semibold tracking-tight'>
-              You&apos;re almost there!
-            </h3>
-            <p className='text-sm font-medium text-muted-foreground'>
-              We&apos;ll going to do all the heavy lifting for you. Just click
-              the button below and relax.
-            </p>
-            <Button
-              className='mt-4'
-              disabled={!isConnected}
-              onClick={handleDeployment}
-              variant='default'
-            >
-              Deploy
-            </Button>
-          </div>
-          <div className='flex flex-col justify-center pt-10'>
-            {DEPLOYMENT_STAGES.map((stage) => (
-              <div
-                className='group flex items-center justify-between gap-3 border-b py-3 last:border-none'
-                // TODO: Mocked this for now, need to implement
-                data-status={stage === currentStage ? 'in-progress' : 'pending'}
-                key={stage}
-              >
-                <span className='text-sm font-medium capitalize text-primary group-data-[status=pending]:text-muted-foreground group-data-[status=pending]:opacity-50'>
-                  {stage}
+    <div className='grid py-20'>
+      <div>
+        <h3 className='mb-2 text-4xl font-semibold tracking-tight'>
+          You&apos;re almost there!
+        </h3>
+        <p className='mb-4 text-sm font-medium text-muted-foreground'>
+          We&apos;ll going to do all the heavy lifting for you. Just click the
+          button below and relax.
+        </p>
+        <Web3Button onClick={handleStart} variant='default'>
+          Start
+        </Web3Button>
+      </div>
+      <div className='flex flex-col justify-center pt-10'>
+        {/*We also need to handle errors, and show the user a nice error message*/}
+        {stages.map((stage) => (
+          <div
+            className='group flex items-center justify-between gap-3 border-b py-3 last:border-none'
+            data-status={stage.status}
+            key={stage.name}
+          >
+            <h4 className='text-sm font-medium capitalize text-primary transition-opacity group-data-[status=pending]:text-muted-foreground group-data-[status=pending]:opacity-50'>
+              {stage.name}
+            </h4>
+            <span className='flex h-8 w-8 items-center justify-center text-primary transition-opacity group-data-[status=pending]:text-muted-foreground group-data-[status=pending]:opacity-50'>
+              {stage.status === 'in-progress' ? (
+                <Spinner size={24} />
+              ) : stage.status === 'success' ? (
+                <span className='flex h-6 w-6 items-center justify-center rounded-full bg-success text-white'>
+                  <Check size={16} />
                 </span>
-                <span className='flex h-8 w-8 items-center justify-center text-primary group-data-[status=pending]:text-muted-foreground group-data-[status=pending]:opacity-50'>
-                  {stage === currentStage ? (
-                    <Spinner size={24} />
-                  ) : (
-                    <Circle size={24} />
-                  )}
-                </span>
-              </div>
-            ))}
+              ) : (
+                <Circle size={24} />
+              )}
+            </span>
           </div>
-        </div>
-      </Box>
-    </>
+        ))}
+      </div>
+    </div>
   );
 }
-
-export default CompilerDeployer;
