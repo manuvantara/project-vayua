@@ -13,7 +13,7 @@ import { Wallet } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { Connector, useAccount, useConnect, useDisconnect } from 'wagmi';
-import { fantomTestnet } from 'wagmi/chains';
+import { fantom } from 'wagmi/chains';
 
 const connectorsIcons: { [key: string]: any } = {
   'Coinbase Wallet': '/icons/coinbase.svg',
@@ -29,7 +29,7 @@ export default function WalletConnect() {
   const account = useAccount();
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect({
-      chainId: fantomTestnet.id,
+      chainId: fantom.id,
       onSuccess: () => {
         setOpen(false);
       },

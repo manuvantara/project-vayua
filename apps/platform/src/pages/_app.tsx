@@ -12,7 +12,7 @@ import Router from 'next/router';
 import { DefaultSeo } from 'next-seo';
 import { useEffect } from 'react';
 import { WagmiConfig, configureChains, createConfig } from 'wagmi';
-import { fantom, fantomTestnet } from 'wagmi/chains';
+import { fantom } from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
@@ -35,7 +35,7 @@ const inter = Inter({
 });
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [fantomTestnet, fantom],
+  [fantom],
   [publicProvider()],
 );
 
@@ -48,7 +48,7 @@ const config = createConfig({
       chains,
       options: {
         appName: 'Vayua',
-        chainId: fantomTestnet.id,
+        chainId: fantom.id,
       },
     }),
     new WalletConnectConnector({

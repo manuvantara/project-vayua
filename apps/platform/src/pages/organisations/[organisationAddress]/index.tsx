@@ -28,7 +28,7 @@ import {
   usePublicClient,
   useWaitForTransaction,
 } from 'wagmi';
-import { fantomTestnet } from 'wagmi/chains';
+import { fantom } from 'wagmi/chains';
 
 export default function OrganisationPage({
   organisationAddress,
@@ -235,7 +235,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const organisationAddress = params?.organisationAddress as `0x${string}`;
 
   const publicClient = createPublicClient({
-    chain: fantomTestnet,
+    chain: fantom,
     transport: http(),
   });
 
