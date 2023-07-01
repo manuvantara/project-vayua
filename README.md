@@ -31,7 +31,7 @@ Vayua Extensions:** These are modular components that are added to enhance the 
 
 **Vayua Marketplace:** We plan to establish a marketplace that facilitates extension trading and purchases, creating a thriving economic system within the Metaverse. Users will be able to buy, sell, and trade digital assets, enhancing the economic vibrancy of the DAO environment.
 
-## **How we built it
+## How we built it
 
 Building the Vayua Platform was an adventure in innovation. It all started with exploring the market. We came up with the idea of combining the big, digital world of the Metaverse with the group decision-making power of DAOs. This inspiration led to the creation of the Vayua Platform, our project's backbone.
 
