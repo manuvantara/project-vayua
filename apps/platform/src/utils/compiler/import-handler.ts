@@ -2,10 +2,10 @@
 
 export function handleNpmImport(
   url: string,
-  cb: (error: any, content: string) => void
+  cb: (error: any, content: string) => void,
 ) {
   try {
-    const req = "https://unpkg.com/" + url;
+    const req = 'https://unpkg.com/' + url;
     fetch(req)
       .then((response) => response.text())
       .then((data) => cb(null, data));

@@ -1,555 +1,277 @@
-import type { GetServerSideProps } from "next";
-import type { MarkdownFrontmatter } from "@/types/proposals";
+import type { MarkdownFrontmatter, ProposalPageProps } from '@/types/proposals';
+import type { GetServerSideProps } from 'next';
 
-import Link from "next/link";
-import { Badge } from "@/components/ui/Badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import CastVoteModal from '@/components/CastVoteModal';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Progress } from '@/components/ui/Progress';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import useProposalExecute from '@/hooks/use-proposal-execute';
+import useProposalState from '@/hooks/use-proposal-state';
+import useProposalTimings from '@/hooks/use-proposal-timings';
+import useProposalVotes from '@/hooks/use-proposal-votes';
+import { NULL_ADDRESS } from '@/utils/chains/chain-config';
+import {
+  formatVotes,
+  parseMarkdownWithYamlFrontmatter,
+} from '@/utils/helpers/proposal.helper';
+import { shortenAddress, shortenText } from '@/utils/helpers/shorten.helper';
+import { badgeVariantMap } from '@/utils/proposal-states';
 import {
   ArrowLeft,
   CalendarOff,
   CheckCircle2,
+  ChevronRight,
   ClockIcon,
   ListChecks,
   PlusCircle,
+  User,
   Vote,
   XCircle,
-} from "lucide-react";
-
-import ReactMarkdown from "react-markdown";
-import { parseMarkdownWithYamlFrontmatter } from "@/utils/parse-proposal-description";
-import {
-  useAccount,
-  useContractEvent,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-  usePublicClient,
-  useWaitForTransaction,
-} from "wagmi";
-
-import { GOVERNOR_ABI, TOKEN_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { shortenAddress, shortenText } from "@/utils/shorten-address";
-import { Button } from "@/components/ui/Button";
-import { getStringHash } from "@/utils/hash-string";
-import { useCallback, useEffect, useState } from "react";
-import { toast } from "@/components/ui/use-toast";
-import { timestampToDate } from "@/utils/timestamp-to-date";
-import CastVoteModal from "@/components/CastVoteModal";
-import Image from "next/image";
-import { Progress } from "@/components/ui/Progress";
-import { badgeVariantMap, proposalStateMap } from "@/utils/proposal-states";
-import { Skeleton } from "@/components/ui/Skeleton";
-
-const ONE_BLOCK_IN_SECONDS = 12;
-
-type ProposalStatusProps = {
-  proposalSnapshotDate: string;
-  proposalVoteStartDate: string;
-  proposalVoteEndDate: string;
-  proposalState: string;
-};
-
-function setExecuteWriteArgs(
-  targets: `0x${string}` | `0x${string}`[],
-  values: string | string[],
-  calldatas: `0x${string}` | `0x${string}`[],
-  description: string
-) {
-  const properDescription = getStringHash(description) as `0x${string}`;
-
-  const properTargets = Array.isArray(targets) ? targets : [targets];
-  const properValues = Array.isArray(values)
-    ? values.map((val) => BigInt(val))
-    : [BigInt(values)];
-  const properCalldatas = Array.isArray(calldatas) ? calldatas : [calldatas];
-
-  return [
-    properTargets,
-    properValues,
-    properCalldatas,
-    properDescription,
-  ] as const;
-}
-
-type ProposalPageProps = {
-  organisationAddress: `0x${string}`;
-  targets: `0x${string}` | `0x${string}`[];
-  values: string | string[];
-  calldatas: `0x${string}` | `0x${string}`[];
-  description: string;
-  proposalId: `0x${string}`;
-  proposer: `0x${string}`;
-  voteStart: string;
-  voteEnd: string;
-};
-
-type Votes = {
-  for: number;
-  against: number;
-  abstain: number;
-  total: number;
-};
+} from 'lucide-react';
+import Link from 'next/link';
+import { useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { useAccount } from 'wagmi';
 
 export default function ProposalPage({
-  organisationAddress,
-  targets,
-  values,
   calldatas,
   description,
+  organisationAddress,
   proposalId,
   proposer,
-  voteStart,
-  voteEnd,
+  targets,
+  values,
 }: ProposalPageProps) {
   const { isConnected } = useAccount();
-  const publicClient = usePublicClient();
 
-  const [proposalState, setProposalState] = useState("Unknown State");
-  const [proposalVoteStartDate, setProposalVoteStartDate] = useState("");
-  const [proposalVoteEndDate, setProposalVoteEndDate] = useState("");
-  const [proposalSnapshotDate, setProposalSnapshotDate] = useState("");
-  const [votes, setVotes] = useState<Votes>({
-    for: 0,
-    against: 0,
-    abstain: 0,
-    total: 0,
-  });
-
-  // get token decimals
-  const [tokenAddress, setTokenAddress] = useState<`0x${string}`>("0x00");
-  const [tokenDecimals, setTokenDecimals] = useState(0);
-  const [fetchTokenDecimals, setFetchTokenDecimals] = useState(false);
-
-  useContractRead({
-    address: organisationAddress,
-    abi: GOVERNOR_ABI,
-    functionName: "token",
-    onSuccess(data) {
-      setTokenAddress(data);
-      setFetchTokenDecimals(true);
-    },
-  });
-
-  const tokenDecimalsRead = useContractRead({
-    address: tokenAddress,
-    abi: TOKEN_ABI,
-    functionName: "decimals",
-    enabled: fetchTokenDecimals,
-    onSuccess(data) {
-      setTokenDecimals(data);
-    },
-  });
-
-  const votingPeriodRead = useContractRead({
-    address: organisationAddress,
-    abi: GOVERNOR_ABI,
-    functionName: "votingPeriod",
-  });
-
-  const { title, proposalDescription } =
+  // title
+  const { proposalDescription, title } =
     parseMarkdownWithYamlFrontmatter<MarkdownFrontmatter>(description);
 
-  // get votes
-  const votesContractRead = useContractRead({
-    address: organisationAddress,
-    abi: GOVERNOR_ABI,
-    functionName: "proposalVotes",
-    args: [BigInt(proposalId)],
-    onSuccess(data) {
-      const decimals = tokenDecimals ? tokenDecimals : 18;
-      const votes: Votes = {
-        for: Number(data[1]) / 10 ** decimals,
-        against: Number(data[0]) / 10 ** decimals,
-        abstain: Number(data[2]) / 10 ** decimals,
-        total: 0,
-      };
-      votes.total = votes.for + votes.against + votes.abstain;
-      setVotes(votes);
-    },
-  });
+  // votes
+  const votes = useProposalVotes(organisationAddress, BigInt(proposalId));
 
-  const proposalStateRead = useContractRead({
-    address: organisationAddress,
-    abi: GOVERNOR_ABI,
-    functionName: "state",
-    args: [BigInt(proposalId)],
-    onSuccess(data) {
-      setProposalState(proposalStateMap[data ? data : -1] || "Unknown State");
-    },
-  });
+  // timings
+  const timings = useProposalTimings(organisationAddress, BigInt(proposalId));
 
-  const isTargetsString = typeof targets === "string";
+  // state
+  const proposalState = useProposalState(
+    organisationAddress,
+    BigInt(proposalId),
+    true,
+  );
 
-  // listen to cast vote event and read votes again if event was emitted
-  useContractEvent({
-    address: organisationAddress,
-    abi: GOVERNOR_ABI,
-    eventName: "VoteCast",
-    listener(logs) {
-      if (logs) {
-        logs.map((log: any) => {
-          const { args } = log;
-          if (args.proposalId.toString() == proposalId) {
-            votesContractRead.refetch();
-          }
-        });
-      }
-    },
-  });
-
-  // get vote start, end and snapshot in format of date
-  const { data: snapshot } = useContractRead({
-    address: organisationAddress,
-    abi: GOVERNOR_ABI,
-    functionName: "proposalSnapshot",
-    args: [BigInt(proposalId)],
-  });
-
-  async function blockNumberToTimestamp(stringifiedBlockNumber: string) {
-    // convert stringified blockNumber to bigint
-    const blockNumber = BigInt(stringifiedBlockNumber);
-
-    // get the block
-    const block = await publicClient.getBlock({
-      blockNumber: blockNumber,
-    });
-
-    // return stringified timestamp
-    return block.timestamp.toString();
-  }
-
-  async function getDate(blockNumber: string) {
-    try {
-      const timestamp = await blockNumberToTimestamp(blockNumber);
-      return timestampToDate(timestamp, true);
-    } catch (error) {
-      console.log(error);
-      return "Unknown Date";
-    }
-  }
-
-  async function getApproximateFutureDate(
-    voteStartBlockNumber: string,
-    votingPeriod: string
-  ) {
-    try {
-      const voteStartTimestamp = await blockNumberToTimestamp(
-        voteStartBlockNumber
-      );
-
-      const approximateVoteEndTimestamp = (
-        (Number(voteStartTimestamp) +
-          ONE_BLOCK_IN_SECONDS * Number(votingPeriod)) |
-        0
-      ).toString();
-
-      return timestampToDate(approximateVoteEndTimestamp, true);
-    } catch (error) {
-      console.log(error);
-      return "Unknown Date";
-    }
-  }
-
-  useEffect(() => {
-    getDate(voteStart).then((date) => setProposalVoteStartDate(date));
-  }, []);
-
-  useEffect(() => {
-    if (votingPeriodRead.data) {
-      // since we don't know the exact timestamp for the
-      // future blocks we approximately calculate it
-      getApproximateFutureDate(
-        voteStart,
-        votingPeriodRead.data.toString()
-      ).then((date) => setProposalVoteEndDate(date));
-    }
-  }, [votingPeriodRead.data]);
-
-  useEffect(() => {
-    if (snapshot) {
-      getDate(snapshot.toString()).then((date) =>
-        setProposalSnapshotDate(date)
-      );
-    }
-  }, [snapshot]);
-
-  // execute write to contract
-  const { config: executeWriteConfig } = usePrepareContractWrite({
-    address: organisationAddress,
-    abi: GOVERNOR_ABI,
-    functionName: "execute",
-    value: isTargetsString
-      ? BigInt(values as string)
-      : (values as string[])
-          .map((val) => BigInt(val))
-          .reduce((acc, curr) => acc + curr, BigInt(0)),
-    args: setExecuteWriteArgs(targets, values, calldatas, description),
-  });
-
-  const executeWrite = useContractWrite(executeWriteConfig);
-
-  const {
-    isLoading: isTransactionLoading,
-    isSuccess: isTransactionSuccessful,
-  } = useWaitForTransaction({
-    hash: executeWrite.data?.hash,
-  });
-
-  useEffect(() => {
-    if (isTransactionSuccessful) {
-      toast({
-        description: "Execute action successfully applied.",
-      });
-    }
-  }, [isTransactionSuccessful]);
-
-  useContractEvent({
-    address: organisationAddress,
-    abi: GOVERNOR_ABI,
-    eventName: "ProposalExecuted",
-    listener(logs) {
-      if (logs) {
-        logs.map((log: any) => {
-          const { args } = log;
-          if (args.proposalId.toString() == proposalId) {
-            proposalStateRead.refetch();
-          }
-        });
-      }
-    },
-  });
+  // execution
+  const { loading: executeLoading, write: executeWrite } = useProposalExecute(
+    organisationAddress,
+    proposalState,
+    targets,
+    values,
+    calldatas,
+    description,
+  );
 
   const renderProposalState = useCallback(() => {
     switch (proposalState) {
-      case "Pending":
+      case 'Pending':
         return (
-          <>
-            <ClockIcon className="w-4 h-4 mr-2" />
-            Voting starts at {voteStart} block
-          </>
+          <div>
+            <div className='flex items-center'>
+              <p>Vote start</p>
+              <ClockIcon className='ml-2 h-4 w-4' />
+            </div>
+            {timings.voteStartDate === '' ? (
+              <Skeleton className='h-[20px] w-[150px]' />
+            ) : (
+              <p className='text-sm text-muted-foreground'>
+                {timings.voteStartDate}
+              </p>
+            )}
+          </div>
         );
-      case "Active":
+      case 'Active':
         return (
           <CastVoteModal
             organisationAddress={organisationAddress}
-            proposalId={proposalId}
+            proposalId={BigInt(proposalId)}
+            voteStart={timings.voteStart}
           />
         );
-      case "Succeeded":
-        if (targets != "0x0000000000000000000000000000000000000000") {
-          return (
-            <Button
-              loading={isTransactionLoading || executeWrite.isLoading}
-              disabled={!executeWrite || !isConnected}
-              className="mt-5"
-              onClick={executeWrite.write}
-            >
-              Execute
-            </Button>
-          );
-        }
+      case 'Succeeded':
+        return targets === NULL_ADDRESS ? null : (
+          <Button
+            disabled={!executeWrite || !isConnected}
+            loading={executeLoading}
+            onClick={executeWrite}
+          >
+            Execute
+          </Button>
+        );
     }
   }, [
     proposalState,
-    voteStart,
+    timings.voteStartDate,
+    timings.voteStart,
     organisationAddress,
     proposalId,
-    isTransactionLoading,
+    targets,
     executeWrite,
     isConnected,
+    executeLoading,
   ]);
 
   return (
-    <div className="relative">
-      <Image
-        fill
-        src="/gradient-2.jpg"
-        className="absolute left-1/2 z-[-1] top-0 max-w-none opacity-20 -translate-y-1/4 translate-x-[-30%] w-[160%] h-auto filter blur-[100px]"
-        alt="gradient"
-      />
-      <div>
-        <Link
-          className="inline-flex items-center text-muted-foreground"
-          href={`/organisations/${organisationAddress}`}
-        >
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          {`organisations/${shortenAddress(organisationAddress)}`}
-        </Link>
-      </div>
-      <div className="grid items-start md:grid-cols-3 gap-5 mt-5">
-        <div className="grid md:grid-cols-1 gap-5">
-          <div className="flex relative flex-col p-6 bg-white rounded-md border">
-            <div className="flex flex-col gap-4 md:gap-0 md:flex-row md:items-center justify-between">
-              <div>
-                {proposalState == "Unknown State" ? (
-                  <Skeleton className="w-[75px] h-[22px] rounded-full" />
-                ) : (
-                  <Badge variant={badgeVariantMap[proposalState]}>
-                    {proposalState}
-                  </Badge>
-                )}
-                <h1 className="text-xl font-semibold mt-3">
-                  {title || `Proposal #${shortenText(proposalId)}`}
-                </h1>
+    <div>
+      <Link
+        className='inline-flex items-center text-muted-foreground'
+        href={`/organisations/${organisationAddress}`}
+      >
+        <ArrowLeft className='mr-1 h-4 w-4' />
+        {`organisations/${shortenAddress(organisationAddress)}`}
+      </Link>
+      <div className='mt-5 grid items-start gap-5 md:grid-cols-3'>
+        <div className='space-y-5'>
+          <div className='rounded-md border border-border bg-white p-6'>
+            <div className='space-y-5'>
+              <div className='flex flex-col gap-5 lg:flex-row lg:justify-between'>
+                <div>
+                  {proposalState === 'Unknown State' ? (
+                    <Skeleton className='h-[22px] w-[75px] rounded-full' />
+                  ) : (
+                    <Badge variant={badgeVariantMap[proposalState]}>
+                      {proposalState}
+                    </Badge>
+                  )}
+                  <h1 className='mt-3 text-xl font-semibold'>
+                    {title || `Proposal #${shortenText(proposalId)}`}
+                  </h1>
+                </div>
+                {renderProposalState()}
               </div>
-              {renderProposalState()}
-            </div>
-
-            <div className="flex-2 w-full mt-5">
-              <div className="text-sm space-x-1">
+              <div className='flex items-center space-x-1 text-sm'>
                 <span>by</span>
                 <Link
-                  href={`https://testnet-explorer.thetatoken.org/account/${proposer}`}
-                  target="_blank"
-                  className="border-b border-[#999] border-dashed"
+                  className='border-b border-dashed border-[#999]'
+                  href={`/users/${proposer}`}
                 >
                   {shortenAddress(proposer)}
                 </Link>
               </div>
             </div>
           </div>
-          <div className="flex flex-col p-6 bg-white rounded-md border border-border">
-            <h3 className="text-xl mb-2 font-semibold">Votes</h3>
-            <div className="flex flex-col gap-4">
+          <div className='rounded-md border border-border bg-white p-6'>
+            <h3 className='mb-2 text-xl font-semibold'>Votes</h3>
+            <div className='space-y-5'>
               <div>
-                <span>
-                  {/*https://stackoverflow.com/questions/10599933/convert-long-number-into-abbreviated-string-in-javascript-with-a-special-shortn*/}
-                  {Intl.NumberFormat("en-US", {
-                    notation: "compact",
-                    maximumFractionDigits: 1,
-                    compactDisplay: "short",
-                  }).format(votes.for)}
-                </span>
+                <div className='flex justify-between'>
+                  <span>For</span>
+                  <span>{formatVotes(votes.for)}</span>
+                </div>
                 <Progress
-                  indicatorClassName="bg-success"
+                  indicatorclassname='bg-success'
+                  max={votes.total}
                   value={votes.for}
-                  max={votes.total}
                 />
               </div>
               <div>
-                <span>
-                  {/*https://stackoverflow.com/questions/10599933/convert-long-number-into-abbreviated-string-in-javascript-with-a-special-shortn*/}
-                  {Intl.NumberFormat("en-US", {
-                    notation: "compact",
-                    maximumFractionDigits: 1,
-                    compactDisplay: "short",
-                  }).format(votes.against)}
-                </span>
+                <div className='flex justify-between'>
+                  <span>Against</span>
+                  <span>{formatVotes(votes.against)}</span>
+                </div>
                 <Progress
-                  indicatorClassName="bg-destructive"
-                  value={votes.against}
+                  indicatorclassname='bg-destructive'
                   max={votes.total}
+                  value={votes.against}
                 />
               </div>
               <div>
-                <span>
-                  {/*https://stackoverflow.com/questions/10599933/convert-long-number-into-abbreviated-string-in-javascript-with-a-special-shortn*/}
-                  {Intl.NumberFormat("en-US", {
-                    notation: "compact",
-                    maximumFractionDigits: 1,
-                    compactDisplay: "short",
-                  }).format(votes.abstain)}
-                </span>
-                <Progress value={votes.abstain} max={votes.total} />
+                <div className='flex justify-between'>
+                  <span>Abstain</span>
+                  <span>{formatVotes(votes.abstain)}</span>
+                </div>
+                <Progress max={votes.total} value={votes.abstain} />
               </div>
             </div>
           </div>
-          <div className="hidden md:block">
-            <ProposalStatus
-              proposalSnapshotDate={proposalSnapshotDate}
-              proposalVoteStartDate={proposalVoteStartDate}
-              proposalVoteEndDate={proposalVoteEndDate}
-              proposalState={proposalState}
-            />
-          </div>
+          <ProposalStatus
+            proposalDate={timings.proposedOnDate}
+            proposalState={proposalState}
+            proposalVoteEndDate={timings.voteEndDate}
+            voteStartDate={timings.voteStartDate}
+          />
         </div>
-        <div className="grid md:grid-cols-1 md:col-span-2 gap-5">
-          <div className="flex flex-col p-6 bg-white rounded-md border border-border">
-            <h3 className="text-xl mb-2 font-semibold">Details</h3>
-            <Tabs defaultValue="description">
-              <TabsList>
-                <TabsTrigger value="description">Description</TabsTrigger>
-                <TabsTrigger value="code">Executable code</TabsTrigger>
-              </TabsList>
-              <TabsContent value="description">
-                <article className="prose-sm sm:prose p-5">
-                  <ReactMarkdown>{proposalDescription}</ReactMarkdown>
-                </article>
-              </TabsContent>
-              <TabsContent value="code">
-                {isTargetsString ? (
-                  targets == "0x0000000000000000000000000000000000000000" ? (
-                    <div className="p-5"></div>
-                  ) : (
-                    <div>
-                      <h3 className="mb-2">Function 1:</h3>
-                      <div className="border border-border p-5">
+        <div className='rounded-md border border-border bg-white p-6 md:col-span-2'>
+          <h3 className='mb-2 text-xl font-semibold'>Details</h3>
+          <Tabs defaultValue='description'>
+            <TabsList>
+              <TabsTrigger value='description'>Description</TabsTrigger>
+              <TabsTrigger value='code'>Executable code</TabsTrigger>
+            </TabsList>
+            <TabsContent className='overflow-x-auto' value='description'>
+              <article className='prose-sm !max-w-none py-5 sm:prose'>
+                <ReactMarkdown>{proposalDescription}</ReactMarkdown>
+              </article>
+            </TabsContent>
+            <TabsContent value='code'>
+              <div className='space-y-5 py-5'>
+                {Array.isArray(targets) &&
+                  targets.map((target, index) => (
+                    <div key={index}>
+                      <h3 className='mb-2'>Function {index + 1}:</h3>
+                      <div className='border border-border p-5'>
                         <div>
                           Calldatas: <br />
-                          {calldatas ? shortenText(calldatas as string) : null}
+                          {shortenText(calldatas[index])}
                         </div>
-                        <div className="mt-2">
+                        <div className='mt-2'>
                           Target: <br />
                           <Link
-                            href={`https://testnet-explorer.thetatoken.org/account/${targets}`}
-                            target="_blank"
-                            className="border-b border-[#999] border-dashed"
+                            className='border-b border-dashed border-[#999]'
+                            href={`https://testnet.ftmscan.com/address/${organisationAddress}`}
+                            target='_blank'
                           >
-                            {targets ? shortenAddress(targets) : null}
+                            {shortenAddress(target)}
                           </Link>
                         </div>
-                        <div className="mt-2">
+                        <div className='mt-2'>
                           Value: <br />
-                          {values}
+                          {values[index]}
                         </div>
                       </div>
                     </div>
-                  )
-                ) : (
-                  Array.isArray(targets) &&
-                  targets.length !== 0 && (
-                    <div>
-                      {targets.map((target, index) => (
-                        <div key={index} className="p-5">
-                          <h3 className="mb-2">Function {index + 1}:</h3>
-                          <div className="border border-border p-5">
-                            <div>
-                              Calldatas: <br />
-                              {calldatas[index]
-                                ? shortenText(calldatas[index] as string)
-                                : null}
-                            </div>
-                            <div className="mt-2">
-                              Target: <br />
-                              <Link
-                                href={`https://testnet-explorer.thetatoken.org/account/${target}`}
-                                target="_blank"
-                                className="border-b border-[#999] border-dashed"
-                              >
-                                {target ? shortenAddress(target) : null}
-                              </Link>
-                            </div>
-                            <div className="mt-2">
-                              Value: <br />
-                              {values[index]}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                  ))}
+                {!Array.isArray(targets) && targets !== NULL_ADDRESS ? (
+                  <div>
+                    <h3>Function 1:</h3>
+                    <div className='border border-border p-5'>
+                      <div>
+                        Calldatas: <br />
+                        {shortenText(calldatas as string)}
+                      </div>
+                      <div className='mt-2'>
+                        Target: <br />
+                        <Link
+                          className='border-b border-dashed border-[#999]'
+                          href={`https://testnet.ftmscan.com/address/${targets}`}
+                          target='_blank'
+                        >
+                          {shortenAddress(targets)}
+                        </Link>
+                      </div>
+                      <div className='mt-2'>
+                        Value: <br />
+                        {values}
+                      </div>
                     </div>
-                  )
+                  </div>
+                ) : (
+                  <p>This proposal cannot be executed</p>
                 )}
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
-        <div className="md:hidden">
-          <ProposalStatus
-            proposalSnapshotDate={proposalSnapshotDate}
-            proposalVoteStartDate={proposalVoteStartDate}
-            proposalVoteEndDate={proposalVoteEndDate}
-            proposalState={proposalState}
-          />
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
@@ -561,134 +283,123 @@ export const getServerSideProps: GetServerSideProps = async ({
   params,
   query,
 }) => {
-  // Better than useRouter hook because on the client side we will always have the address
+  // Better than useRouter hook because on the client side
+  // we will always have needed params
   const organisationAddress = params?.organisationAddress as `0x${string}`;
-  const proposalId = (params?.proposalId as string) || "";
+  const proposalId = params?.proposalId as string;
 
-  const targets = query?.targets
-    ? (query?.targets as `0x${string}` | `0x${string}`[])
-    : [];
+  const targets = query?.targets as `0x${string}` | `0x${string}`[];
+  const values = query?.values as string | string[];
+  const calldatas = query?.calldatas as `0x${string}` | `0x${string}`[];
+  const description = query?.description as string;
 
-  const values = query?.values ? (query?.values as string | string[]) : [];
-
-  const calldatas = query?.calldatas
-    ? (query?.calldatas as `0x${string}` | `0x${string}`[])
-    : [];
-
-  const description = (query?.description as string) || "";
-
-  const proposer = (query?.proposer as `0x${string}`) || "";
-
-  const voteStart = (query?.voteStart as string) || "";
-
-  const voteEnd = (query?.voteEnd as string) || "";
+  const proposer = query?.proposer as `0x${string}`;
 
   return {
     props: {
-      organisationAddress,
-      targets,
-      values,
       calldatas,
       description,
+      organisationAddress,
       proposalId,
       proposer,
-      voteStart,
-      voteEnd,
+      targets,
+      values,
     },
   };
 };
 
 function ProposalStatus({
-  proposalSnapshotDate,
-  proposalVoteStartDate,
-  proposalVoteEndDate,
+  proposalDate,
   proposalState,
-}: ProposalStatusProps) {
+  proposalVoteEndDate,
+  voteStartDate,
+}: {
+  proposalDate: string;
+  proposalState: string;
+  proposalVoteEndDate: string;
+  voteStartDate: string;
+}) {
   return (
-    <div className="flex flex-col p-6 bg-white rounded-md border border-border">
-      <h3 className="text-xl mb-2 font-semibold">Status</h3>
-      <div className="flex gap-4">
-        <div className="flex flex-col w-min">
-          <span className="w-3 h-3 border-black border rounded-full my-1"></span>
-          <span className="border-r border-black border-dashed flex-1 self-center w-[1px]"></span>
+    <div className='rounded-md border border-border bg-white p-6'>
+      <h3 className='mb-2 text-xl font-semibold'>Status</h3>
+      <div className='flex gap-4'>
+        <div className='flex w-min flex-col'>
+          <span className='my-1 h-3 w-3 rounded-full border border-black'></span>
+          <span className='w-[1px] flex-1 self-center border-r border-dashed border-black'></span>
         </div>
         <div>
           <PlusCircle size={20} />
-          <p className="font-medium">Proposed on</p>
-          {proposalSnapshotDate === "" ? (
-            <Skeleton className="w-[150px] h-[20px]" />
+          <p className='font-medium'>Proposed on</p>
+          {proposalDate === '' ? (
+            <Skeleton className='h-[20px] w-[150px]' />
           ) : (
-            <p className="text-sm text-muted-foreground">
-              {proposalSnapshotDate}
-            </p>
+            <p className='text-sm text-muted-foreground'>{proposalDate}</p>
           )}
         </div>
       </div>
-      <div className="flex gap-4">
-        <div className="flex flex-col w-min">
-          <span className="w-3 h-3 border-black border rounded-full my-1"></span>
-          <span className="border-r border-black border-dashed flex-1 self-center w-[1px]"></span>
+      <div className='flex gap-4'>
+        <div className='flex w-min flex-col'>
+          <span className='my-1 h-3 w-3 rounded-full border border-black'></span>
+          <span className='w-[1px] flex-1 self-center border-r border-dashed border-black'></span>
         </div>
-        <div className="mt-4">
+        <div className='mt-4'>
           <Vote size={22} />
-          <p className="font-medium">Vote start</p>
-          {proposalVoteStartDate === "" ? (
-            <Skeleton className="w-[150px] h-[20px]" />
+          <p className='font-medium'>Vote start</p>
+          {voteStartDate === '' ? (
+            <Skeleton className='h-[20px] w-[150px]' />
           ) : (
-            <p className="text-sm text-muted-foreground">
-              {proposalVoteStartDate}
-            </p>
+            <p className='text-sm text-muted-foreground'>{voteStartDate}</p>
           )}
         </div>
       </div>
-      <div className="flex gap-4">
-        <div className="flex flex-col w-min">
-          <span className="w-3 h-3 border-black border rounded-full my-1"></span>
-          {proposalState === "Active" ? null : (
-            <span className="border-r border-black border-dashed flex-1 self-center w-[1px]"></span>
+      <div className='flex gap-4'>
+        <div className='flex w-min flex-col'>
+          <span className='my-1 h-3 w-3 rounded-full border border-black'></span>
+          {proposalState === 'Active' || proposalState === 'Pending' ? null : (
+            <span className='w-[1px] flex-1 self-center border-r border-dashed border-black'></span>
           )}
         </div>
-        <div className="mt-4">
+        <div className='mt-4'>
           <CalendarOff size={20} />
-          <p className="font-medium">Vote end ~</p>
-          {proposalVoteEndDate === "" ? (
-            <Skeleton className="w-[150px] h-[20px]" />
+          <p className='font-medium'>Vote end ~</p>
+          {proposalVoteEndDate === '' ? (
+            <Skeleton className='h-[20px] w-[150px]' />
           ) : (
-            <p className="text-sm text-muted-foreground">
+            <p className='text-sm text-muted-foreground'>
               {proposalVoteEndDate}
             </p>
           )}
         </div>
       </div>
-      {proposalState === "Unknown State" ? (
-        <div className="flex gap-4">
-          <div className="flex gap-2 mt-4 items-center w-min">
-            <Skeleton className="w-[20px] h-[20px] rounded-full" />
-            <Skeleton className="w-[75px] h-[24px]" />
+      {proposalState === 'Unknown State' ? (
+        <div className='flex gap-4'>
+          <div className='mt-4 flex w-min items-center gap-2'>
+            <Skeleton className='h-[20px] w-[20px] rounded-full' />
+            <Skeleton className='h-[24px] w-[75px]' />
           </div>
         </div>
       ) : null}
-      {proposalState === "Defeated" ? (
-        <div className="flex gap-4">
-          <div className="flex gap-2 mt-4 items-center w-min">
+      {proposalState === 'Defeated' ? (
+        <div className='flex gap-4'>
+          <div className='mt-4 flex w-min items-center gap-2'>
             <XCircle size={20} />
-            <p className="font-medium">Defeated</p>
+            <p className='font-medium'>Defeated</p>
           </div>
         </div>
       ) : null}
-      {proposalState === "Succeeded" || proposalState === "Executed" ? (
-        <div className="flex gap-4">
-          <div className="flex gap-2 mt-4 items-center w-min">
+      {proposalState === 'Succeeded' || proposalState === 'Executed' ? (
+        <div className='flex gap-4'>
+          <div className='mt-4 flex w-min items-center gap-2'>
             <CheckCircle2 size={20} />
-            <p className="font-medium">Succeeded</p>
+            <p className='font-medium'>Succeeded</p>
           </div>
         </div>
       ) : null}
-      {proposalState === "Executed" ? (
-        <div className="flex gap-4">
-          <div className="flex gap-2 mt-4 items-center w-min">
+      {proposalState === 'Executed' ? (
+        <div className='flex gap-4'>
+          <div className='mt-4 flex w-min items-center gap-2'>
             <ListChecks size={20} />
-            <p className="font-medium">Executed</p>
+            <p className='font-medium'>Executed</p>
           </div>
         </div>
       ) : null}

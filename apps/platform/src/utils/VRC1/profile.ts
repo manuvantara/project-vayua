@@ -1,16 +1,16 @@
 // TODO: is it possible to create a convinient function that will parse the output of the smart contract based on its ABI
 // TODO: add mockupOrganisation
 
-import type { Profile } from "./types";
+import type { Profile } from './types';
 
 import {
-  chooseRandomly,
-  names,
   bios,
+  chooseRandomly,
   emojis,
   locations,
+  names,
   wikipediaPages,
-} from "./random-samples";
+} from './random-samples';
 
 export const generateAvatarUrl = (filename: string, text?: string) =>
   `https://avatar.vercel.sh/${filename}.svg?text=${text}`;
@@ -24,7 +24,7 @@ export const mockupProfile = (): [string, string, string, string, string] => {
 
   const avatar = generateAvatarUrl(
     chooseRandomly(emojis),
-    chooseRandomly(emojis)
+    chooseRandomly(emojis),
   );
 
   const { city, country } = chooseRandomly(locations);
@@ -36,7 +36,7 @@ export const mockupProfile = (): [string, string, string, string, string] => {
 };
 
 export function parseProfile(
-  data: readonly [string, string, string, string, string]
+  data: readonly [string, string, string, string, string],
 ): Profile {
   const profile: Profile = {};
 

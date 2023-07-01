@@ -1,12 +1,12 @@
-import { forwardRef } from "react";
-import { useAccount } from "wagmi";
-import { Button, type ButtonProps } from "@/components/ui/Button";
-import ClientOnly from "@/components/ClientOnly";
-import WalletConnect from "@/components/WalletConnect";
+import WalletConnect from '@/components/WalletConnect';
+import ClientOnly from '@/components/layout/ClientOnly';
+import { Button, type ButtonProps } from '@/components/ui/Button';
+import { forwardRef } from 'react';
+import { useAccount } from 'wagmi';
 
 export default forwardRef<HTMLButtonElement, ButtonProps>(function Web3Button(
   props,
-  ref
+  ref,
 ) {
   const { isConnected } = useAccount();
 

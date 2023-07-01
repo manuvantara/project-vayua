@@ -37,3 +37,6 @@ next-env.d.ts
 # wagmi
 src/generated.ts
 
+
+# Sentry Auth Token
+.sentryclirc

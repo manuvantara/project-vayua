@@ -1,0 +1,32 @@
+name: Warm-up Vercel Lambdas
+description: Calls key Vercel Lambda functions to warm them up
+
+inputs:
+  deployment-base-url:
+    description: "The base URL of the deployment to warm up (e.g. https://my-deployment.vercel.app)"
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    ## Vercel uses AWS Lambda. When we call getStaticProps in fallback mode or getServerSideProps,
+    ## a cold Lambda function may take 5-15 seconds to execute. This pipeline warms up Lambda
+    ## containers for new deployments and keeps them up by fetching affected URLs every 10 minutes.
+    ## Context: https://github.com/orgs/vercel/discussions/496
+    - name: Fetch URLs that use AWS Lambda
+      shell: bash
+      run: |
+        cat << EOF > curl-format.txt
+          %{url_effective}\n
+            Status code: %{response_code}\n
+            Time: %{time_total}\n
+          \n
+        EOF
+
+        for PATHNAME in "/0x93893caef4de88c47ae46a5e7003773b61cbd8d2" "/0x93893caef4de88c47ae46a5e7003773b61cbd8d2/proposals/102474802060472087641160576555905661957874551162675794771743863692244479143871?calldatas=0x00&description=---%0Atitle%3A+Proposal%0A---%0A+Test+description&proposer=0xf17A8d2D5186EFc07165B67F77A8a519a21cdE69&targets=0x0000000000000000000000000000000000000000&values=0&voteEnd=16895672&voteStart=16895647"; do
+          npx retry-cli@0.6.0 -- curl --output /dev/null --silent --write-out "@curl-format.txt" "${BASE_URL}${PATHNAME}"
+        done
+      env:
+        BASE_URL: ${{ inputs.deployment-base-url }}
+        NODE_OPTIONS: --no-deprecation ## https://github.com/tirsen/retry-cli/issues/7

@@ -1,11 +1,4 @@
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-
+import { Skeleton } from '@/components/ui/Skeleton';
 import {
   Table,
   TableBody,
@@ -13,54 +6,58 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/Table";
+} from '@/components/ui/Table';
+import useProposalState from '@/hooks/use-proposal-state';
+import useProposalTimings from '@/hooks/use-proposal-timings';
+import { getProposalTitle } from '@/utils/helpers/proposal.helper';
+import { shortenText } from '@/utils/helpers/shorten.helper';
+import { badgeVariantMap } from '@/utils/proposal-states';
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import { X } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-import { Skeleton } from "@/components/ui/Skeleton";
+import { DataTablePagination } from './ProposalsTablePagination';
+import { Badge } from './ui/Badge';
+import { Button } from './ui/Button';
+import Spinner from './ui/Spinner';
 
-import { DataTablePagination } from "./ProposalsTablePagination";
-import { shortenText } from "@/utils/shorten-address";
-import { getProposalTitle } from "./Proposals";
-import { useEffect, useState } from "react";
-import Spinner from "./ui/Spinner";
-import Link from "next/link";
-import { Button } from "./ui/Button";
-import { useContractRead, usePublicClient } from "wagmi";
-import { GOVERNOR_ABI } from "@/utils/abi/openzeppelin-contracts";
-import { timestampToDate } from "@/utils/timestamp-to-date";
-import { Badge } from "./ui/Badge";
-import { badgeVariantMap, proposalStateMap } from "@/utils/proposal-states";
-import { X } from "lucide-react";
-
-interface DataTableProps<TData, TValue> {
+interface ProposalsTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  organisationAddress: `0x${string}`;
   scannedBlocksCounter: number;
   toScanBlocksCounter: number;
-  organisationAddress: `0x${string}`;
 }
 
-export function DataTable<TData, TValue>({
+export function ProposalsTable<TData, TValue>({
   columns,
   data,
+  organisationAddress,
   scannedBlocksCounter,
   toScanBlocksCounter,
-  organisationAddress,
-}: DataTableProps<TData, TValue>) {
+}: ProposalsTableProps<TData, TValue>) {
   const [sortedData, setSortedData] = useState([...data]);
 
   useEffect(() => {
     const sortedArray = [...data].sort((a, b) =>
-      BigInt((a as any).voteStart) > BigInt((b as any).voteStart) ? -1 : 1
+      BigInt((a as any).voteStart) > BigInt((b as any).voteStart) ? -1 : 1,
     );
     setSortedData(sortedArray);
   }, [data]);
 
   const table = useReactTable({
-    data: sortedData,
+    autoResetPageIndex: false,
     columns,
+    data: sortedData,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    autoResetPageIndex: false,
     initialState: {
       pagination: {
         pageSize: 5,
@@ -69,44 +66,44 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-md border sm:p-5">
-      <div className="min-h-[480px]">
-        <Table className="min-h-full">
+    <div className='col-span-2 flex flex-col rounded-md border bg-white sm:p-5'>
+      <div className='min-h-[480px] grow'>
+        <Table className='min-h-full'>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
-                      <div className="flex flex-row items-center flex-wrap py-3">
-                        <div className="flex items-center mr-5 ">
-                          <h2 className="text-base">
+                      <div className='flex flex-row flex-wrap items-center py-3'>
+                        <div className='mr-5 flex items-center '>
+                          <h2 className='text-base'>
                             {header.isPlaceholder
                               ? null
                               : flexRender(
                                   header.column.columnDef.header,
-                                  header.getContext()
+                                  header.getContext(),
                                 )}
                           </h2>
                           {toScanBlocksCounter > 0 && (
-                            <Spinner size={20} color="#000" className="ml-2" />
+                            <Spinner className='ml-2' color='#000' size={20} />
                           )}
                         </div>
-                        <div className="gap-5 sm:flex">
+                        <div className='gap-5 sm:flex'>
                           <div>
-                            Scanned{" "}
-                            <span className="font-semibold text-slate-500 ">
+                            Scanned{' '}
+                            <span className='font-semibold text-slate-500 '>
                               {scannedBlocksCounter}
-                            </span>{" "}
+                            </span>{' '}
                             blocks
                           </div>
                           <div>
-                            Left{" "}
-                            <span className="font-semibold text-slate-500 ">
+                            Left{' '}
+                            <span className='font-semibold text-slate-500 '>
                               {toScanBlocksCounter >= 0
                                 ? toScanBlocksCounter
                                 : 0}
-                            </span>{" "}
+                            </span>{' '}
                             blocks
                           </div>
                         </div>
@@ -121,16 +118,15 @@ export function DataTable<TData, TValue>({
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
+                  data-state={row.getIsSelected() && 'selected'}
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} colSpan={columns.length}>
-                      <Proposal
+                    <TableCell colSpan={columns.length} key={cell.id}>
+                      <ProposalTableItem
                         cellparams={cell.getContext()}
                         organisationAddress={organisationAddress}
                       />
-                      {/* {flexRender(Proposal, cell.getContext())} */}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -138,15 +134,15 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length}>
-                  <div className="text-center flex flex-col items-center justify-center min-h-[400px]">
+                  <div className='flex min-h-[400px] flex-col items-center justify-center text-center'>
                     <X size={30} />
-                    <h3 className="text-base font-semibold mt-3">
+                    <h3 className='mt-3 text-base font-semibold'>
                       There aren&apos;t any proposals yet
                     </h3>
-                    <div className="mt-2">
-                      You could create a{" "}
+                    <div className='mt-2'>
+                      You could create a{' '}
                       <Link
-                        className="text-success"
+                        className='text-success'
                         href={`${organisationAddress}/proposals/new`}
                       >
                         new proposal
@@ -164,7 +160,7 @@ export function DataTable<TData, TValue>({
   );
 }
 
-function Proposal({
+function ProposalTableItem({
   cellparams,
   organisationAddress,
 }: {
@@ -173,91 +169,48 @@ function Proposal({
 }) {
   const proposal = cellparams.cell.row.original;
 
-  const publicClient = usePublicClient();
-  const [proposalSnapshot, setProposalSnapshot] = useState("");
-  const [proposalState, setProposalState] = useState("Unknown State");
+  // proposal timings
+  const timings = useProposalTimings(organisationAddress, proposal.proposalId);
 
-  // get proposal snapshot
-  const { data: snapshot } = useContractRead({
-    address: organisationAddress,
-    abi: GOVERNOR_ABI,
-    functionName: "proposalSnapshot",
-    args: [proposal.proposalId],
-  });
-
-  const proposalStateRead = useContractRead({
-    address: organisationAddress,
-    abi: GOVERNOR_ABI,
-    functionName: "state",
-    args: [proposal.proposalId],
-    onSettled(data) {
-      setProposalState(proposalStateMap[data ? data : -1] || "Unknown State");
-    },
-  });
-
-  // get vote start in format of date
-  async function blockNumberToTimestamp(stringifiedBlockNumber: string) {
-    // convert stringified blockNumber to bigint
-    const blockNumber = BigInt(stringifiedBlockNumber);
-
-    // get the block
-    const block = await publicClient.getBlock({
-      blockNumber: blockNumber,
-    });
-
-    // return stringified timestamp
-    return block.timestamp.toString();
-  }
-
-  useEffect(() => {
-    async function getVoteDate(snapshot: string) {
-      try {
-        const timestamp = await blockNumberToTimestamp(snapshot);
-        setProposalSnapshot(timestampToDate(timestamp, true));
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    if (snapshot) {
-      getVoteDate(snapshot.toString());
-    }
-  }, [snapshot]);
+  // proposal state
+  const proposalState = useProposalState(
+    organisationAddress,
+    proposal.proposalId,
+    false,
+  );
 
   return (
-    <div className="md:flex md:justify-between items-center">
+    <div className='flex items-center justify-between'>
       <div>
-        <h3 className="text-base font-semibold">
+        <h3 className='text-base font-semibold'>
           {getProposalTitle(proposal.description)}
         </h3>
-        <div className="flex flex-col items-start gap-2 mt-2 md:flex-row">
-          {proposalState == "Unknown State" ? (
-            <Skeleton className="w-[75px] h-[22px] rounded-full" />
+        <div className='mt-2 flex flex-col items-start gap-2 md:flex-row'>
+          {proposalState == 'Unknown State' ? (
+            <Skeleton className='h-[22px] w-[75px] rounded-full' />
           ) : (
             <Badge variant={badgeVariantMap[proposalState]}>
               {proposalState}
             </Badge>
           )}
-          {shortenText(proposal.proposalId, 0, 4, "#")}
-          {proposalSnapshot == "" ? (
-            <Skeleton className="w-[190px] h-[22px] rounded-full" />
+          {shortenText(proposal.proposalId, 0, 4, '#')}
+          {timings.proposedOnDate == '' ? (
+            <Skeleton className='h-[22px] w-[190px] rounded-full' />
           ) : (
-            <div>Proposed on {proposalSnapshot}</div>
+            <div>Proposed on {timings.proposedOnDate}</div>
           )}
         </div>
       </div>
-      <Button size="sm" variant="link" asChild className="mt-5 md:m-0">
+      <Button asChild className='mt-5 md:m-0' size='sm' variant='link'>
         <Link
           href={{
             pathname: `${organisationAddress}/proposals/${proposal.proposalId}`,
             query: {
+              calldatas: proposal.calldatas,
               description: proposal.description,
               proposer: proposal.proposer,
-              voteStart: proposal.voteStart,
-              voteEnd: proposal.voteEnd,
               targets: proposal.targets,
               values: proposal.values,
-              calldatas: proposal.calldatas,
             },
           }}
         >

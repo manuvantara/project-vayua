@@ -1,18 +1,18 @@
 export type {
-  Profile,
   Extension,
-  UserProfile,
   OrganisationProfile,
+  Profile,
+  UserProfile,
   UserStarringExtension,
-} from "./types";
+} from './types';
 
-export { VRC1_CONTRACT_ADDRESS, VRC1_CONTRACT_ABI } from "./contract";
+export { VRC1_CONTRACT_ABI, VRC1_CONTRACT_ADDRESS } from './contract';
 
 export {
-  parseProfile,
-  mockupProfile,
   generateAvatarUrl,
   mockupAvatarUrl,
-} from "./profile";
+  mockupProfile,
+  parseProfile,
+} from './profile';
 
-export { parseUserStarringExtension } from "./extension";
+export { parseUserStarringExtension } from './extension';

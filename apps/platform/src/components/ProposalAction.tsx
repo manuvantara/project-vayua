@@ -1,40 +1,41 @@
-import { memo, useCallback, useEffect, useState } from "react";
-import { Label } from "@/components/ui/Label";
-import { Input } from "@/components/ui/Input";
-import { ChevronDown } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import type { Action } from '@/atoms';
+
+import { Button } from '@/components/ui/Button';
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import type { Action } from "@/atoms";
+} from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { useToast } from '@/hooks/use-toast';
+import { ChevronDown } from 'lucide-react';
+import { memo, useCallback, useEffect, useState } from 'react';
 
 type ProposalActionProps = {
   actionId: number;
+  actionsLength: number;
   onActionAdded: () => void;
   onActionRemoved: (id: number) => void;
-  onActionUpdated: (id: number, action: Action["action"]) => void;
-  actionsLength: number;
+  onActionUpdated: (id: number, action: Action['action']) => void;
 };
 
 export default memo(function ProposalAction({
   actionId,
-  onActionRemoved,
-  onActionAdded,
-  onActionUpdated,
   actionsLength,
+  onActionAdded,
+  onActionRemoved,
+  onActionUpdated,
 }: ProposalActionProps) {
   const { toast } = useToast();
 
-  const [targetContractAddress, setTargetContractAddress] = useState("");
+  const [targetContractAddress, setTargetContractAddress] = useState('');
   const [targetContractABI, setTargetContractABI] = useState([]);
   const [targetFunctionId, setTargetFunctionId] = useState(0);
   const [targetContractFunctions, setTargetContractFunctions] = useState<
-    { id: number; name: string; inputs: { name: string; type: string }[] }[]
+    { id: number; inputs: { name: string; type: string }[]; name: string }[]
   >([]);
   const [targetFunctionArguments, setTargetFunctionArguments] = useState<{
     [key: string]: string;
@@ -60,20 +61,20 @@ export default memo(function ProposalAction({
         let functionId = 0;
         const functions: {
           id: number;
-          name: string;
           inputs: { name: string; type: string }[];
+          name: string;
         }[] = parsedAbi
           // TODO: Somehow type this, maybe use a library https://abitype.dev/
           // Filter out non-functions and view functions
           .filter(
             (item: any) =>
-              item.type === "function" && item.stateMutability !== "view"
+              item.type === 'function' && item.stateMutability !== 'view',
           )
           .map((item: any) => {
             return {
               id: functionId++,
-              name: item.name,
               inputs: item.inputs,
+              name: item.name,
             };
           });
 
@@ -81,9 +82,9 @@ export default memo(function ProposalAction({
         setTargetContractFunctions(functions);
       } catch {
         toast({
-          title: "Error",
-          description: "Invalid ABI",
-          variant: "destructive",
+          description: 'Invalid ABI',
+          title: 'Error',
+          variant: 'destructive',
         });
       }
     };
@@ -92,7 +93,7 @@ export default memo(function ProposalAction({
 
   const renderTargetFunctionArguments = useCallback(() => {
     const targetFunction = targetContractFunctions.find(
-      (item) => item.id === targetFunctionId
+      (item) => item.id === targetFunctionId,
     );
 
     if (!targetFunction) {
@@ -104,14 +105,14 @@ export default memo(function ProposalAction({
     }
 
     return (
-      <div className="mt-4">
-        <h3 className="text-lg font-semibold mb-2">Calldatas</h3>
-        <p className="text-sm text-muted-foreground mb-4">
+      <div className='mt-4'>
+        <h3 className='mb-2 text-lg font-semibold'>Calldatas</h3>
+        <p className='mb-4 text-sm text-muted-foreground'>
           The data for the function arguments you wish to send when the action
           executes
         </p>
         {targetFunction.inputs.map((input) => {
-          const inputValue = targetFunctionArguments?.[input.name] || "";
+          const inputValue = targetFunctionArguments?.[input.name] || '';
 
           const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             const newValue = e.target.value;
@@ -122,15 +123,15 @@ export default memo(function ProposalAction({
           };
 
           return (
-            <div className="mt-2" key={input.name}>
+            <div className='mt-2' key={input.name}>
               <Label htmlFor={input.name}>{input.name}</Label>
               <Input
+                className='mt-2'
                 id={input.name}
-                className="mt-2"
-                type="text"
-                value={inputValue}
                 onChange={handleChange}
                 placeholder={input.type}
+                type='text'
+                value={inputValue}
               />
             </div>
           );
@@ -146,10 +147,10 @@ export default memo(function ProposalAction({
   // Update the action in the parent component
   useEffect(() => {
     onActionUpdated(actionId, {
-      targetContractAddress,
       targetContractABI,
-      targetFunctionId,
+      targetContractAddress,
       targetFunctionArguments,
+      targetFunctionId,
     });
   }, [
     actionId,
@@ -163,39 +164,39 @@ export default memo(function ProposalAction({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-success">Action #{actionId}</CardTitle>
+        <CardTitle className='text-success'>Action #{actionId}</CardTitle>
       </CardHeader>
       <CardContent>
         <div>
-          <Label htmlFor="target">Target contract</Label>
+          <Label htmlFor='target'>Target contract</Label>
           <Input
-            id="target"
-            className="mt-2"
-            type="text"
-            placeholder="Enter target contract address"
-            value={targetContractAddress}
+            className='mt-2'
+            id='target'
             onChange={(e) => setTargetContractAddress(e.target.value)}
+            placeholder='Enter target contract address'
+            type='text'
+            value={targetContractAddress}
           />
         </div>
-        <div className="mt-4">
-          <Label htmlFor="abi">ABI</Label>
+        <div className='mt-4'>
+          <Label htmlFor='abi'>ABI</Label>
           <Input
-            id="abi"
-            className="mt-2"
-            type="file"
-            accept=".json"
+            accept='.json'
+            className='mt-2'
+            id='abi'
             onChange={handleContractABIUpload}
+            type='file'
           />
         </div>
         {targetContractABI.length > 0 && (
-          <div className="mt-4">
-            <Label htmlFor="target-function">Target function</Label>
-            <div className="relative flex items-center mt-2 w-[200px]">
+          <div className='mt-4'>
+            <Label htmlFor='target-function'>Target function</Label>
+            <div className='relative mt-2 flex w-[200px] items-center'>
               <select
-                value={targetFunctionId}
+                className='h-10 w-full cursor-pointer appearance-none items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                id='target-function'
                 onChange={(e) => setTargetFunctionId(Number(e.target.value))}
-                id="target-function"
-                className="cursor-pointer h-10 w-full items-center justify-between rounded-md border appearance-none border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={targetFunctionId}
               >
                 {targetContractFunctions.map((func) => (
                   <option key={func.id} value={func.id}>
@@ -203,7 +204,7 @@ export default memo(function ProposalAction({
                   </option>
                 ))}
               </select>
-              <span className="inline-flex items-center absolute pointer-events-none right-3 w-4 h-4">
+              <span className='pointer-events-none absolute right-3 inline-flex h-4 w-4 items-center'>
                 <ChevronDown />
               </span>
             </div>
@@ -214,22 +215,22 @@ export default memo(function ProposalAction({
       <CardFooter>
         <div>
           <Button
-            variant="destructive"
-            size="sm"
-            type="button"
             disabled={actionId === 1}
             onClick={() => onActionRemoved(actionId)}
+            size='sm'
+            type='button'
+            variant='destructive'
           >
             Remove
           </Button>
           {/*Only render add action button if it's the last action*/}
           {actionsLength === actionId && (
             <Button
-              type="button"
-              size="sm"
-              className="ml-2"
+              className='ml-2'
               onClick={onActionAdded}
-              variant="default"
+              size='sm'
+              type='button'
+              variant='default'
             >
               Add action
             </Button>

@@ -1,61 +1,63 @@
-import { useEffect, useState } from "react";
+import type { DelegateVoteFormValues } from '@/types/forms';
 
-import { Button } from "@/components/ui/Button";
+import ClientOnly from '@/components/layout/ClientOnly';
+import { Button } from '@/components/ui/Button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/Dialog";
-import { Label } from "@/components/ui/Label";
-import { Input } from "./ui/Input";
-
+} from '@/components/ui/Dialog';
+import { Label } from '@/components/ui/Label';
+import useUserDelegatee from '@/hooks/use-user-delegatee';
+import { GOVERNOR_ABI, TOKEN_ABI } from '@/utils/abi/openzeppelin-contracts';
+import { NULL_ADDRESS } from '@/utils/chains/chain-config';
+import { shortenAddress } from '@/utils/helpers/shorten.helper';
+import { isNotEmpty, useForm } from '@mantine/form';
+import { ArrowRightCircle, HelpingHand } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import {
   useAccount,
   useContractRead,
   useContractWrite,
   useWaitForTransaction,
-} from "wagmi";
-import { GOVERNOR_ABI, TOKEN_ABI } from "@/utils/abi/openzeppelin-contracts";
+} from 'wagmi';
 
-import { isNotEmpty, useForm } from "@mantine/form";
-import { DelegateVoteFormValues } from "@/types/forms";
-import { useRouter } from "next/router";
-import { HelpingHand } from "lucide-react";
-import { toast } from "./ui/use-toast";
-import ClientOnly from "@/components/ClientOnly";
+import { toast } from '../hooks/use-toast';
+import { Input } from './ui/Input';
 
-export default function DelegateModal() {
+export default function DelegateModal({
+  organisationAddress,
+}: {
+  organisationAddress: `0x${string}`;
+}) {
+  const [refetchDelegatee, setRefetchDelegatee] = useState(false);
+  const delegatee = useUserDelegatee(organisationAddress, refetchDelegatee);
   const [switchDelegateForm, setSwitchDelegateForm] = useState(true);
   const [open, setOpen] = useState(false);
-  const { isConnected } = useAccount();
 
-  const router = useRouter();
-  // get the governance contract address from route
-  const govAddress = router.query.organisationAddress as `0x${string}`;
   // read token address from governance
-  const read = useContractRead({
-    address: govAddress,
+  const { data: tokenAddress } = useContractRead({
     abi: GOVERNOR_ABI,
-    functionName: "token",
+    address: organisationAddress,
+    functionName: 'token',
   });
-  const tokenAddress: `0x${string}` = read.data as `0x${string}`;
   // get the account address from connected wallet
-  const account = useAccount();
-  const accountAddress = account.address as `0x${string}`;
+  const { address, isConnected } = useAccount();
 
   const delegateVotesWrite = useContractWrite({
-    address: tokenAddress,
     abi: TOKEN_ABI,
-    functionName: "delegate",
+    address: tokenAddress,
+    functionName: 'delegate',
   });
 
   const delegateVotesForm = useForm<DelegateVoteFormValues>({
-    validateInputOnBlur: true,
     validate: {
-      delegatee: isNotEmpty("Please provide a delegatee address"),
+      delegatee: isNotEmpty('Please provide a delegatee address'),
     },
+    validateInputOnBlur: true,
   });
 
   const openDelegateDialog = () => {
@@ -87,66 +89,81 @@ export default function DelegateModal() {
     if (isTransactionSuccessful) {
       setOpen(false);
       toast({
-        description: "Your votes have been successfully delegated.",
+        description: 'Your votes have been successfully delegated.',
       });
+      setRefetchDelegatee(true);
     }
   }, [isTransactionSuccessful]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <ClientOnly>
         <DialogTrigger asChild>
           <Button
+            className='w-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-white hover:text-gray-900'
             disabled={!isConnected}
-            className="w-full text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300 bg-white hover:bg-white"
-            onClick={openDelegateDialog}
             loading={isTransactionLoading || delegateVotesWrite.isLoading}
+            onClick={openDelegateDialog}
           >
             <HelpingHand size={20} />
-            <span className="ml-2">Delegate</span>
+            <span className='ml-2'>Delegate</span>
           </Button>
         </DialogTrigger>
       </ClientOnly>
       <DialogContent
+        className='sm:max-w-[425px]'
         onCloseAutoFocus={closeDelegateDialog}
-        className="sm:max-w-[425px]"
       >
         <DialogHeader>
           <DialogTitle>Delegate voting power</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        {delegatee && delegatee !== NULL_ADDRESS && switchDelegateForm && (
+          <div className='flex space-x-2 pt-2'>
+            <ArrowRightCircle />
+            <div className='col-span-2 text-gray-500'>
+              You currently delegate to{' '}
+              <Link
+                href={`https://testnet.ftmscan.com/address/${delegatee}`}
+                target='_blank'
+              >
+                {shortenAddress(delegatee, 4, 4)}
+              </Link>
+            </div>
+          </div>
+        )}
+        <div className='grid gap-4 py-4'>
           {switchDelegateForm ? (
             <>
               <Button
-                disabled={!delegateVotesWrite.write || !isConnected}
                 onClick={() =>
                   delegateVotesWrite.write({
-                    args: [accountAddress],
+                    args: [address!],
                   })
                 }
+                disabled={!delegateVotesWrite.write || !isConnected || !address}
               >
                 Myself
               </Button>
-              <Button variant="outline" onClick={delegateToSomeone}>
-                To someone
+              <Button onClick={delegateToSomeone} variant='outline'>
+                Someone
               </Button>
             </>
           ) : (
             <>
-              <Label htmlFor="delegatee">Delegatee address</Label>
+              <Label htmlFor='delegatee'>Delegatee address</Label>
               <Input
-                id="delegatee"
-                type="text"
-                placeholder="0xC37713ef41Aff1A7ac1c3D02f6f0B3a57F8A3091"
-                {...delegateVotesForm.getInputProps("delegatee")}
+                id='delegatee'
+                placeholder='0xC37713ef41Aff1A7ac1c3D02f6f0B3a57F8A3091'
+                type='text'
+                {...delegateVotesForm.getInputProps('delegatee')}
               />
               <Button
-                disabled={!delegateVotesWrite.write || !isConnected}
                 onClick={() =>
                   delegateVotesWrite.write({
                     args: [delegateVotesForm.values.delegatee],
                   })
                 }
+                disabled={!delegateVotesWrite.write || !isConnected}
               >
                 Delegate votes
               </Button>

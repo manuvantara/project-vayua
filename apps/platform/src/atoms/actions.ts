@@ -1,12 +1,12 @@
-import { atom } from "jotai";
+import { atom } from 'jotai';
 
 export type Action = {
-  id: number;
   action: {
-    targetContractAddress: string;
     targetContractABI: any[];
-    targetFunctionId: number;
+    targetContractAddress: string;
     targetFunctionArguments: { [key: string]: string } | null;
+    targetFunctionId: number;
   };
+  id: number;
 };
 export const proposalActionsAtom = atom<Action[]>([]);

@@ -1,138 +1,138 @@
 export const PROFILE_CONTRACT_ADDRESS =
-  "0xe380DaA1355d416731b048cd0d23B6d769FF7E57";
+  '0xe380DaA1355d416731b048cd0d23B6d769FF7E57';
 
 export const PROFILE_ABI = [
   {
-    type: "event",
     anonymous: false,
-    name: "ProfileChanged",
     inputs: [
       {
-        type: "address",
-        name: "owner",
         indexed: false,
+        name: 'owner',
+        type: 'address',
       },
       {
-        type: "tuple",
-        name: "profile",
-        indexed: false,
         components: [
           {
-            type: "string",
-            name: "name",
+            name: 'name',
+            type: 'string',
           },
           {
-            type: "string",
-            name: "bio",
+            name: 'bio',
+            type: 'string',
           },
           {
-            type: "string",
-            name: "avatar",
+            name: 'avatar',
+            type: 'string',
           },
           {
-            type: "string",
-            name: "location",
+            name: 'location',
+            type: 'string',
           },
           {
-            type: "string",
-            name: "website",
+            name: 'website',
+            type: 'string',
           },
           {
-            type: "string",
-            name: "extra",
+            name: 'extra',
+            type: 'string',
           },
         ],
+        indexed: false,
+        name: 'profile',
+        type: 'tuple',
       },
     ],
+    name: 'ProfileChanged',
+    type: 'event',
   },
   {
-    type: "function",
-    name: "profiles",
     constant: true,
-    stateMutability: "view",
-    payable: false,
     inputs: [
       {
-        type: "address",
+        type: 'address',
       },
     ],
+    name: 'profiles',
     outputs: [
       {
-        type: "string",
-        name: "name",
+        name: 'name',
+        type: 'string',
       },
       {
-        type: "string",
-        name: "bio",
+        name: 'bio',
+        type: 'string',
       },
       {
-        type: "string",
-        name: "avatar",
+        name: 'avatar',
+        type: 'string',
       },
       {
-        type: "string",
-        name: "location",
+        name: 'location',
+        type: 'string',
       },
       {
-        type: "string",
-        name: "website",
+        name: 'website',
+        type: 'string',
       },
       {
-        type: "string",
-        name: "extra",
+        name: 'extra',
+        type: 'string',
       },
     ],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    type: "function",
-    name: "setExtra",
     constant: false,
-    payable: false,
     inputs: [
       {
-        type: "string",
-        name: "_extra",
+        name: '_extra',
+        type: 'string',
       },
     ],
+    name: 'setExtra',
     outputs: [],
+    payable: false,
+    type: 'function',
   },
   {
-    type: "function",
-    name: "setProfile",
     constant: false,
-    payable: false,
     inputs: [
       {
-        type: "tuple",
-        name: "_profile",
         components: [
           {
-            type: "string",
-            name: "name",
+            name: 'name',
+            type: 'string',
           },
           {
-            type: "string",
-            name: "bio",
+            name: 'bio',
+            type: 'string',
           },
           {
-            type: "string",
-            name: "avatar",
+            name: 'avatar',
+            type: 'string',
           },
           {
-            type: "string",
-            name: "location",
+            name: 'location',
+            type: 'string',
           },
           {
-            type: "string",
-            name: "website",
+            name: 'website',
+            type: 'string',
           },
           {
-            type: "string",
-            name: "extra",
+            name: 'extra',
+            type: 'string',
           },
         ],
+        name: '_profile',
+        type: 'tuple',
       },
     ],
+    name: 'setProfile',
     outputs: [],
+    payable: false,
+    type: 'function',
   },
 ] as const;

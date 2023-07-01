@@ -1,4 +1,8 @@
 {
   "root": true,
-  "extends": "custom"
+  "extends": ["custom", "plugin:perfectionist/recommended-natural"],
+  "plugins": ["perfectionist"],
+  "rules": {
+    "perfectionist/sort-interfaces": "error"
+  }
 }
