@@ -81,12 +81,6 @@ export default function OrganisationPage({
 
   const waitForSetUserProfileExtensionTransaction = useWaitForTransaction({
     hash: setProfileExtensionWrite.data?.hash,
-    onSettled(data, error) {
-      console.log(`Transaction ${data?.transactionHash} settled`, {
-        data,
-        error,
-      });
-    },
   });
 
   useContractEvent({
