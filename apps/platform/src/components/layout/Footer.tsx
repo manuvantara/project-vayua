@@ -85,7 +85,11 @@ export default function Footer() {
             </a>
           </li>
           <li>
-            <a className='mr-4 hover:underline md:mr-6' href='#'>
+            <a
+              className='mr-4 hover:underline md:mr-6'
+              href='https://devpost.com/software/the-vayua-dao'
+              target='_blank'
+            >
               DevPost
             </a>
           </li>
@@ -93,6 +97,7 @@ export default function Footer() {
             <a
               className='mr-4 hover:underline md:mr-6 '
               href='https://github.com/manuvantara/project-vayua'
+              target='_blank'
             >
               GitHub
             </a>
