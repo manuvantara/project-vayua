@@ -100,7 +100,7 @@ const PROFILE_TEXT = {
   },
 };
 
-export default function SharedProfile({
+export default function ProfileSettings({
   address,
   isTransactionInProgress,
   isTransactionSuccessful,

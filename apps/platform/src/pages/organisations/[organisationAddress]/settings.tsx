@@ -1,4 +1,4 @@
-import SharedProfile from '@/components/SharedProfile';
+import ProfileSettings from '@/components/ProfileSettings';
 import useOrganisationSettings from '@/hooks/use-organisation-settings';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -25,7 +25,7 @@ export default function GovernanceProfile() {
         <ArrowLeft className='mr-1 h-4 w-4' />
         Back
       </Link>
-      <SharedProfile
+      <ProfileSettings
         address={organisationAddress}
         isTransactionInProgress={isLoading || isWriteLoading}
         isTransactionSuccessful={isSuccess}
