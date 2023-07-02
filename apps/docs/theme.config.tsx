@@ -70,6 +70,11 @@ const config: DocsThemeConfig = {
   project: {
     link: "https://github.com/manuvantara/project-vayua/tree/main",
   },
+  banner: {
+    dismissible: false,
+    key: "banner",
+    text: "🚧 This is a work in progress.",
+  },
   docsRepositoryBase:
     "https://github.com/manuvantara/project-vayua/tree/main/apps/docs",
   useNextSeoProps() {
@@ -106,10 +111,7 @@ const config: DocsThemeConfig = {
         <meta name="twitter:image" content={socialCard} />
         <meta name="twitter:site:domain" content="nextra.site" />
         <meta name="twitter:url" content="https://nextra.site" />
-        <meta
-          name="og:title"
-          content={title ? title + " – Vayua" : "Vauya"}
-        />
+        <meta name="og:title" content={title ? title + " – Vayua" : "Vauya"} />
         <meta name="og:image" content={socialCard} />
         <meta name="apple-mobile-web-app-title" content="Vayua" />
         <link
