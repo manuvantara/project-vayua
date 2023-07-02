@@ -5,7 +5,6 @@ module.exports = {
     './src/components/**/*.{ts,tsx}',
     './src/app/**/*.{ts,tsx}',
   ],
-  darkMode: ['class'],
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
   theme: {
     container: {
