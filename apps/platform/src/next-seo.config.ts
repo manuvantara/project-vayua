@@ -24,9 +24,19 @@ const config: NextSeoProps = {
       sizes: '180x180',
     },
   ],
-  defaultTitle: 'Vayua',
+  defaultTitle: 'Vayua DAO',
   description:
-    'Vayua is a platform for the future of funding that is built on top of the Binance Smart Chain. It accelerates growth of start-up companies by offering tools and services that save both time and resources.',
+    'Vayua DAO is a platform designed to provide an intuitive tool for creating DAOs, where users can easily create and manage DAOs, and actively participate in voting.',
+  openGraph: {
+    images: [
+      {
+        alt: 'Vayua DAO',
+        height: 630,
+        url: 'https://vayua.vercel.app/og.jpg',
+        width: 1200,
+      },
+    ],
+  },
   titleTemplate: '%s | Vayua',
 };
 
