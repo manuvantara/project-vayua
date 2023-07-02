@@ -20,4 +20,4 @@ jobs:
 
       - uses: ./.github/actions/warm-up-vercel
         with:
-          deployment-base-url: "https://project-vayua-platform-git-platform-102-dreamqip.vercel.app"
+          deployment-base-url: "https://vayua.vercel.app"
