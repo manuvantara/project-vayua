@@ -22,11 +22,9 @@ import {
   ArrowLeft,
   CalendarOff,
   CheckCircle2,
-  ChevronRight,
   ClockIcon,
   ListChecks,
   PlusCircle,
-  User,
   Vote,
   XCircle,
 } from 'lucide-react';
@@ -129,7 +127,7 @@ export default function ProposalPage({
         href={`/organisations/${organisationAddress}`}
       >
         <ArrowLeft className='mr-1 h-4 w-4' />
-        {`organisations/${shortenAddress(organisationAddress)}`}
+        {`organisations/${shortenAddress(organisationAddress, 4, 4)}`}
       </Link>
       <div className='mt-5 grid items-start gap-5 md:grid-cols-3'>
         <div className='space-y-5'>
@@ -202,7 +200,7 @@ export default function ProposalPage({
             voteStartDate={timings.voteStartDate}
           />
         </div>
-        <div className='rounded-md border border-border bg-white p-6 md:col-span-2'>
+        <div className='overflow-x-auto rounded-md border border-border bg-white p-6 md:col-span-2'>
           <h3 className='mb-2 text-xl font-semibold'>Details</h3>
           <Tabs defaultValue='description'>
             <TabsList>
