@@ -49,7 +49,7 @@ export default function Home() {
   });
 
   return (
-    <main className='m-auto mb-12 flex w-fit flex-col gap-8'>
+    <main className='mx-auto flex w-fit flex-col gap-8'>
       <div className='flex flex-col text-center lg:text-left'>
         <h1 className='mt-12 bg-gradient-to-b from-black/70 to-black bg-clip-text pb-1 text-center text-5xl font-extrabold leading-none tracking-tight text-transparent lg:text-6xl'>
           Welcome to Vayua
@@ -124,7 +124,7 @@ export default function Home() {
         {/* </WizardCard> */}
 
         {/* <UserStarringExtensionViewCard> */}
-        <Card className='min-w-xs h-full w-full flex-col justify-between md:max-w-sm'>
+        <Card className='flex w-full md:max-w-sm'>
           <CardHeader className='h-full rounded-t-lg'>
             <SparklesIcon size={32} />
             <CardTitle className='text-xl md:text-2xl'>
