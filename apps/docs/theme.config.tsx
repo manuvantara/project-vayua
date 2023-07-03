@@ -150,6 +150,9 @@ const config: DocsThemeConfig = {
     ),
   },
   darkMode: false,
+  nextThemes: {
+    defaultTheme: "light",
+  },
 };
 
 export default config;

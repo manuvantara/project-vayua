@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className='mt-8 rounded-3xl border bg-secondary p-4 pt-8 md:mt-10 md:rounded-none md:p-8 lg:p-10'>
       <div className='mx-auto max-w-screen-xl text-center'>
         <Link
-          className='flex items-center justify-center text-2xl font-semibold text-gray-900 dark:text-white'
+          className='flex items-center justify-center text-2xl font-semibold text-gray-900'
           href='/'
         >
           <svg
@@ -70,14 +70,14 @@ export default function Footer() {
             />
           </svg>
         </Link>
-        <p className='my-6 text-gray-500 dark:text-gray-400'>
+        <p className='my-6 text-gray-500'>
           A web3 innovation bridging DAOs into the metaverse, enhancing the
           Fantom Network ecosystem.
         </p>
-        <ul className='mb-6 flex flex-wrap items-center justify-center text-gray-900 dark:text-white'>
+        <ul className='mb-6 flex flex-wrap items-center justify-center gap-x-4 text-gray-900 md:gap-x-6'>
           <li>
             <a
-              className='mr-4 hover:underline md:mr-6 '
+              className='hover:underline'
               href={`${process.env.NEXT_PUBLIC_DOCS_URL}`}
               target='_blank'
             >
@@ -86,7 +86,7 @@ export default function Footer() {
           </li>
           <li>
             <a
-              className='mr-4 hover:underline md:mr-6'
+              className='hover:underline'
               href='https://devpost.com/software/the-vayua-dao'
               target='_blank'
             >
@@ -95,7 +95,7 @@ export default function Footer() {
           </li>
           <li>
             <a
-              className='mr-4 hover:underline md:mr-6 '
+              className='hover:underline'
               href='https://github.com/manuvantara/project-vayua'
               target='_blank'
             >
@@ -104,7 +104,7 @@ export default function Footer() {
           </li>
           <li>
             <a
-              className='mr-4 hover:underline md:mr-6'
+              className='hover:underline'
               href='https://twitter.com/VayuaMTVRS'
               target='_blank'
             >
@@ -113,14 +113,14 @@ export default function Footer() {
           </li>
           <li>
             <a
-              className='mr-4 hover:underline md:mr-6'
+              className='hover:underline'
               href='mailto:denys.kravchuk@manuvantara.com'
             >
               Contact
             </a>
           </li>
         </ul>
-        <span className='text-sm text-gray-500 dark:text-gray-400 sm:text-center'>
+        <span className='text-sm text-gray-500 sm:text-center'>
           © {currentYear}{' '}
           <a
             className='hover:underline'
