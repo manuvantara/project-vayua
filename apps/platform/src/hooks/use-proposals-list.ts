@@ -1,7 +1,7 @@
 import type { Proposal } from '@/types/proposals';
 
 import { GOVERNOR_ABI } from '@/utils/abi/openzeppelin-contracts';
-import { MIN_BLOCK_NUMBER } from '@/utils/chains/chain-config';
+import { BLOCK_RANGE, MIN_BLOCK_NUMBER } from '@/utils/chains/chain-config';
 import { useEffect, useState } from 'react';
 import { parseAbiItem } from 'viem';
 import { useBlockNumber, usePublicClient } from 'wagmi';
@@ -94,7 +94,7 @@ export default function useProposalsList(
       const parsedLogs = parseLogs(logsPerCycle);
       setProposals((prevProposals) => [...prevProposals, ...parsedLogs]);
     } catch (error: any) {
-      console.error;
+      console.error(error);
     }
   };
 
@@ -103,18 +103,18 @@ export default function useProposalsList(
     const toBlockStored = getToBlockFromLocalStorage();
 
     let toBlock = toBlockStored == 0n ? currentBlock : toBlockStored;
-    let fromBlock = toBlock - 4999n;
+    let fromBlock = toBlock - (BLOCK_RANGE - 1n);
 
     setToScanBlocksCounter((prev) => prev + Number(toBlock - MIN_BLOCK_NUMBER));
 
     while (toBlock >= MIN_BLOCK_NUMBER) {
       await fetchLogsPerCycle(fromBlock, toBlock);
 
-      toBlock -= 5000n;
-      fromBlock = toBlock - 4999n;
+      toBlock -= BLOCK_RANGE;
+      fromBlock = toBlock - (BLOCK_RANGE - 1n);
 
-      setScannedBlocksCounter((prev) => prev + 5000);
-      setToScanBlocksCounter((prev) => prev - 5000);
+      setScannedBlocksCounter((prev) => prev + Number(BLOCK_RANGE));
+      setToScanBlocksCounter((prev) => prev - Number(BLOCK_RANGE));
 
       window.localStorage.setItem(
         `${organisationAddress}toBlock`,
@@ -139,7 +139,9 @@ export default function useProposalsList(
     setToScanBlocksCounter((prev) => prev + Number(currentBlock - fromBlock));
     while (fromBlock < currentBlock) {
       const toBlock =
-        fromBlock + 5000n <= currentBlock ? fromBlock + 5000n : currentBlock;
+        fromBlock + BLOCK_RANGE <= currentBlock
+          ? fromBlock + BLOCK_RANGE
+          : currentBlock;
 
       await fetchLogsPerCycle(fromBlock + 1n, toBlock);
 
@@ -147,7 +149,7 @@ export default function useProposalsList(
       setScannedBlocksCounter((prev) => prev + blocksScanned);
       setToScanBlocksCounter((prev) => prev - blocksScanned);
 
-      fromBlock += 5000n;
+      fromBlock += BLOCK_RANGE;
 
       window.localStorage.setItem(
         `${organisationAddress}initialBlockNumber`,
